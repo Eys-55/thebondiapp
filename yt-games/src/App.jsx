@@ -1,5 +1,7 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify'; // Import ToastContainer
+import 'react-toastify/dist/ReactToastify.css'; // Import CSS
 import Navbar from './components/Navbar';
 import GameSelection from './pages/GameSelection';
 import JoinGame from './pages/JoinGame'; // Import JoinGame
@@ -22,6 +24,19 @@ function App() {
         </Routes>
       </main>
       {/* Footer could go here */}
+      {/* Add ToastContainer here */}
+      <ToastContainer
+        position="bottom-right"
+        autoClose={4000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark" // Use dark theme
+      />
     </div>
   );
 }

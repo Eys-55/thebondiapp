@@ -3,24 +3,210 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Rules for the 'games' collection
+    // --- Helper Functions ---
+
+    // Placeholder for Authentication check (Requires Firebase Auth setup)
+    function isSignedIn() {
+      // Replace with: return request.auth != null;
+      return true; // WARNING: Allows unauthenticated access currently
+    }
+
+    // Check if a specific field remains unchanged during an update
+    function fieldUnchanged(fieldName) {
+      return resource.data[fieldName] == request.resource.data[fieldName];
+    }
+     // Check if multiple fields remain unchanged
+     function fieldsUnchanged(fieldList) {
+       return fieldList.all(fieldName => fieldUnchanged(fieldName));
+     }
+
+    // Check if the game is in a specific status
+    function isStatus(status) {
+      return resource.data.status == status;
+    }
+    function requestStatusIs(status) {
+      return request.resource.data.status == status;
+    }
+
+    // Validate the structure of the game config object
+    function isValidConfig(config) {
+      // Helper to check if a list contains only allowed strings
+      function isValidStringList(list, allowedValues) {
+        return list is list
+            && list.size() > 0 // Must select at least one type
+            && list.all(item => item is string && item in allowedValues);
+      }
+
+      return config is map
+          && config.selectedCategories is list // Should ideally check contents too if known
+          && config.numQuestions is number && config.numQuestions > 0 && config.numQuestions <= 50
+          && config.timePerQuestion is number && config.timePerQuestion >= 2 && config.timePerQuestion <= 60
+          && config.numLives is number && config.numLives > 0 && config.numLives <= 10
+          && config.cooldownSeconds is number && config.cooldownSeconds >= 1 && config.cooldownSeconds <= 10
+          && config.gameMode is string && (config.gameMode == 'safe_if_correct' || config.gameMode == 'first_correct_wins')
+          // Validate allowedQuestionTypes
+          && config.allowedQuestionTypes is list
+          && isValidStringList(config.allowedQuestionTypes, ['mc', 'tf', 'id']); // Added 'id' for identification
+    }
+
+    // Validate the initial host player data structure
+    function isValidHostPlayer(playerData, hostId, config) {
+       return playerData is map
+            && playerData.id == hostId
+            && playerData.name is string && playerData.name.size() > 0 && playerData.name.size() <= 20
+            && playerData.isHost == true
+            && playerData.lives == config.numLives
+            && playerData.score == 0
+            // && playerData.joinedAt == request.time // Server timestamp check done separately if needed
+            && playerData.currentAnswer == null
+            && playerData.answeredCorrectlyFirst == null
+            && playerData.answerTimestamp == null;
+    }
+
+     // Validate the structure for a newly added player
+     function isValidNewPlayerData(playerData, playerId, config) {
+        return playerData is map
+               && playerData.id == playerId
+               && playerData.name is string && playerData.name.size() > 0 && playerData.name.size() <= 20
+               && playerData.isHost == false
+               && playerData.lives == config.numLives
+               && playerData.score == 0
+               // && playerData.joinedAt == request.time // Check if it should be server timestamp
+               && playerData.currentAnswer == null
+               && playerData.answeredCorrectlyFirst == null
+               && playerData.answerTimestamp == null;
+     }
+
+     // --- Rules for 'games' collection ---
     match /games/{gameId} {
-      // Allow anyone to read game data for now
+
+      // --- READ ---
+      // Allow anyone to read game data for now. Add `&& isSignedIn()` if Auth is used.
       allow read: if true;
 
-      // Allow creating a new game document (write only if document doesn't exist)
-      allow create: if true; // Might restrict later based on request data or auth
+      // --- CREATE ---
+      // Allow creating a game if the user is signed in (placeholder) and the initial data is valid.
+      allow create: if isSignedIn()
+                  && request.resource.data.hostId is string && request.resource.data.hostId.size() > 0 // Basic check
+                  // && request.resource.data.hostId == request.auth.uid // TODO: Link to creator's Auth UID when added
+                  && isValidConfig(request.resource.data.config)
+                  && requestStatusIs('waiting')
+                  && request.resource.data.players is map
+                  && request.resource.data.players.size() == 1 // Only host initially
+                  && request.resource.data.players.keys()[0] == request.resource.data.hostId // Player key matches hostId
+                  && isValidHostPlayer(request.resource.data.players[request.resource.data.hostId], request.resource.data.hostId, request.resource.data.config) // Validate host player data
+                  && request.resource.data.questions is list // Could add validation for question structure if needed
+                  && request.resource.data.currentQuestionIndex == -1
+                  && request.resource.data.currentQuestionStartTime == null
+                  && request.resource.data.lastQuestionResults == null
+                  && request.resource.data.createdAt == request.time; // Ensure server timestamp is used
 
-      // Allow updating specific fields (e.g., status, players, currentQuestionIndex)
-      // For now, allow general updates, but this should be locked down significantly
-      // e.g., only allow adding players if status is 'waiting', only host can change status, etc.
-      allow update: if true; // VERY INSECURE - Needs refinement
+      // --- UPDATE ---
+      // Allow updates only under specific conditions based on state and (simulated) role.
+      // WARNING: Without request.auth, checking who is making the request is insecure.
+      // These rules assume the backend service logic correctly identifies the host/player.
+      allow update: if isSignedIn() && (
 
-      // Generally disallow deletion for now
+        // --- Condition 1: Adding a Player ---
+        // Any signed-in user can add a player if the game is 'waiting'.
+        ( isStatus('waiting')
+          && requestStatusIs('waiting') // Status must remain 'waiting'
+          && request.resource.data.players.size() == resource.data.players.size() + 1 // Exactly one player added
+          && let addedPlayerId = request.resource.data.players.keys().diff(resource.data.players.keys())[0] // Get the new player ID
+          && addedPlayerId != resource.data.hostId // Cannot add the host again
+          && !resource.data.players.keys().hasAny(request.resource.data.players.keys().diff(resource.data.players.keys())) // Ensure no existing player modified (check based on keys)
+          && isValidNewPlayerData(request.resource.data.players[addedPlayerId], addedPlayerId, resource.data.config) // Validate new player data
+          // Ensure all other top-level fields are unchanged
+          && fieldsUnchanged(['hostId', 'config', 'questions', 'status', 'currentQuestionIndex', 'currentQuestionStartTime', 'lastQuestionResults', 'createdAt'])
+        )
+
+        || // --- Condition 2: Player Submitting Answer ---
+           // Player updates their own answer during 'playing' state.
+           // WARNING: This relies on the client sending an update ONLY for their player map entry,
+           // and cannot be fully secured without request.auth to identify the player making the request.
+           // It assumes the update modifies players[playerId].currentAnswer and players[playerId].answerTimestamp.
+         ( isStatus('playing')
+           && requestStatusIs('playing') // Status must remain 'playing'
+           && request.resource.data.players.keys() == resource.data.players.keys() // No players added or removed
+           // Simplification: Allow players map update if game is playing. Assume backend logic is correct.
+           // TODO: Implement request.auth check: `request.auth.uid in request.resource.data.players.keys()`
+           // TODO: Add fine-grained check: only `currentAnswer` and `answerTimestamp` of `request.auth.uid` player changed.
+           // This level of checking is very difficult/impossible without Auth and potentially Cloud Functions.
+           // Basic check: currentAnswer and answerTimestamp are plausible types.
+           && request.resource.data.players[resource.data.players.keys()[0]].currentAnswer is string || request.resource.data.players[resource.data.players.keys()[0]].currentAnswer == null // Check one player for type example
+           && request.resource.data.players[resource.data.players.keys()[0]].answerTimestamp == request.time || request.resource.data.players[resource.data.players.keys()[0]].answerTimestamp == null // Check server timestamp use
+           // Ensure other top-level fields are unchanged
+           && fieldsUnchanged(['hostId', 'config', 'questions', 'status', 'currentQuestionIndex', 'currentQuestionStartTime', 'lastQuestionResults', 'createdAt'])
+         )
+
+         || // --- Condition 3: Host Starting Game ---
+            // Only host can change status from 'waiting' to 'playing'.
+         ( isStatus('waiting')
+           && requestStatusIs('playing')
+           // && request.auth.uid == resource.data.hostId // TODO: Add Auth check
+           && request.resource.data.hostId == resource.data.hostId // Verify hostId consistency
+           && request.resource.data.currentQuestionIndex == 0
+           && request.resource.data.currentQuestionStartTime == request.time // Check server timestamp
+           && request.resource.data.lastQuestionResults == null
+           // Ensure players map keys haven't changed, but values (lives/score reset) might have
+           && request.resource.data.players.keys() == resource.data.players.keys()
+           // Add validation for player reset state if needed (e.g., all scores 0, lives = config.numLives)
+           // Ensure other core fields unchanged
+           && fieldsUnchanged(['config', 'questions', 'createdAt'])
+         )
+
+         || // --- Condition 4: Host Advancing to Results ---
+            // Only host can change status from 'playing' to 'showing_results'.
+         ( isStatus('playing')
+           && requestStatusIs('showing_results')
+           // && request.auth.uid == resource.data.hostId // TODO: Add Auth check
+           && request.resource.data.hostId == resource.data.hostId // Verify hostId consistency
+           && request.resource.data.currentQuestionIndex == resource.data.currentQuestionIndex // Index doesn't change yet
+           && request.resource.data.currentQuestionStartTime == null // Timer stops
+           && request.resource.data.lastQuestionResults is map // Results must be present
+           && request.resource.data.lastQuestionResults.questionIndex == resource.data.currentQuestionIndex
+           && request.resource.data.lastQuestionResults.correctAnswer is string
+           && request.resource.data.lastQuestionResults.playerResults is map
+           // Ensure players map keys haven't changed, but values (lives/score) have based on results
+           && request.resource.data.players.keys() == resource.data.players.keys()
+           // Add validation for player score/lives updates matching results if feasible
+           // Ensure other core fields unchanged
+           && fieldsUnchanged(['config', 'questions', 'createdAt'])
+         )
+
+         || // --- Condition 5: Host Moving to Next Question/Finishing ---
+            // Only host can change status from 'showing_results' to 'playing' or 'finished'.
+         ( isStatus('showing_results')
+           && (requestStatusIs('playing') || requestStatusIs('finished'))
+           // && request.auth.uid == resource.data.hostId // TODO: Add Auth check
+           && request.resource.data.hostId == resource.data.hostId // Verify hostId consistency
+
+           // Sub-condition A: Moving to next question
+           && ( (requestStatusIs('playing')
+                 && request.resource.data.currentQuestionIndex == resource.data.currentQuestionIndex + 1
+                 && request.resource.data.currentQuestionStartTime == request.time // Start timer
+                 && request.resource.data.lastQuestionResults == null // Clear results
+                )
+             // Sub-condition B: Finishing the game
+             || (requestStatusIs('finished')
+                 && request.resource.data.currentQuestionIndex == -1 // Reset index
+                 && request.resource.data.currentQuestionStartTime == null
+                 && request.resource.data.lastQuestionResults == null // Clear results
+                )
+              )
+           // Ensure players map keys haven't changed, but values (answers reset) might have
+           && request.resource.data.players.keys() == resource.data.players.keys()
+           // Add validation for player answer reset state if needed
+           // Ensure other core fields unchanged
+           && fieldsUnchanged(['config', 'questions', 'createdAt'])
+         )
+
+      ); // End of main update conditions
+
+
+      // --- DELETE ---
+      // Prevent deletion for now. Add specific conditions if needed (e.g., only host can delete).
       allow delete: if false;
-
-      // Potentially add rules for subcollections like 'players' if used
-      // match /players/{playerId} { ... }
     }
 
     // Deny all other access by default

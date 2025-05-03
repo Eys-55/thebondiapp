@@ -1,24 +1,34 @@
-import { db } from '../firebase';
 import {
-  collection,
   doc,
-  addDoc,
+  setDoc,
   getDoc,
   updateDoc,
-  onSnapshot,
+  deleteField,
   serverTimestamp,
+  collection,
+  addDoc,
   runTransaction,
-  writeBatch // Import writeBatch for submitAnswer check
+  onSnapshot,
+  Timestamp,
 } from 'firebase/firestore';
-import { getFactsQuiz } from '../data/facts';
-import { getFlagQuiz } from '../data/flags';
-import { getLanguageQuiz } from '../data/languages';
+import { db } from '../firebase';
+// Import concept data
+import { concepts } from '../data/concepts.js';
+// Import question generators
+import { generateMultipleChoice, generateTrueFalse, generateIdentification } from './questionGenerator.js';
 
-const GAMES_COLLECTION = 'games';
+// --- Helper Functions ---
 
-// Game Statuses: 'waiting', 'playing', 'showing_results', 'finished'
+// Gets all concepts belonging to the specified categories.
+const getConceptsByCategory = (categories) => {
+  if (!Array.isArray(categories) || categories.length === 0) {
+    return [];
+  }
+  // Ensure case-insensitive matching if needed, though current IDs are lowercase
+  const lowerCaseCategories = categories.map(cat => cat.toLowerCase());
+  return concepts.filter(concept => lowerCaseCategories.includes(concept.category.toLowerCase()));
+};
 
-// Helper to shuffle array (Fisher-Yates)
 const shuffleArray = (array) => {
   let currentIndex = array.length, randomIndex;
   while (currentIndex !== 0) {
@@ -30,426 +40,637 @@ const shuffleArray = (array) => {
   return array;
 };
 
-// Helper to generate questions based on config
+// --- Game Creation ---
+
+/**
+ * Generates a list of formatted quiz questions based on game config,
+ * respecting allowed question types and using dynamic distractors.
+ * @param {object} config - The game configuration object, including `allowedQuestionTypes`.
+ * @returns {Array<object>} An array of formatted question objects.
+ */
 const generateQuestions = (config) => {
-    const { selectedCategories = [], numQuestions = 10 } = config;
-    const QUIZ_FETCHERS = {
-        flags: getFlagQuiz,
-        languages: getLanguageQuiz,
-        facts: getFactsQuiz,
-    };
+    const { selectedCategories, numQuestions, allowedQuestionTypes = ['mc', 'tf'] } = config; // Default to allow both if not specified
+    console.log(`Generating ${numQuestions} questions for categories: ${selectedCategories.join(', ')}. Allowed types: ${allowedQuestionTypes.join(', ')}`);
 
-    let combinedQuizPool = [];
-    selectedCategories.forEach(category => {
-        const fetcher = QUIZ_FETCHERS[category];
-        if (fetcher) {
-            // Fetch a larger pool than needed to ensure variety
-            combinedQuizPool = combinedQuizPool.concat(fetcher(50));
+    // 1. Get all relevant concepts
+    const conceptPool = getConceptsByCategory(selectedCategories);
+    console.log(`Found ${conceptPool.length} concepts in selected categories.`);
+
+    if (conceptPool.length === 0) {
+        console.error("No concepts found for the selected categories.");
+        throw new Error("No questions available for the selected categories. Please select different categories.");
+    }
+
+    // 2. Shuffle concepts
+    const shuffledConcepts = shuffleArray([...conceptPool]);
+
+    // 3. Generate formatted questions from selected concepts until numQuestions is reached
+    const generatedQuestions = [];
+    let conceptsConsidered = 0;
+
+    while (generatedQuestions.length < numQuestions && conceptsConsidered < shuffledConcepts.length) {
+        const concept = shuffledConcepts[conceptsConsidered];
+        conceptsConsidered++;
+
+        const possibleGenerators = [];
+
+        // Check if Multiple Choice is possible AND allowed
+        if (allowedQuestionTypes.includes('mc')) {
+            // MC generation now depends on finding distractors dynamically,
+            // so we check that inside the generator. We assume it *might* be possible.
+             possibleGenerators.push(generateMultipleChoice);
         }
-    });
+        // Check if True/False is possible AND allowed
+        if (allowedQuestionTypes.includes('tf') &&
+            concept.trueFalseStatement?.true &&
+            concept.trueFalseStatement?.falseTemplate) {
+            // TF generation also needs distractors dynamically now.
+            possibleGenerators.push(generateTrueFalse);
+        }
+        // Check if Identification is possible AND allowed
+        // Identification is generally possible if there's a correctValue and subject/attribute
+        if (allowedQuestionTypes.includes('id') && concept.correctValue && (concept.subject || concept.attribute)) {
+             possibleGenerators.push(generateIdentification);
+        }
 
-    const shuffledPool = shuffleArray(combinedQuizPool);
-    // Ensure questions have unique IDs if possible, though shuffling helps
-    const finalQuiz = shuffledPool.slice(0, numQuestions);
 
-    // Add question numbers for easier reference if needed
-    return finalQuiz.map((q, index) => ({ ...q, questionNumber: index + 1 }));
+        if (possibleGenerators.length === 0) {
+            // console.warn(`Concept ${concept.id} cannot generate any *allowed* question type. Skipping.`);
+            continue; // Skip this concept
+        }
+
+        // Randomly choose an allowed generator function
+        const chosenGenerator = possibleGenerators[Math.floor(Math.random() * possibleGenerators.length)];
+
+        // Call the generator, passing the concept AND the pool for distractor lookup
+        const generatedQuestion = chosenGenerator(concept, conceptPool);
+
+        if (generatedQuestion) {
+            generatedQuestions.push(generatedQuestion);
+        } else {
+             console.warn(`Generator failed for concept ${concept.id} (Type: ${chosenGenerator.name}). Skipping.`);
+        }
+    }
+
+
+    if (generatedQuestions.length < numQuestions) {
+        console.warn(`Requested ${numQuestions} questions, but could only generate ${generatedQuestions.length} valid questions from ${conceptsConsidered} considered concepts with allowed types.`);
+    }
+     if (generatedQuestions.length === 0) {
+         throw new Error("Failed to generate any questions for the selected configuration and allowed types.");
+     }
+
+    console.log(`Successfully generated ${generatedQuestions.length} questions.`);
+
+     // Add question numbers
+     return generatedQuestions.map((q, index) => ({ ...q, questionNumber: index + 1 }));
 };
 
 
-// --- Game Management ---
+/**
+ * Creates a new game document in Firestore.
+ * @param {string} hostName - The name of the host creating the game.
+ * @param {object} gameConfig - The configuration object for the game settings (must include allowedQuestionTypes).
+ * @returns {Promise<{gameId: string, hostId: string}>} The new game ID and host ID.
+ */
+export const createGame = async (hostName, gameConfig) => {
+  console.log("Attempting to create game with config:", gameConfig);
+  if (!hostName || !gameConfig) {
+    throw new Error("Host name and game configuration are required.");
+  }
+   // Validate config structure (basic check, more detailed in rules)
+   if (!gameConfig.selectedCategories || gameConfig.selectedCategories.length === 0 ||
+       !gameConfig.numQuestions || gameConfig.numQuestions <= 0 ||
+       !gameConfig.timePerQuestion || gameConfig.timePerQuestion < 2 ||
+       !gameConfig.numLives || gameConfig.numLives <= 0 ||
+       !gameConfig.cooldownSeconds || gameConfig.cooldownSeconds < 1 ||
+       !gameConfig.gameMode ||
+       !gameConfig.allowedQuestionTypes || gameConfig.allowedQuestionTypes.length === 0) { // Added check for allowed types
+       console.error("Invalid game configuration provided:", gameConfig);
+       throw new Error("Invalid game configuration provided.");
+   }
 
-export const createGame = async (hostName, config) => {
+
   try {
-    // Generate a unique player ID for the host (replace with Auth UID later)
-    const hostId = `host_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-    const questions = generateQuestions(config);
+    // Generate the questions based on the config *before* creating the document
+    const questions = generateQuestions(gameConfig);
+    if (questions.length === 0) {
+        throw new Error("Failed to generate any questions for the selected configuration.");
+    }
+     // Adjust numQuestions in config if fewer were generated
+     const finalGameConfig = questions.length < gameConfig.numQuestions
+         ? { ...gameConfig, numQuestions: questions.length }
+         : gameConfig;
 
-    const gameData = {
+
+    const hostId = `host_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+
+    const newGameData = {
       hostId: hostId,
-      config: { // Ensure all config values are present
-          selectedCategories: config.selectedCategories || [],
-          numQuestions: config.numQuestions || 10,
-          timePerQuestion: config.timePerQuestion || 10,
-          numLives: config.numLives || 3,
-          cooldownSeconds: config.cooldownSeconds || 3, // Added cooldown
-          gameMode: config.gameMode || 'safe_if_correct',
-      },
-      status: 'waiting', // Initial status
+      config: finalGameConfig, // Use potentially adjusted config
+      status: 'waiting',
       players: {
         [hostId]: {
           id: hostId,
-          name: hostName || `Host ${Math.random().toString(36).substring(2, 5)}`,
+          name: hostName,
           isHost: true,
-          lives: config.numLives || 3,
+          lives: finalGameConfig.numLives,
           score: 0,
           joinedAt: serverTimestamp(),
-          // Fields for gameplay state
-          currentAnswer: null, // Player's submitted answer for the current question
-          answeredCorrectlyFirst: null, // Boolean flag set by host after evaluation
-          answerTimestamp: null, // Firestore server timestamp when answer was submitted
-        }
+          currentAnswer: null,
+          answeredCorrectlyFirst: null,
+          answerTimestamp: null,
+        },
       },
-      questions: questions,
-      currentQuestionIndex: -1, // Start at -1, move to 0 when game starts
+      questions: questions, // Store the generated questions
+      currentQuestionIndex: -1,
       currentQuestionStartTime: null,
-      lastQuestionResults: null, // To store results during cooldown
-      // evaluatedQuestionIndex: -1, // Flag to prevent double evaluation (alternative to checking status)
+      lastQuestionResults: null,
       createdAt: serverTimestamp(),
     };
 
-    const gameRef = await addDoc(collection(db, GAMES_COLLECTION), gameData);
-    console.log("Game created with ID:", gameRef.id);
-    return { gameId: gameRef.id, hostId: hostId };
+    const gameCollectionRef = collection(db, 'games');
+    const gameDocRef = await addDoc(gameCollectionRef, newGameData);
+
+    console.log(`Game created successfully with ID: ${gameDocRef.id} by host ${hostId}`);
+    return { gameId: gameDocRef.id, hostId: hostId };
+
   } catch (error) {
     console.error("Error creating game:", error);
-    throw error; // Re-throw to handle in UI
+    throw new Error(`Failed to create game: ${error.message}`);
   }
 };
 
-export const getGame = async (gameId) => {
-  try {
-    const gameRef = doc(db, GAMES_COLLECTION, gameId);
-    const gameSnap = await getDoc(gameRef);
 
-    if (gameSnap.exists()) {
-      return { id: gameSnap.id, ...gameSnap.data() };
+// --- Player Management --- (addPlayerToGame, leaveGame remain the same)
+
+/**
+ * Adds a player to an existing game using a transaction.
+ * @param {string} gameId - The ID of the game to join.
+ * @param {string} playerName - The name of the player joining.
+ * @returns {Promise<{playerId: string}>} The ID assigned to the new player.
+ */
+export const addPlayerToGame = async (gameId, playerName) => {
+  console.log(`Attempting to add player "${playerName}" to game ${gameId}`);
+  if (!gameId || !playerName) {
+    throw new Error("Game ID and player name are required.");
+  }
+  if (playerName.length > 20) {
+      throw new Error("Player name cannot exceed 20 characters.");
+  }
+
+  const gameDocRef = doc(db, 'games', gameId);
+  const playerId = `player_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+
+  try {
+    await runTransaction(db, async (transaction) => {
+      const gameDoc = await transaction.get(gameDocRef);
+
+      if (!gameDoc.exists()) {
+        throw new Error("Game not found. Please check the Game ID.");
+      }
+
+      const gameData = gameDoc.data();
+
+      if (gameData.status !== 'waiting') {
+        throw new Error(`Cannot join game: Game is already ${gameData.status}.`);
+      }
+
+      const lowerCasePlayerName = playerName.toLowerCase();
+      const existingPlayers = Object.values(gameData.players || {});
+      if (existingPlayers.some(p => p.name.toLowerCase() === lowerCasePlayerName)) {
+        throw new Error(`Player name "${playerName}" is already taken in this lobby.`);
+      }
+
+      const newPlayerData = {
+        id: playerId,
+        name: playerName,
+        isHost: false,
+        lives: gameData.config?.numLives || 3,
+        score: 0,
+        joinedAt: serverTimestamp(),
+        currentAnswer: null,
+        answeredCorrectlyFirst: null,
+        answerTimestamp: null,
+      };
+
+      transaction.update(gameDocRef, {
+        [`players.${playerId}`]: newPlayerData
+      });
+    });
+
+    console.log(`Player ${playerName} (${playerId}) successfully added to game ${gameId}`);
+    return { playerId: playerId };
+
+  } catch (error) {
+    console.error(`Error adding player ${playerName} to game ${gameId}:`, error);
+    throw error;
+  }
+};
+
+
+/**
+ * Removes a player from a game. If the host leaves, assigns a new host or updates status.
+ * @param {string} gameId - The ID of the game.
+ * @param {string} userIdToLeave - The ID of the player or host leaving.
+ */
+export const leaveGame = async (gameId, userIdToLeave) => {
+    console.log(`User ${userIdToLeave} attempting to leave game ${gameId}`);
+    if (!gameId || !userIdToLeave) {
+        throw new Error("Game ID and User ID are required to leave.");
+    }
+
+    const gameDocRef = doc(db, 'games', gameId);
+
+    try {
+        await runTransaction(db, async (transaction) => {
+            const gameDoc = await transaction.get(gameDocRef);
+            if (!gameDoc.exists()) {
+                console.warn(`Leave game failed: Game ${gameId} not found.`);
+                throw new Error("Game not found.");
+            }
+
+            const gameData = gameDoc.data();
+            const players = gameData.players || {};
+            const leavingPlayer = players[userIdToLeave];
+
+            if (!leavingPlayer) {
+                console.warn(`User ${userIdToLeave} not found in game ${gameId}. Allowing leave anyway.`);
+                return;
+            }
+
+            const updates = {
+                [`players.${userIdToLeave}`]: deleteField()
+            };
+
+            const remainingPlayerIds = Object.keys(players).filter(id => id !== userIdToLeave);
+
+            if (leavingPlayer.isHost) {
+                console.log(`Host ${userIdToLeave} is leaving game ${gameId}.`);
+                if (remainingPlayerIds.length > 0) {
+                    const newHostId = remainingPlayerIds[0]; // Simple assignment
+                    updates.hostId = newHostId;
+                    updates[`players.${newHostId}.isHost`] = true;
+                    console.log(`New host assigned: ${newHostId}`);
+                } else {
+                    updates.status = 'abandoned';
+                    updates.hostId = null;
+                    console.log(`Host left, no players remaining. Setting status to abandoned.`);
+                }
+            }
+
+            transaction.update(gameDocRef, updates);
+            console.log(`Successfully processed leave for user ${userIdToLeave} in game ${gameId}.`);
+        });
+    } catch (error) {
+        console.error(`Error processing leave for user ${userIdToLeave} in game ${gameId}:`, error);
+        throw new Error(`Failed to update game state on leave: ${error.message}`);
+    }
+};
+
+
+// --- Game State Management --- (listenToGame, startGame, submitAnswer, advanceToResultsState, moveToNextQuestion remain largely the same)
+// Note: The logic within advanceToResultsState for calculating scores/lives doesn't need to change significantly
+// as it operates on the already generated question's correctAnswer.
+
+/**
+ * Listens for real-time updates to a specific game document.
+ * @param {string} gameId - The ID of the game to listen to.
+ * @param {function} callback - Function to call with game data (or null if not found) and error.
+ * @returns {function} Unsubscribe function.
+ */
+export const listenToGame = (gameId, callback) => {
+  if (!gameId) {
+    console.error("listenToGame called without gameId");
+    callback(null, new Error("Game ID is required to listen for updates."));
+    return () => {};
+  }
+  const gameDocRef = doc(db, 'games', gameId);
+  console.log(`Setting up listener for game: ${gameId}`);
+
+  const unsubscribe = onSnapshot(gameDocRef,
+    (docSnapshot) => {
+      if (docSnapshot.exists()) {
+        const gameData = docSnapshot.data();
+        // Convert Timestamps
+        if (gameData.createdAt instanceof Timestamp) {
+            gameData.createdAt = gameData.createdAt.toDate();
+        }
+         if (gameData.currentQuestionStartTime instanceof Timestamp) {
+            gameData.currentQuestionStartTime = gameData.currentQuestionStartTime.toDate();
+        }
+        callback(gameData, null);
+      } else {
+        console.log(`Listener update: Game ${gameId} not found.`);
+        callback(null, null);
+      }
+    },
+    (error) => {
+      console.error(`Error listening to game ${gameId}:`, error);
+      callback(null, error);
+    }
+  );
+
+  return unsubscribe;
+};
+
+/**
+ * Starts the game by updating its status and setting the first question index.
+ * (Should only be called by the host).
+ * @param {string} gameId - The ID of the game.
+ * @param {string} hostId - The ID of the host initiating the start.
+ */
+export const startGame = async (gameId, hostId) => {
+    console.log(`Host ${hostId} attempting to start game ${gameId}`);
+    if (!gameId || !hostId) {
+        throw new Error("Game ID and Host ID are required to start the game.");
+    }
+
+    const gameDocRef = doc(db, 'games', gameId);
+
+    try {
+        await runTransaction(db, async (transaction) => {
+            const gameDoc = await transaction.get(gameDocRef);
+            if (!gameDoc.exists()) throw new Error("Game not found.");
+
+            const gameData = gameDoc.data();
+
+            if (gameData.hostId !== hostId) throw new Error("Only the host can start the game.");
+            if (gameData.status !== 'waiting') throw new Error(`Game cannot be started, status is already '${gameData.status}'.`);
+            if (!gameData.players || Object.keys(gameData.players).length < 1) console.warn(`Starting game ${gameId} with only the host.`);
+            if (!gameData.questions || gameData.questions.length === 0) throw new Error("Cannot start game: No questions found.");
+
+            const updates = {
+                status: 'playing',
+                currentQuestionIndex: 0,
+                currentQuestionStartTime: serverTimestamp(),
+                lastQuestionResults: null,
+            };
+
+            const initialLives = gameData.config?.numLives || 3;
+            Object.keys(gameData.players).forEach(pId => {
+                updates[`players.${pId}.score`] = 0;
+                updates[`players.${pId}.lives`] = initialLives;
+                updates[`players.${pId}.currentAnswer`] = null;
+                updates[`players.${pId}.answeredCorrectlyFirst`] = null;
+                updates[`players.${pId}.answerTimestamp`] = null;
+            });
+
+            transaction.update(gameDocRef, updates);
+            console.log(`Game ${gameId} successfully started by host ${hostId}.`);
+        });
+    } catch (error) {
+        console.error(`Error starting game ${gameId}:`, error);
+        throw new Error(`Failed to start game: ${error.message}`);
+    }
+};
+
+
+/**
+ * Submits a player's answer for the current question.
+ * @param {string} gameId - The ID of the game.
+ * @param {string} playerId - The ID of the player submitting the answer.
+ * @param {number} questionIndex - The index of the question being answered.
+ * @param {string} answer - The selected answer option.
+ */
+export const submitAnswer = async (gameId, playerId, questionIndex, answer) => {
+    console.log(`Player ${playerId} submitting answer "${answer}" for Q${questionIndex} in game ${gameId}`);
+    if (!gameId || !playerId || questionIndex === undefined || questionIndex < 0 || !answer) {
+        throw new Error("Missing required parameters for submitting answer.");
+    }
+
+    const gameDocRef = doc(db, 'games', gameId);
+
+    try {
+        await runTransaction(db, async (transaction) => {
+            const gameDoc = await transaction.get(gameDocRef);
+            if (!gameDoc.exists()) throw new Error("Game not found.");
+
+            const gameData = gameDoc.data();
+
+            if (gameData.status !== 'playing') throw new Error("Cannot submit answer: Game is not currently playing.");
+            if (gameData.currentQuestionIndex !== questionIndex) throw new Error("Cannot submit answer: Incorrect question index.");
+
+            const player = gameData.players?.[playerId];
+            if (!player) throw new Error("Cannot submit answer: Player not found in game.");
+            if (player.lives <= 0) throw new Error("Cannot submit answer: Player is eliminated.");
+            if (player.currentAnswer !== null) throw new Error("Answer already submitted for this question.");
+
+            const updates = {
+                [`players.${playerId}.currentAnswer`]: answer,
+                [`players.${playerId}.answerTimestamp`]: serverTimestamp(),
+            };
+
+            transaction.update(gameDocRef, updates);
+            console.log(`Answer recorded for player ${playerId} in game ${gameId}.`);
+
+            // Check if all active players have answered (optional immediate trigger)
+            // const updatedPlayers = { ...gameData.players, [playerId]: { ...player, ...updates } };
+            // const activePlayers = Object.values(updatedPlayers).filter(p => p.lives > 0);
+            // const allAnswered = activePlayers.every(p => p.currentAnswer !== null);
+            // if (allAnswered) { console.log(`All active players answered Q${questionIndex}.`); }
+        });
+    } catch (error) {
+        console.error(`Error submitting answer for player ${playerId} in game ${gameId}:`, error);
+        throw new Error(`Failed to submit answer: ${error.message}`);
+    }
+};
+
+
+/**
+ * Calculates results, updates player scores/lives, and moves game to 'showing_results'.
+ * (Should only be called by the host).
+ * @param {string} gameId - The ID of the game.
+ * @param {string} hostId - The ID of the host triggering the state change.
+ */
+export const advanceToResultsState = async (gameId, hostId) => {
+    console.log(`Host ${hostId} attempting to advance game ${gameId} to results state.`);
+     if (!gameId || !hostId) throw new Error("Game ID and Host ID are required.");
+
+    const gameDocRef = doc(db, 'games', gameId);
+
+    try {
+        await runTransaction(db, async (transaction) => {
+            const gameDoc = await transaction.get(gameDocRef);
+            if (!gameDoc.exists()) throw new Error("Game not found.");
+
+            const gameData = gameDoc.data();
+
+            if (gameData.hostId !== hostId) throw new Error("Only the host can advance the game state.");
+            if (gameData.status !== 'playing') throw new Error(`Game is not in 'playing' state (current: ${gameData.status}).`);
+            if (gameData.currentQuestionIndex < 0 || gameData.currentQuestionIndex >= gameData.questions.length) throw new Error("Invalid current question index.");
+
+            const currentQuestion = gameData.questions[gameData.currentQuestionIndex];
+            if (!currentQuestion) throw new Error("Current question data not found.");
+
+            const playerResults = {};
+            const updates = {};
+            const players = gameData.players || {};
+            const gameMode = gameData.config?.gameMode || 'safe_if_correct';
+            const baseScore = 10;
+            // const timeLimit = gameData.config?.timePerQuestion || 10; // Needed only for time bonus
+
+            let firstCorrectPlayerId = null;
+            let firstCorrectTimestamp = null;
+
+            if (gameMode === 'first_correct_wins') {
+                Object.values(players).forEach(p => {
+                    if (p.lives > 0 && p.currentAnswer === currentQuestion.correctAnswer && p.answerTimestamp) {
+                         const answerTimeMs = p.answerTimestamp instanceof Timestamp ? p.answerTimestamp.toMillis() : new Date(p.answerTimestamp).getTime();
+                         if (!firstCorrectTimestamp || answerTimeMs < firstCorrectTimestamp) {
+                             firstCorrectTimestamp = answerTimeMs;
+                             firstCorrectPlayerId = p.id;
+                         }
+                    }
+                });
+                 console.log(`First correct wins mode: First correct player ID is ${firstCorrectPlayerId}`);
+            }
+
+            Object.keys(players).forEach(pId => {
+                const player = players[pId];
+                if (player.lives <= 0) {
+                    playerResults[pId] = { submittedAnswer: player.currentAnswer, wasCorrect: false, scoreChange: 0, lifeChange: 0, isFirstCorrect: false };
+                    return;
+                }
+
+                const submittedAnswer = player.currentAnswer;
+                const isCorrect = submittedAnswer === currentQuestion.correctAnswer;
+                let scoreChange = 0;
+                let lifeChange = 0;
+                let isFirstCorrect = false;
+
+                if (isCorrect) {
+                    scoreChange = baseScore; // Basic score
+                    if (gameMode === 'first_correct_wins') {
+                        if (pId === firstCorrectPlayerId) isFirstCorrect = true;
+                        else lifeChange = -1;
+                    } // else safe_if_correct: lifeChange = 0;
+                } else { // Incorrect or No Answer
+                    if (gameMode === 'first_correct_wins') {
+                        lifeChange = -1;
+                    } else { // safe_if_correct
+                        if (submittedAnswer !== null) lifeChange = -1; // Incorrect loses life
+                        // else timeout: lifeChange = 0; // Timeout is safe
+                    }
+                }
+
+                const newScore = (player.score || 0) + scoreChange;
+                const newLives = Math.max(0, (player.lives || 0) + lifeChange);
+
+                updates[`players.${pId}.score`] = newScore;
+                updates[`players.${pId}.lives`] = newLives;
+
+                playerResults[pId] = { submittedAnswer, wasCorrect: isCorrect, scoreChange, lifeChange, isFirstCorrect };
+            });
+
+            updates.status = 'showing_results';
+            updates.currentQuestionStartTime = null;
+            updates.lastQuestionResults = {
+                questionIndex: gameData.currentQuestionIndex,
+                correctAnswer: currentQuestion.correctAnswer,
+                playerResults: playerResults,
+            };
+
+            transaction.update(gameDocRef, updates);
+            console.log(`Game ${gameId} advanced to results state for Q${gameData.currentQuestionIndex}.`);
+        });
+    } catch (error) {
+        console.error(`Error advancing game ${gameId} to results state:`, error);
+        throw new Error(`Failed to advance game state: ${error.message}`);
+    }
+};
+
+
+/**
+ * Moves the game from 'showing_results' to the next question ('playing') or 'finished'.
+ * (Should only be called by the host).
+ * @param {string} gameId - The ID of the game.
+ * @param {string} hostId - The ID of the host triggering the state change.
+ */
+export const moveToNextQuestion = async (gameId, hostId) => {
+    console.log(`Host ${hostId} attempting to move game ${gameId} to next question/finish.`);
+     if (!gameId || !hostId) throw new Error("Game ID and Host ID are required.");
+
+    const gameDocRef = doc(db, 'games', gameId);
+
+    try {
+        await runTransaction(db, async (transaction) => {
+            const gameDoc = await transaction.get(gameDocRef);
+            if (!gameDoc.exists()) throw new Error("Game not found.");
+
+            const gameData = gameDoc.data();
+
+            if (gameData.hostId !== hostId) throw new Error("Only the host can advance the game.");
+            if (gameData.status !== 'showing_results') throw new Error(`Game is not in 'showing_results' state (current: ${gameData.status}).`);
+
+            const currentQuestionIndex = gameData.currentQuestionIndex;
+            const totalQuestions = gameData.questions.length;
+            const players = gameData.players || {};
+            const activePlayersExist = Object.values(players).some(p => p.lives > 0);
+            const nextQuestionIndex = currentQuestionIndex + 1;
+
+            let nextStatus = '';
+            let finalQuestionIndex = -1;
+            let nextStartTime = null;
+
+            if (nextQuestionIndex < totalQuestions && activePlayersExist) {
+                nextStatus = 'playing';
+                finalQuestionIndex = nextQuestionIndex;
+                nextStartTime = serverTimestamp();
+                console.log(`Moving game ${gameId} to question ${finalQuestionIndex}.`);
+            } else {
+                nextStatus = 'finished';
+                finalQuestionIndex = -1;
+                nextStartTime = null;
+                console.log(`Finishing game ${gameId}. Reason: ${activePlayersExist ? 'Last question reached' : 'No active players left'}.`);
+            }
+
+            const updates = {
+                status: nextStatus,
+                currentQuestionIndex: finalQuestionIndex,
+                currentQuestionStartTime: nextStartTime,
+                lastQuestionResults: null,
+            };
+
+            Object.keys(players).forEach(pId => {
+                updates[`players.${pId}.currentAnswer`] = null;
+                updates[`players.${pId}.answeredCorrectlyFirst`] = null;
+                updates[`players.${pId}.answerTimestamp`] = null;
+            });
+
+            transaction.update(gameDocRef, updates);
+        });
+    } catch (error) {
+        console.error(`Error moving game ${gameId} to next state:`, error);
+        throw new Error(`Failed to move to next question/finish: ${error.message}`);
+    }
+};
+
+
+// --- Utility ---
+
+/**
+ * Gets the current state of a game (single read).
+ * @param {string} gameId - The ID of the game.
+ * @returns {Promise<object|null>} Game data or null if not found.
+ */
+export const getGame = async (gameId) => {
+  if (!gameId) {
+    console.error("getGame called without gameId");
+    return null;
+  }
+  const gameDocRef = doc(db, 'games', gameId);
+  try {
+    const docSnap = await getDoc(gameDocRef);
+    if (docSnap.exists()) {
+      console.log("Game data retrieved for:", gameId);
+      return docSnap.data();
     } else {
-      console.log("No such game document!");
+      console.log("No such game document:", gameId);
       return null;
     }
   } catch (error) {
     console.error("Error getting game:", error);
     throw error;
   }
-};
-
-// Listen for real-time updates to a game
-export const listenToGame = (gameId, callback) => {
-  const gameRef = doc(db, GAMES_COLLECTION, gameId);
-  // Returns the unsubscribe function
-  return onSnapshot(gameRef, (doc) => {
-    if (doc.exists()) {
-      callback({ id: doc.id, ...doc.data() });
-    } else {
-      callback(null); // Indicate game not found or deleted
-    }
-  }, (error) => {
-    console.error("Error listening to game:", error);
-    // Handle error appropriately in the UI if needed
-  });
-};
-
-// --- Player Management ---
-
-export const addPlayerToGame = async (gameId, playerName) => {
-    try {
-        const gameRef = doc(db, GAMES_COLLECTION, gameId);
-        const playerId = `player_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-        const gameData = await getGame(gameId); // Fetch current config for lives
-
-        if (!gameData) throw new Error("Game not found");
-        if (gameData.status !== 'waiting') throw new Error("Game has already started or finished.");
-
-        const newPlayer = {
-            id: playerId,
-            name: playerName || `Player ${Math.random().toString(36).substring(2, 5)}`,
-            isHost: false,
-            lives: gameData.config?.numLives || 3,
-            score: 0,
-            joinedAt: serverTimestamp(),
-            currentAnswer: null,
-            answeredCorrectlyFirst: null,
-            answerTimestamp: null,
-        };
-
-        // Use dot notation to add a player to the map
-        await updateDoc(gameRef, {
-            [`players.${playerId}`]: newPlayer
-        });
-
-        console.log(`Player ${playerName} (${playerId}) added to game ${gameId}`);
-        return { playerId: playerId };
-    } catch (error) {
-        console.error("Error adding player:", error);
-        throw error;
-    }
-};
-
-// TODO: Implement removePlayerFromGame
-
-// --- Game State Updates ---
-
-export const startGame = async (gameId, hostId) => {
-    try {
-        const gameRef = doc(db, GAMES_COLLECTION, gameId);
-        const gameData = await getGame(gameId);
-
-        if (!gameData) throw new Error("Game not found");
-        if (gameData.hostId !== hostId) throw new Error("Only the host can start the game.");
-        if (gameData.status !== 'waiting') throw new Error("Game is not in a waiting state.");
-        if (!gameData.questions || gameData.questions.length === 0) throw new Error("No questions generated for this game.");
-        if (Object.keys(gameData.players || {}).length < 1) throw new Error("Cannot start game with no players.");
-
-        // Reset player states for the start of the game
-        const initialPlayerUpdates = {};
-        Object.keys(gameData.players).forEach(pId => {
-            initialPlayerUpdates[`players.${pId}.score`] = 0;
-            initialPlayerUpdates[`players.${pId}.lives`] = gameData.config?.numLives || 3;
-            initialPlayerUpdates[`players.${pId}.currentAnswer`] = null;
-            initialPlayerUpdates[`players.${pId}.answeredCorrectlyFirst`] = null;
-            initialPlayerUpdates[`players.${pId}.answerTimestamp`] = null;
-        });
-
-        // Set status to playing and advance to the first question
-        await updateDoc(gameRef, {
-            ...initialPlayerUpdates, // Apply player resets
-            status: 'playing', // Start in 'playing' state
-            currentQuestionIndex: 0,
-            currentQuestionStartTime: serverTimestamp(), // Mark start time for the first question
-            lastQuestionResults: null, // Clear any previous results
-        });
-        console.log(`Game ${gameId} started by host ${hostId}`);
-    } catch (error) {
-        console.error("Error starting game:", error);
-        throw error;
-    }
-};
-
-// Function for player to submit an answer
-export const submitAnswer = async (gameId, playerId, questionIndex, answer) => {
-    const gameRef = doc(db, GAMES_COLLECTION, gameId);
-    let allAnswered = false;
-
-    try {
-        // Use a batch to update the answer and then potentially trigger advance
-        const batch = writeBatch(db);
-
-        // 1. Update the player's answer
-        batch.update(gameRef, {
-            [`players.${playerId}.currentAnswer`]: answer,
-            [`players.${playerId}.answerTimestamp`]: serverTimestamp(),
-            [`players.${playerId}.answeredCorrectlyFirst`]: null, // Reset this flag
-        });
-
-        await batch.commit(); // Commit the answer submission first
-        console.log(`Player ${playerId} submitted answer "${answer}" for question ${questionIndex} in game ${gameId}`);
-
-        // 2. Check if all active players have answered *after* submission
-        const updatedGameData = await getGame(gameId); // Re-fetch latest data
-        if (!updatedGameData) throw new Error("Game data disappeared after submission.");
-
-        // Check only if the game is still in the 'playing' state for the correct question
-        if (updatedGameData.status === 'playing' && updatedGameData.currentQuestionIndex === questionIndex) {
-            const players = updatedGameData.players;
-            const activePlayerIds = Object.keys(players).filter(pId => (players[pId].lives || 0) > 0);
-            const answeredCount = activePlayerIds.filter(pId => players[pId].currentAnswer !== null).length;
-
-            if (activePlayerIds.length > 0 && answeredCount >= activePlayerIds.length) {
-                allAnswered = true;
-                console.log(`All ${activePlayerIds.length} active players have answered question ${questionIndex}. Triggering advance.`);
-                // Call advanceToResultsState - no need to await here, let it run
-                advanceToResultsState(gameId, playerId).catch(err => {
-                    console.error(`Error auto-advancing game ${gameId} after full submission:`, err);
-                    // Handle potential error, maybe log it or notify host?
-                });
-            }
-        }
-
-    } catch (error) {
-        console.error("Error submitting answer or checking for advance:", error);
-        throw error; // Re-throw to be caught in the UI
-    }
-};
-
-
-// Renamed from advanceQuestionAndUpdateState
-// This function evaluates answers and moves the game to 'showing_results'
-export const advanceToResultsState = async (gameId, triggererId /* Can be host or player */) => {
-    const gameRef = doc(db, GAMES_COLLECTION, gameId);
-
-    try {
-        await runTransaction(db, async (transaction) => {
-            const gameSnap = await transaction.get(gameRef);
-            if (!gameSnap.exists()) throw new Error("Game not found");
-
-            const gameData = gameSnap.data();
-            const gameMode = gameData.config?.gameMode || 'safe_if_correct';
-
-            // --- Pre-checks ---
-            // Only advance if currently playing this question
-            if (gameData.status !== 'playing') {
-                 console.warn(`Advance called for game ${gameId} but status is ${gameData.status}. Aborting.`);
-                 return; // Already advanced or finished
-            }
-            if (gameData.currentQuestionIndex < 0 || gameData.currentQuestionIndex >= gameData.questions.length) {
-                throw new Error("Invalid question index state for evaluation.");
-            }
-
-            const currentQuestion = gameData.questions[gameData.currentQuestionIndex];
-            if (!currentQuestion) throw new Error(`Question data missing for index ${gameData.currentQuestionIndex}`);
-
-            console.log(`Advancing game ${gameId} to results state for question ${gameData.currentQuestionIndex} (triggered by ${triggererId})`);
-
-            const players = gameData.players;
-            const updates = {}; // Object to hold updates for the transaction
-            const playerResults = {}; // To store individual results for display
-
-            // --- Evaluate answers for the *current* question ---
-            let firstCorrectTimestamp = null;
-            let firstCorrectPlayerId = null;
-
-            // Find the first correct answer timestamp (only relevant for 'first_correct_wins' mode)
-            if (gameMode === 'first_correct_wins') {
-                Object.entries(players).forEach(([pId, pData]) => {
-                    if ((pData.lives || 0) > 0 && pData.currentAnswer === currentQuestion.correctAnswer && pData.answerTimestamp) {
-                        const currentTs = pData.answerTimestamp?.toMillis();
-                        const firstTs = firstCorrectTimestamp?.toMillis();
-                        if (currentTs && (!firstTs || currentTs < firstTs)) {
-                            firstCorrectTimestamp = pData.answerTimestamp;
-                            firstCorrectPlayerId = pId;
-                        }
-                    }
-                });
-            }
-
-            // --- Update scores, lives, and record results for each player ---
-            Object.entries(players).forEach(([pId, pData]) => {
-                // Store current state before potential updates
-                 playerResults[pId] = {
-                    submittedAnswer: pData.currentAnswer,
-                    wasCorrect: false, // Default
-                    scoreChange: 0,
-                    lifeChange: 0,
-                    isFirstCorrect: false,
-                 };
-
-                // Ignore players already out of lives for scoring/life loss
-                if ((pData.lives || 0) <= 0) {
-                    return; // Skip scoring/life logic
-                }
-
-                const isCorrect = pData.currentAnswer === currentQuestion.correctAnswer;
-                let loseLife = false;
-                let scoreIncrease = 0;
-
-                // Apply scoring logic based on game mode
-                if (gameMode === 'first_correct_wins') {
-                    const isFirst = (pId === firstCorrectPlayerId);
-                    playerResults[pId].isFirstCorrect = isFirst;
-                    if (!isFirst) {
-                        loseLife = true; // Everyone but the first correct player loses a life
-                    }
-                    if (isCorrect) {
-                         scoreIncrease = 1; // Score awarded if correct, regardless of being first
-                    }
-                } else { // Default to 'safe_if_correct' logic
-                    if (!isCorrect && pData.currentAnswer !== null) { // Lose life only if answered incorrectly (not if timed out without answer)
-                        loseLife = true;
-                    } else if (isCorrect) {
-                        scoreIncrease = 1; // Increment score if correct
-                    }
-                }
-
-                // Apply updates if changed
-                if (scoreIncrease > 0) {
-                    updates[`players.${pId}.score`] = (pData.score || 0) + scoreIncrease;
-                    playerResults[pId].scoreChange = scoreIncrease;
-                }
-                if (loseLife) {
-                    const newLives = Math.max(0, (pData.lives || 0) - 1);
-                    updates[`players.${pId}.lives`] = newLives;
-                    playerResults[pId].lifeChange = -1;
-                }
-                if (isCorrect) {
-                    playerResults[pId].wasCorrect = true;
-                }
-                 // Mark who was first (even in safe_if_correct mode, might be useful info)
-                 if (gameMode === 'first_correct_wins') {
-                    updates[`players.${pId}.answeredCorrectlyFirst`] = (pId === firstCorrectPlayerId);
-                 } else {
-                     updates[`players.${pId}.answeredCorrectlyFirst`] = null; // Not strictly relevant but clear it
-                 }
-
-            });
-
-            // --- Set state to showing_results ---
-            updates['status'] = 'showing_results';
-            updates['currentQuestionStartTime'] = null; // Timer stops during results
-            updates['lastQuestionResults'] = {
-                questionIndex: gameData.currentQuestionIndex,
-                correctAnswer: currentQuestion.correctAnswer,
-                playerResults: playerResults, // Store detailed results
-            };
-            // updates['evaluatedQuestionIndex'] = gameData.currentQuestionIndex; // Mark as evaluated
-
-            // Apply all updates in the transaction
-            transaction.update(gameRef, updates);
-            console.log(`Game ${gameId} state updated to showing_results for question ${gameData.currentQuestionIndex}`);
-        });
-
-    } catch (error) {
-        console.error(`Error advancing game ${gameId} to results state:`, error);
-        throw error;
-    }
-};
-
-
-// This function moves from 'showing_results' to the next question or 'finished'
-// Should only be called by the host after the cooldown period
-export const moveToNextQuestion = async (gameId, hostId) => {
-    const gameRef = doc(db, GAMES_COLLECTION, gameId);
-
-    try {
-        await runTransaction(db, async (transaction) => {
-            const gameSnap = await transaction.get(gameRef);
-            if (!gameSnap.exists()) throw new Error("Game not found");
-
-            const gameData = gameSnap.data();
-
-            // --- Pre-checks ---
-            if (gameData.hostId !== hostId) throw new Error("Only host can move to the next question.");
-            if (gameData.status !== 'showing_results') {
-                 console.warn(`MoveToNextQuestion called for game ${gameId} but status is ${gameData.status}. Aborting.`);
-                 return; // Not in the correct state
-            }
-
-            const updates = {};
-            const nextQuestionIndex = gameData.currentQuestionIndex + 1;
-
-            // --- Reset player answer states for the new round ---
-             Object.keys(gameData.players).forEach(pId => {
-                updates[`players.${pId}.currentAnswer`] = null;
-                updates[`players.${pId}.answerTimestamp`] = null;
-                updates[`players.${pId}.answeredCorrectlyFirst`] = null;
-            });
-
-            // --- Determine next state (check for game over) ---
-            const playersAfterUpdate = gameData.players; // Use current lives state
-            const activePlayers = Object.values(playersAfterUpdate).filter(p => (p.lives || 0) > 0);
-
-            if (nextQuestionIndex >= gameData.questions.length || activePlayers.length <= 1) {
-                // Game Over
-                updates['status'] = 'finished';
-                updates['currentQuestionIndex'] = -1; // Indicate no active question
-                updates['currentQuestionStartTime'] = null;
-                // Keep lastQuestionResults for final display? Or clear? Let's clear.
-                updates['lastQuestionResults'] = null;
-                console.log(`Game ${gameId} finished. Reason: ${nextQuestionIndex >= gameData.questions.length ? 'Out of questions' : 'One or less players left'}.`);
-            } else {
-                // Advance to the next question
-                updates['status'] = 'playing';
-                updates['currentQuestionIndex'] = nextQuestionIndex;
-                updates['currentQuestionStartTime'] = serverTimestamp(); // Start timer for next question
-                updates['lastQuestionResults'] = null; // Clear results
-                console.log(`Game ${gameId} moving to question ${nextQuestionIndex}`);
-            }
-
-            // Apply all updates in the transaction
-            transaction.update(gameRef, updates);
-        });
-    } catch (error) {
-        console.error(`Error moving game ${gameId} to next question:`, error);
-        throw error;
-    }
 };

@@ -1,5 +1,7 @@
 import React from 'react';
 import { Link, useNavigate, useLocation, useParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { leaveGame } from '../services/firebaseService'; // Import leaveGame
 
 function Navbar() {
   const navigate = useNavigate();
@@ -10,44 +12,63 @@ function Navbar() {
   const showBackButton = location.pathname.startsWith('/lobby/') || location.pathname.startsWith('/quiz/');
   const isQuizPage = location.pathname.startsWith('/quiz/');
 
-  const handleBack = () => {
-    // If on quiz page, go back to lobby (if gameId exists)
-    // If on lobby page, go back to home/selection
-    // TODO: Add logic to remove player from game if they leave lobby/quiz
-    if (isQuizPage && gameId) {
-        // Ideally, prompt user "Are you sure you want to leave the game?"
-        // And potentially update Firestore to mark player as 'left' or remove them
-        console.warn("Leaving quiz - player state not updated in Firestore yet.");
-        navigate(`/lobby/${gameId}`); // Go back to lobby first? Or home?
-    } else if (location.pathname.startsWith('/lobby/')) {
-         console.warn("Leaving lobby - player state not updated in Firestore yet.");
-         navigate('/'); // Go back to home
+  const handleLeave = async () => {
+    if (!gameId) {
+      navigate('/'); // Should not happen if button is shown, but safeguard
+      return;
     }
-     else {
-        navigate('/'); // Default back action
-    }
-     // Clear local storage related to the game being left
-     if (gameId) {
+
+    const leaveMessage = isQuizPage
+        ? "Are you sure you want to leave the game? Your progress might be lost if you rejoin later."
+        : "Are you sure you want to leave the lobby?";
+
+    if (window.confirm(leaveMessage)) {
+        const playerId = localStorage.getItem(`ytg-player-${gameId}`);
+        const hostId = localStorage.getItem(`ytg-host-${gameId}`);
+        const userIdToLeave = playerId || hostId; // Get whichever ID is stored
+
+        if (userIdToLeave) {
+            try {
+                console.log(`Attempting to leave game ${gameId} as user ${userIdToLeave}`);
+                await leaveGame(gameId, userIdToLeave);
+                console.log(`Successfully called leaveGame for user ${userIdToLeave}`);
+                toast.info("You have left the game.");
+            } catch (error) {
+                console.error(`Failed to update Firestore on leaving game ${gameId}:`, error);
+                // Proceed with cleanup and navigation even if Firestore update fails
+                // Optionally show an error message to the user
+                toast.error(`Error leaving game: ${error.message}. Cleaning up locally.`);
+            }
+        } else {
+             console.warn("Could not find player/host ID in local storage to leave game.");
+             // Proceed with cleanup anyway, as user intention is clear
+             toast.warn("Could not find local identity. Cleaning up locally.");
+        }
+
+        // Clear local storage regardless of Firestore success/failure
         localStorage.removeItem(`ytg-host-${gameId}`);
         localStorage.removeItem(`ytg-player-${gameId}`);
-     }
+        console.log(`Cleared local storage for game ${gameId}`);
+
+        // Navigate back to home
+        navigate('/');
+    }
   };
 
   return (
     <nav className="bg-gray-800 text-white sticky top-0 z-50 shadow-md">
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
         <div className="navbar-brand">
-          {/* Link brand to game selection screen */}
-          <Link to="/" className="text-xl font-bold hover:text-blue-400 transition duration-200">
+          <Link to="/" className="text-xl font-bold hover:text-primary-light transition duration-200">
             YT Games
           </Link>
         </div>
         <div className="navbar-links">
           {showBackButton && (
             <button
-              onClick={handleBack}
-              className="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
-              title={isQuizPage ? "Leave Game (Back to Lobby/Home)" : "Leave Lobby (Back to Home)"}
+              onClick={handleLeave}
+              className="bg-danger hover:bg-danger-dark text-white font-semibold py-2 px-4 rounded transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-danger focus:ring-opacity-50"
+              title={isQuizPage ? "Leave Game" : "Leave Lobby"}
             >
               {isQuizPage ? 'Leave Game' : 'Leave Lobby'}
             </button>
