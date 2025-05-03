@@ -1,0 +1,31 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Rules for the 'games' collection
+    match /games/{gameId} {
+      // Allow anyone to read game data for now
+      allow read: if true;
+
+      // Allow creating a new game document (write only if document doesn't exist)
+      allow create: if true; // Might restrict later based on request data or auth
+
+      // Allow updating specific fields (e.g., status, players, currentQuestionIndex)
+      // For now, allow general updates, but this should be locked down significantly
+      // e.g., only allow adding players if status is 'waiting', only host can change status, etc.
+      allow update: if true; // VERY INSECURE - Needs refinement
+
+      // Generally disallow deletion for now
+      allow delete: if false;
+
+      // Potentially add rules for subcollections like 'players' if used
+      // match /players/{playerId} { ... }
+    }
+
+    // Deny all other access by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
