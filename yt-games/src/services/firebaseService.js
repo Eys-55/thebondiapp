@@ -48,9 +48,10 @@ const shuffleArray = (array) => {
  * @param {object} config - The game configuration object, including `allowedQuestionTypes`.
  * @returns {Array<object>} An array of formatted question objects.
  */
-const generateQuestions = (config) => {
-    const { selectedCategories, numQuestions, allowedQuestionTypes = ['mc', 'tf'] } = config; // Default to allow both if not specified
-    console.log(`Generating ${numQuestions} questions for categories: ${selectedCategories.join(', ')}. Allowed types: ${allowedQuestionTypes.join(', ')}`);
+ // Export this function so it can be used by SinglePlayerQuiz
+ export const generateQuestions = (config) => {
+ const { selectedCategories, numQuestions, allowedQuestionTypes = ['mc', 'tf'] } = config; // Default to allow both if not specified
+ console.log(`Generating ${numQuestions} questions for categories: ${selectedCategories.join(', ')}. Allowed types: ${allowedQuestionTypes.join(', ')}`);
 
     // 1. Get all relevant concepts
     const conceptPool = getConceptsByCategory(selectedCategories);

@@ -7,6 +7,7 @@ import GameSelection from './pages/GameSelection';
 import JoinGame from './pages/JoinGame'; // Import JoinGame
 import Lobby from './pages/Lobby';       // Import Lobby
 import QuizGame from './pages/QuizGame';
+import SinglePlayerQuiz from './pages/SinglePlayerQuiz'; // Import SinglePlayerQuiz
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           <Route path="/join/:gameId" element={<JoinGame />} /> {/* Specific Join Route */}
           <Route path="/lobby/:gameId" element={<Lobby />} /> {/* Route for the lobby */}
           <Route path="/quiz/:gameId" element={<QuizGame />} /> {/* Route for the game, using gameId */}
+          <Route path="/quiz/single-player" element={<SinglePlayerQuiz />} /> {/* Route for single player game */}
           {/* Fallback route for unknown paths */}
           <Route path="*" element={<GameSelection />} /> {/* Redirect unknown paths to selection */}
         </Routes>
