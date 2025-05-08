@@ -14,7 +14,7 @@ function NotFound() {
         to="/"
         className="bg-primary hover:bg-primary-dark text-white font-semibold py-3 px-6 rounded-lg transition duration-200 ease-in-out"
       >
-        Go to Homepage
+        Go to Home
       </Link>
     </div>
   );
