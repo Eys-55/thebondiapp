@@ -1,45 +1,30 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify'; // Import ToastContainer
-import 'react-toastify/dist/ReactToastify.css'; // Import CSS
+import { Routes, Route } from 'react-router-dom'; // Removed BrowserRouter as Router
 import Navbar from './components/Navbar';
 import GameSelection from './pages/GameSelection';
-import JoinGame from './pages/JoinGame'; // Import JoinGame
-import Lobby from './pages/Lobby';       // Import Lobby
-import QuizGame from './pages/QuizGame';
-import SinglePlayerQuiz from './pages/SinglePlayerQuiz'; // Import SinglePlayerQuiz
+// import SinglePlayerQuiz from './pages/SinglePlayerQuiz'; // Removed import
+import LocalMultiplayerQuiz from './pages/LocalMultiplayerQuiz';
+import NotFound from './pages/NotFound'; // Assuming you have/want a 404 page
 
 function App() {
   return (
-    <div className="flex flex-col min-h-screen bg-gray-900 text-gray-100">
-      <Navbar />
-      <main className="flex-grow container mx-auto px-4 py-8">
-        <Routes>
-          <Route path="/" element={<GameSelection />} />
-          <Route path="/join" element={<JoinGame />} /> {/* Generic Join Route */}
-          <Route path="/join/:gameId" element={<JoinGame />} /> {/* Specific Join Route */}
-          <Route path="/lobby/:gameId" element={<Lobby />} /> {/* Route for the lobby */}
-          <Route path="/quiz/:gameId" element={<QuizGame />} /> {/* Route for the game, using gameId */}
-          <Route path="/quiz/single-player" element={<SinglePlayerQuiz />} /> {/* Route for single player game */}
-          {/* Fallback route for unknown paths */}
-          <Route path="*" element={<GameSelection />} /> {/* Redirect unknown paths to selection */}
-        </Routes>
-      </main>
-      {/* Footer could go here */}
-      {/* Add ToastContainer here */}
-      <ToastContainer
-        position="bottom-right"
-        autoClose={4000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="dark" // Use dark theme
-      />
-    </div>
+    // <Router> was removed from here
+      <div className="flex flex-col min-h-screen bg-background text-textPrimary">
+        <Navbar />
+        <main className="flex-grow container mx-auto p-4 pt-8">
+          <Routes>
+            <Route path="/" element={<GameSelection />} />
+            {/* <Route path="/quiz/single-player" element={<SinglePlayerQuiz />} /> */} {/* Removed route */}
+            <Route path="/local-quiz" element={<LocalMultiplayerQuiz />} />
+            {/* Add other non-Firebase routes here if any */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </main>
+        <footer className="bg-gray-800 text-center text-sm text-textSecondary p-4">
+          © {new Date().getFullYear()} YT Games - Quiz App
+        </footer>
+      </div>
+    // </Router> was removed from here
   );
 }
 

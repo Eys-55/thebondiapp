@@ -1,191 +1,176 @@
-/**
- * Generates formatted quiz questions from concept data,
- * dynamically finding distractors from a pool of concepts.
- */
-
-// Helper function to shuffle an array (Fisher-Yates algorithm)
-const shuffleArray = (array) => {
-  let currentIndex = array.length, randomIndex;
-  while (currentIndex !== 0) {
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex--;
-    [array[currentIndex], array[randomIndex]] = [
-      array[randomIndex], array[currentIndex]];
-  }
-  return array;
-};
-
-// --- Helper function ---
-// Gets potential distractor values from a pool of concepts based on category and attribute.
-const getPotentialDistractors = (targetConcept, conceptPool) => {
-    if (!targetConcept || !conceptPool) return [];
-
-    return conceptPool
-        .filter(potentialDistractor =>
-            // Must be in the same category (or broader logic if needed)
-            potentialDistractor.category === targetConcept.category &&
-            // Must have the same attribute (e.g., both are 'Capital' or 'Country')
-            potentialDistractor.attribute === targetConcept.attribute &&
-            // Must not be the same concept
-            potentialDistractor.id !== targetConcept.id &&
-            // Must not have the same correct value as the target answer
-            potentialDistractor.correctValue !== targetConcept.correctValue
-        )
-        .map(c => c.correctValue); // Return only the values
-};
-
+import { concepts } from '../data/concepts'; // Assuming concepts are needed directly or passed
 
 /**
- * Generates a Multiple Choice question object from a concept, finding distractors dynamically.
- * @param {object} concept - The target concept object.
- * @param {Array<object>} conceptPool - The pool of all available concepts for finding distractors.
- * @returns {object|null} A formatted question object or null if generation fails.
+ * Shuffles array in place.
+ * @param {Array} array items An array containing the items.
  */
-export const generateMultipleChoice = (concept, conceptPool) => {
-  if (!concept || !conceptPool) {
-    console.warn(`Cannot generate MC for concept ${concept?.id}: Missing concept or pool.`);
-    return null;
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
   }
-
-  // --- Find Distractors ---
-  const potentialDistractorValues = getPotentialDistractors(concept, conceptPool);
-
-  if (potentialDistractorValues.length < 3) {
-    console.warn(`Cannot generate MC for concept ${concept.id}: Found only ${potentialDistractorValues.length} potential distractors (need 3).`);
-    // TODO: Optionally, could try finding distractors from broader categories or tags if < 3 found.
-    // For now, fail generation if not enough relevant distractors exist.
-    return null;
-  }
-
-  // Select 3 unique distractors randomly
-  const shuffledDistractors = shuffleArray([...potentialDistractorValues]);
-  const selectedDistractors = shuffledDistractors.slice(0, 3);
-
-  // --- Determine Question Text ---
-  let questionText = '';
-  let questionType = 'text_mc'; // Default type
-
-  if (concept.category === 'flags' && concept.subject?.length === 2) {
-    questionText = concept.subject;
-    questionType = 'flag_mc';
-  } else if (concept.attribute) {
-    questionText = `What is the ${concept.attribute.toLowerCase()} of ${concept.subject}?`;
-  } else if (concept.subject) {
-    questionText = `What is associated with: ${concept.subject}?`;
-  } else {
-     console.warn(`Cannot generate question text for concept ${concept.id}: Missing subject/attribute.`);
-     return null; // Cannot form a question
-  }
-
-  // Specific override for languages
-  if (concept.category === 'languages') {
-     questionText = `Which language is this: "${concept.subject}"?`;
-     questionType = 'language_mc';
-  }
-
-  // --- Assemble Question ---
-  const options = shuffleArray([concept.correctValue, ...selectedDistractors]);
-
-  return {
-    id: `${concept.id}-mc-${Date.now()}`,
-    question: questionText,
-    options: options,
-    correctAnswer: concept.correctValue,
-    type: questionType,
-    // conceptId: concept.id // Optional debug info
-  };
-};
+}
 
 /**
- * Generates an Identification question object from a concept.
- * @param {object} concept - The target concept object.
- * @returns {object|null} A formatted question object or null if generation fails.
+ * Generates a specified number of unique quiz questions based on game configuration.
+ *
+ * @param {object} gameConfig - Configuration for the game.
+ * @param {string[]} gameConfig.selectedCategories - Array of category IDs.
+ * @param {number} gameConfig.numQuestions - Total number of questions to generate.
+ * @param {string[]} gameConfig.allowedQuestionTypes - Array of allowed question type IDs (e.g., ['mc', 'tf', 'id', 'flag_mc', 'language_mc']).
+ * @param {object[]} allConcepts - The full list of concept objects from concepts.js.
+ * @returns {object[]} An array of generated question objects.
  */
-export const generateIdentification = (concept) => {
-    if (!concept || !concept.correctValue) {
-        console.warn(`Cannot generate ID question for concept ${concept?.id}: Missing concept or correctValue.`);
-        return null;
+export const generateQuestions = (gameConfig, allConcepts = concepts) => {
+  const { selectedCategories, numQuestions, allowedQuestionTypes } = gameConfig;
+  const questions = [];
+  let availableConcepts = [...allConcepts];
+
+  // Filter concepts by selected categories
+  if (selectedCategories && selectedCategories.length > 0) {
+    availableConcepts = availableConcepts.filter(concept =>
+      selectedCategories.includes(concept.category)
+    );
+  }
+
+  // Shuffle available concepts to get variety
+  shuffleArray(availableConcepts);
+
+  for (let i = 0; i < Math.min(numQuestions, availableConcepts.length); i++) {
+    const concept = availableConcepts[i];
+    let questionTypePool = [...allowedQuestionTypes];
+
+    // Determine possible question types for this concept
+    let possibleTypesForConcept = [];
+    if (questionTypePool.includes('mc')) { // Standard MC
+        if (concept.attribute && concept.correctValue) possibleTypesForConcept.push('text_mc');
+    }
+    if (questionTypePool.includes('tf') && concept.trueFalseStatement) { // True/False
+        possibleTypesForConcept.push('true_false');
+    }
+    if (questionTypePool.includes('id') && concept.correctValue) { // Identification
+        // For ID, question is usually the subject or a description of it.
+        // We'll use the true statement's structure but ask for the correctValue.
+        possibleTypesForConcept.push('identification');
+    }
+    if (questionTypePool.includes('flag_mc') && concept.category === 'flags') {
+        possibleTypesForConcept.push('flag_mc');
+    }
+    if (questionTypePool.includes('language_mc') && concept.category === 'languages') {
+        possibleTypesForConcept.push('language_mc');
     }
 
-    let questionText = '';
+    // Filter by allowed types again, in case some concept-specific types are not in global allowedQuestionTypes
+    possibleTypesForConcept = possibleTypesForConcept.filter(type => allowedQuestionTypes.includes(type));
 
-    // Determine question text based on category/subject/attribute
-    if (concept.category === 'flags' && concept.subject?.length === 2) {
-        questionText = `What country's flag is this: ${concept.subject}?`;
-    } else if (concept.category === 'languages') {
-        questionText = `What language is this: "${concept.subject}"?`;
-    } else if (concept.attribute) {
-        // More natural phrasing for identification
-        questionText = `The ${concept.attribute.toLowerCase()} of ${concept.subject} is:`;
-    } else if (concept.subject) {
-        // Fallback if attribute is missing
-        questionText = `Identify what is associated with: ${concept.subject}`;
-    } else {
-        console.warn(`Cannot generate identification question text for concept ${concept.id}: Missing subject/attribute.`);
-        return null; // Cannot form a question
+
+    if (possibleTypesForConcept.length === 0) {
+        console.warn(`No suitable question type for concept ${concept.id} with allowed types: ${allowedQuestionTypes.join(', ')}. Skipping.`);
+        continue; // Skip this concept if no question can be formed
     }
 
-    return {
-        id: `${concept.id}-id-${Date.now()}`,
-        question: questionText,
-        options: [], // No options for identification
-        correctAnswer: concept.correctValue, // The answer to be typed
-        type: 'identification',
-        // conceptId: concept.id // Optional debug info
+    shuffleArray(possibleTypesForConcept);
+    const selectedQuestionType = possibleTypesForConcept[0];
+
+    let questionObj = {
+      id: `${concept.id}-${selectedQuestionType}`,
+      conceptId: concept.id,
+      category: concept.category,
+      type: selectedQuestionType,
+      question: '',
+      options: [],
+      correctAnswer: concept.correctValue,
     };
-};
 
-/**
- * Generates a True/False question object from a concept, finding a distractor dynamically if needed.
- * @param {object} concept - The target concept object.
- * @param {Array<object>} conceptPool - The pool of all available concepts for finding distractors.
- * @returns {object|null} A formatted question object or null if generation fails.
- */
-export const generateTrueFalse = (concept, conceptPool) => {
-  if (!concept || !conceptPool || !concept.trueFalseStatement?.true || !concept.trueFalseStatement?.falseTemplate) {
-    console.warn(`Cannot generate T/F for concept ${concept?.id}: Missing required fields or pool.`);
-    return null;
-  }
-
-  let statement = '';
-  let correctAnswer = '';
-  const makeFalse = Math.random() < 0.5; // 50% chance to make a false statement
-
-  if (makeFalse) {
-    // --- Find a suitable distractor for the false statement ---
-    const potentialDistractorValues = getPotentialDistractors(concept, conceptPool);
-
-    if (potentialDistractorValues.length === 0) {
-        console.warn(`Cannot generate FALSE statement for T/F concept ${concept.id}: No potential distractors found. Defaulting to TRUE.`);
-        // Default to making a TRUE statement if no suitable distractor found
-        statement = concept.trueFalseStatement.true;
-        correctAnswer = 'True';
-    } else {
-        // Pick a random distractor from the potential values
-        const chosenDistractor = potentialDistractorValues[Math.floor(Math.random() * potentialDistractorValues.length)];
-        statement = concept.trueFalseStatement.falseTemplate.replace('{distractor}', chosenDistractor);
-
-        // Final check: Ensure the generated false statement isn't accidentally the same as the true one
-        if (statement === concept.trueFalseStatement.true) {
-            console.warn(`Generated false statement for ${concept.id} was same as true, defaulting to TRUE.`);
-            statement = concept.trueFalseStatement.true;
-            correctAnswer = 'True';
-        } else {
-            correctAnswer = 'False'; // Successfully generated a distinct false statement
+    // Generate distractors (for MC types)
+    const getDistractors = (currentConcept, count = 3) => {
+      const distractors = [];
+      const potentialDistractors = allConcepts.filter(c =>
+        c.id !== currentConcept.id &&
+        c.category === currentConcept.category && // Same category
+        (currentConcept.attribute ? c.attribute === currentConcept.attribute : true) && // Same attribute if specified
+        c.correctValue !== currentConcept.correctValue
+      );
+      shuffleArray(potentialDistractors);
+      for (let k = 0; k < Math.min(count, potentialDistractors.length); k++) {
+        distractors.push(potentialDistractors[k].correctValue);
+      }
+      // Ensure enough distractors, even if from different attributes/categories as a fallback
+      if (distractors.length < count) {
+        const fallbackDistractors = allConcepts.filter(c =>
+            c.id !== currentConcept.id &&
+            c.correctValue !== currentConcept.correctValue &&
+            !distractors.includes(c.correctValue)
+        );
+        shuffleArray(fallbackDistractors);
+        for (let k = 0; k < Math.min(count - distractors.length, fallbackDistractors.length); k++) {
+            distractors.push(fallbackDistractors[k].correctValue);
         }
+      }
+      return distractors;
+    };
+
+    switch (selectedQuestionType) {
+      case 'text_mc':
+        questionObj.question = `What is the ${concept.attribute.toLowerCase()} of ${concept.subject}?`;
+        questionObj.options = [concept.correctValue, ...getDistractors(concept, 3)];
+        shuffleArray(questionObj.options);
+        break;
+      case 'flag_mc':
+        questionObj.question = concept.subject; // The flag emoji
+        questionObj.options = [concept.correctValue, ...getDistractors(concept, 3)];
+        shuffleArray(questionObj.options);
+        break;
+      case 'language_mc':
+        questionObj.question = `"${concept.subject}" means "Hello World" in which language?`;
+        questionObj.options = [concept.correctValue, ...getDistractors(concept, 3)];
+        shuffleArray(questionObj.options);
+        break;
+      case 'true_false':
+        // Decide randomly whether to present the true or false statement
+        if (Math.random() > 0.5) {
+          questionObj.question = concept.trueFalseStatement.true;
+          questionObj.correctAnswer = 'True'; // Correct answer is "True"
+        } else {
+          // Find a distractor for the false statement
+          const distractorPool = allConcepts.filter(c =>
+            c.id !== concept.id &&
+            c.category === concept.category &&
+            (concept.attribute ? c.attribute === concept.attribute : true) &&
+            c.correctValue !== concept.correctValue
+          );
+          shuffleArray(distractorPool);
+          const distractor = distractorPool.length > 0 ? distractorPool[0].correctValue : "a different value"; // Fallback distractor
+          questionObj.question = concept.trueFalseStatement.falseTemplate.replace('{distractor}', distractor);
+          questionObj.correctAnswer = 'False'; // Correct answer is "False"
+        }
+        questionObj.options = ['True', 'False'];
+        break;
+      case 'identification':
+        // For identification, the question is often descriptive, and the answer is the specific term.
+        // We can use the 'true' statement and blank out the subject or correct value.
+        // Example: "Paris is the capital of _____." Answer: France
+        // Or: "What is the capital of France?" Answer: Paris
+        // Let's use the latter form for simplicity, asking for the correctValue.
+        if (concept.attribute) {
+            questionObj.question = `What is the ${concept.attribute.toLowerCase()} of ${concept.subject}?`;
+        } else {
+            // If no attribute, the subject itself might be the question.
+            // e.g. subject: "Largest Ocean on Earth", correctAnswer: "Pacific Ocean"
+            // Question: "What is the Largest Ocean on Earth?"
+            questionObj.question = `What is the ${concept.subject}?`;
+        }
+        // No options for identification, correctAnswer is already set.
+        questionObj.options = []; // Explicitly empty
+        break;
+      default:
+        console.warn(`Unhandled question type: ${selectedQuestionType} for concept ${concept.id}`);
+        continue; // Skip if type is unknown
     }
-  } else {
-    // Generate a TRUE statement
-    statement = concept.trueFalseStatement.true;
-    correctAnswer = 'True';
+    questions.push(questionObj);
   }
 
-  return {
-    id: `${concept.id}-tf-${Date.now()}`,
-    question: `True or False: ${statement}`,
-    options: ['True', 'False'], // Always the same options for T/F
-    correctAnswer: correctAnswer,
-    type: 'true_false',
-    // conceptId: concept.id // Optional debug info
-  };
+  // Ensure we have the exact number of questions requested if possible,
+  // by trimming if we generated more (e.g. due to min(numQuestions, availableConcepts.length))
+  return questions.slice(0, numQuestions);
 };

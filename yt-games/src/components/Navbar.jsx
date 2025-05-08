@@ -1,74 +1,27 @@
 import React from 'react';
-import { Link, useNavigate, useLocation, useParams } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { leaveGame } from '../services/firebaseService'; // Import leaveGame
 
 function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { gameId } = useParams(); // Get gameId if present in URL for multiplayer
 
-  const isMultiplayerLobby = location.pathname.startsWith('/lobby/');
-  const isMultiplayerQuiz = location.pathname.startsWith('/quiz/') && !location.pathname.startsWith('/quiz/single-player');
-  const isSinglePlayerQuiz = location.pathname.startsWith('/quiz/single-player');
-
-  // Show back button on Lobby or Quiz pages (both single and multiplayer)
-  const showBackButton = isMultiplayerLobby || isMultiplayerQuiz || isSinglePlayerQuiz;
+  // Only show back button on Local Multiplayer Quiz page
+  const showBackButton = location.pathname.startsWith('/local-quiz');
   
-  const getButtonTextAndTitle = () => {
-    if (isSinglePlayerQuiz) return { text: 'Leave Game', title: 'Leave Single Player Game' };
-    if (isMultiplayerQuiz) return { text: 'Leave Game', title: 'Leave Multiplayer Game' };
-    if (isMultiplayerLobby) return { text: 'Leave Lobby', title: 'Leave Multiplayer Lobby' };
-    return { text: 'Leave', title: 'Leave' }; // Fallback
-  };
-  const { text: buttonText, title: buttonTitle } = getButtonTextAndTitle();
+  const buttonText = 'Leave Game';
+  const buttonTitle = 'Leave Local Multiplayer Game';
 
 
-  const handleLeave = async () => {
-    if (isSinglePlayerQuiz) {
-        if (window.confirm("Are you sure you want to leave this single-player game? Your progress will be lost.")) {
+  const handleLeave = () => {
+    // Only handle leave for the local multiplayer quiz
+    if (showBackButton) {
+        if (window.confirm("Are you sure you want to leave this game? Your progress will be lost.")) {
             navigate('/');
-            toast.info("You have left the single-player game.");
+            toast.info("You have left the game.");
         }
-        return;
-    }
-
-    // Multiplayer leave logic
-    if (!gameId) {
-      // This case should ideally not be reached if showBackButton is true for multiplayer
-      console.error("Leave action attempted on multiplayer page without gameId.");
-      toast.error("Cannot leave: Game ID is missing.");
-      navigate('/');
-      return;
-    }
-
-    const leaveMessage = isMultiplayerQuiz
-        ? "Are you sure you want to leave the game? Your progress might be lost if you rejoin later."
-        : "Are you sure you want to leave the lobby?";
-
-    if (window.confirm(leaveMessage)) {
-        const playerId = localStorage.getItem(`ytg-player-${gameId}`);
-        const hostId = localStorage.getItem(`ytg-host-${gameId}`);
-        const userIdToLeave = playerId || hostId;
-
-        if (userIdToLeave) {
-            try {
-                console.log(`Attempting to leave game ${gameId} as user ${userIdToLeave}`);
-                await leaveGame(gameId, userIdToLeave);
-                console.log(`Successfully called leaveGame for user ${userIdToLeave}`);
-                toast.info("You have left the game.");
-            } catch (error) {
-                console.error(`Failed to update Firestore on leaving game ${gameId}:`, error);
-                toast.error(`Error leaving game: ${error.message}. Cleaning up locally.`);
-            }
-        } else {
-             console.warn("Could not find player/host ID in local storage to leave game.");
-             toast.warn("Could not find local identity. Cleaning up locally.");
-        }
-
-        localStorage.removeItem(`ytg-host-${gameId}`);
-        localStorage.removeItem(`ytg-player-${gameId}`);
-        console.log(`Cleared local storage for game ${gameId}`);
+    } else {
+        // Fallback if somehow called when button isn't shown
         navigate('/');
     }
   };
