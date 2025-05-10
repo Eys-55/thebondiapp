@@ -6,6 +6,10 @@ import QuizPage from '../TriviaNights/pages/QuizPage'; // Renamed from LocalMult
 import NotFound from '../TriviaNights/pages/NotFound';
 import Navbar from './Navbar'; // Import the Navbar
 
+// Truth or Dare components
+import TruthOrDareSetup from '../TruthOrDare/pages/TruthOrDareSetup';
+import TruthOrDareGame from '../TruthOrDare/pages/TruthOrDareGame';
+
 function App() {
   return (
       <div className="flex flex-col min-h-screen bg-background text-textPrimary">
@@ -18,6 +22,10 @@ function App() {
             {/* Trivia Nights Routes */}
             <Route path="/trivia-nights/setup" element={<GameSelection />} />
             <Route path="/trivia-nights/play" element={<QuizPage />} />
+
+            {/* Truth or Dare Routes */}
+            <Route path="/truth-or-dare/setup" element={<TruthOrDareSetup />} />
+            <Route path="/truth-or-dare/play" element={<TruthOrDareGame />} />
 
             {/* Catch-all 404 */}
             <Route path="*" element={<NotFound />} />

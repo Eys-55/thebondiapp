@@ -27,7 +27,9 @@ function QuizPage() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState(0);
   const [gamePhase, setGamePhase] = useState('loading'); // 'loading', 'answering', 'answer_revealed', 'finished'
-  const [playerScoredThisRound, setPlayerScoredThisRound] = useState(null);
+  
+  const [pendingAwardedPlayerIds, setPendingAwardedPlayerIds] = useState([]); // IDs of players selected, not yet confirmed
+  const [awardedPlayerIdsThisRound, setAwardedPlayerIdsThisRound] = useState([]); // IDs of players confirmed for points this round
 
   const timerRef = useRef(null);
   const isMountedRef = useRef(true);
@@ -44,28 +46,26 @@ function QuizPage() {
     if (!initialGameConfig || !initialPlayersSetup || initialPlayersSetup.length === 0) {
       toast.error("Game configuration or player data missing. Returning to selection.");
       setGamePhase('finished');
-      setTimeout(() => navigate('/trivia-nights/setup'), 3000);
       return;
     }
-    setGameConfig(initialGameConfig);
+    const fullGameConfig = { scoringMode: 'fastest', ...initialGameConfig };
+    setGameConfig(fullGameConfig);
     setPlayers(initialPlayersSetup.map(p => ({...p, score: p.score || 0})));
 
     try {
-      const generatedQuestions = generateQuestionsForGame(initialGameConfig, concepts);
+      const generatedQuestions = generateQuestionsForGame(fullGameConfig, concepts);
       if (generatedQuestions.length === 0) {
         toast.error("No questions could be generated. Please try different options.");
         setGamePhase('finished');
-        setTimeout(() => navigate('/trivia-nights/setup'), 3000);
         return;
       }
       setQuestions(generatedQuestions);
-      setTimeLeft(initialGameConfig.timePerQuestion);
+      setTimeLeft(fullGameConfig.timePerQuestion);
       setGamePhase('answering');
     } catch (e) {
       console.error("Error generating questions:", e);
       toast.error(`Error setting up game: ${e.message}`);
       setGamePhase('finished');
-       setTimeout(() => navigate('/trivia-nights/setup'), 3000);
     }
     
     return () => {
@@ -76,10 +76,9 @@ function QuizPage() {
 
   useEffect(() => {
     clearInterval(timerRef.current);
-    if (gamePhase !== 'answering' || !currentQuestion) return;
+    if (gamePhase !== 'answering' || !currentQuestion || !gameConfig) return;
 
     setTimeLeft(gameConfig.timePerQuestion);
-
     timerRef.current = setInterval(() => {
       setTimeLeft(prevTime => {
         if (prevTime <= 1) {
@@ -97,19 +96,32 @@ function QuizPage() {
     return () => clearInterval(timerRef.current);
   }, [gamePhase, currentQuestionIndex, gameConfig, currentQuestion]);
 
-  const handleShowAnswer = (timeoutTriggered = false) => {
-    if (gamePhase !== 'answering') return;
-    clearInterval(timerRef.current);
-    setGamePhase('answer_revealed');
-    setTimeLeft(0);
-    if (!timeoutTriggered) {
-        toast.info("Answer revealed. Award points if anyone was correct!");
+  const handlePlayerSelectionToggle = (selectedPlayerId) => {
+    if (gamePhase !== 'answering' && gamePhase !== 'answer_revealed') return;
+    if (awardedPlayerIdsThisRound.includes(selectedPlayerId)) {
+        toast.info("Points already confirmed for this player.");
+        return; // Cannot change selection if points already confirmed for this player
     }
+
+    setPendingAwardedPlayerIds(prevPending => {
+        if (gameConfig.scoringMode === 'fastest') {
+            if (prevPending.includes(selectedPlayerId)) {
+                return []; // Deselect if already pending
+            }
+            return [selectedPlayerId]; // Select, replacing any other pending
+        } else { // 'multiple' mode
+            if (prevPending.includes(selectedPlayerId)) {
+                return prevPending.filter(id => id !== selectedPlayerId); // Deselect
+            }
+            return [...prevPending, selectedPlayerId]; // Select
+        }
+    });
   };
-  
-  const handleAwardPoint = (awardedPlayerId) => {
-    if (playerScoredThisRound || (gamePhase !== 'answering' && gamePhase !== 'answer_revealed')) {
-      return;
+
+  const handleConfirmAwards = () => {
+    if ((gamePhase !== 'answering' && gamePhase !== 'answer_revealed') || pendingAwardedPlayerIds.length === 0) {
+        toast.warn("No players selected to confirm awards or invalid game phase.");
+        return;
     }
 
     if (gamePhase === 'answering') {
@@ -118,27 +130,52 @@ function QuizPage() {
         setTimeLeft(0);
     }
 
-    setPlayers(prevPlayers =>
-      prevPlayers.map(p =>
-        p.id === awardedPlayerId ? { ...p, score: p.score + 10 } : p
-      )
-    );
-    setPlayerScoredThisRound(awardedPlayerId);
-    const awardedPlayer = players.find(p => p.id === awardedPlayerId);
-    toast.success(`${awardedPlayer?.name || 'Player'} gets 10 points!`);
+    let newPointsAwarded = 0;
+    const playerNamesAwarded = [];
+
+    const updatedPlayers = players.map(player => {
+        if (pendingAwardedPlayerIds.includes(player.id) && !awardedPlayerIdsThisRound.includes(player.id)) {
+            newPointsAwarded++;
+            playerNamesAwarded.push(player.name);
+            return { ...player, score: player.score + 10 };
+        }
+        return player;
+    });
+
+    if (newPointsAwarded > 0) {
+        setPlayers(updatedPlayers);
+        setAwardedPlayerIdsThisRound(prevConfirmed => [...new Set([...prevConfirmed, ...pendingAwardedPlayerIds])]);
+        toast.success(`${playerNamesAwarded.join(', ')} awarded 10 points!`);
+    } else {
+        toast.info("Selected players already had points confirmed or no new selections.");
+    }
+    setPendingAwardedPlayerIds([]); // Clear pending selections after confirmation
+  };
+  
+  const handleShowAnswer = () => {
+    if (gamePhase !== 'answering') return;
+    clearInterval(timerRef.current);
+    setGamePhase('answer_revealed');
+    setTimeLeft(0);
+    toast.info("Answer revealed. Select correct player(s) and confirm awards.");
   };
 
   const handleNextQuestion = () => {
-    if (gamePhase !== 'answer_revealed' && gamePhase !== 'answering') return;
+    if (gamePhase !== 'answering' && gamePhase !== 'answer_revealed') return;
 
-    if (gamePhase === 'answering' && timeLeft > 0) {
+    if (pendingAwardedPlayerIds.length > 0) {
+        toast.warn("Unconfirmed selections discarded.");
+    }
+    if (gamePhase === 'answering' && timeLeft > 0 && awardedPlayerIdsThisRound.length === 0) {
         toast.info("Question skipped.");
     }
+
     clearInterval(timerRef.current);
+    setPendingAwardedPlayerIds([]);
+    setAwardedPlayerIdsThisRound([]);
 
     if (currentQuestionIndex + 1 < questions.length) {
       setCurrentQuestionIndex(prevIndex => prevIndex + 1);
-      setPlayerScoredThisRound(null);
       setGamePhase('answering');
     } else {
       setGamePhase('finished');
@@ -155,17 +192,19 @@ function QuizPage() {
         return `"${q.question}" means "Hello World" in which language?`;
     }
     return q.question;
-  }
+  };
 
   if (gamePhase === 'loading') return <div className="flex items-center justify-center h-64 text-xl text-textSecondary">Setting up your multiplayer game...</div>;
-
-  if ((!initialGameConfig || !initialPlayersSetup || initialPlayersSetup.length === 0) && gamePhase === 'finished') return (
-     <div className="max-w-lg mx-auto p-8 bg-gray-800 rounded-lg shadow-xl text-center border border-danger">
-       <h2 className="text-2xl font-bold mb-4 text-danger-light">Game Error</h2>
-       <p className="text-lg mb-6 text-textPrimary">Missing game setup data. Please return to selection.</p>
-       <button onClick={() => navigate('/trivia-nights/setup')} className="bg-primary hover:bg-primary-dark text-white font-semibold py-2 px-6 rounded">Back to Setup</button>
-     </div>
-   );
+  
+  if ((!initialGameConfig || !initialPlayersSetup || initialPlayersSetup.length === 0 || (questions.length === 0 && gamePhase !== 'loading')) && gamePhase === 'finished') {
+     return (
+       <div className="max-w-lg mx-auto p-8 bg-gray-800 rounded-lg shadow-xl text-center border border-danger">
+         <h2 className="text-2xl font-bold mb-4 text-danger-light">Game Setup Error</h2>
+         <p className="text-lg mb-6 text-textPrimary">There was an issue setting up the game. Please return to the setup page and try again.</p>
+         <button onClick={() => navigate('/trivia-nights/setup')} className="bg-primary hover:bg-primary-dark text-white font-semibold py-2 px-6 rounded">Back to Setup</button>
+       </div>
+     );
+  }
   
   if (gamePhase === 'finished') {
     const sortedPlayers = [...players].sort((a, b) => b.score - a.score);
@@ -176,12 +215,8 @@ function QuizPage() {
         <ul className="space-y-2 mb-8 text-left max-w-sm mx-auto">
             {sortedPlayers.map((p, index) => (
                 <li key={p.id} className={`flex justify-between items-center px-4 py-2 rounded border ${ index === 0 ? 'bg-success-dark border-success-light ring-2 ring-success-light shadow-lg' : 'bg-gray-700 border-gray-600' }`}>
-                    <span className={`font-medium ${index === 0 ? 'text-white' : 'text-textPrimary'}`}>
-                        {index + 1}. {p.name} {index === 0 ? '🏆' : ''}
-                    </span>
-                    <span className={`${index === 0 ? 'text-white' : 'text-textPrimary'} font-medium`}>
-                        Score: {p.score}
-                    </span>
+                    <span className={`font-medium ${index === 0 ? 'text-white' : 'text-textPrimary'}`}>{index + 1}. {p.name} {index === 0 ? '🏆' : ''}</span>
+                    <span className={`${index === 0 ? 'text-white' : 'text-textPrimary'} font-medium`}>Score: {p.score}</span>
                 </li>
             ))}
         </ul>
@@ -190,38 +225,25 @@ function QuizPage() {
     );
   }
 
-  if (!currentQuestion) return <div className="flex items-center justify-center h-64 text-xl text-textSecondary">Loading question...</div>;
+  if (!currentQuestion || !gameConfig) return <div className="flex items-center justify-center h-64 text-xl text-textSecondary">Loading question or game configuration...</div>;
 
   return (
     <div className="max-w-4xl mx-auto p-5 md:p-8 bg-gray-800 rounded-lg shadow-xl flex flex-col min-h-[calc(100vh-120px)]">
-      {/* Header: Question Number, Timer */}
       <div className="mb-4 px-2 pb-3 border-b border-gray-700 flex justify-between items-center flex-shrink-0">
-          <h2 className="text-xl md:text-2xl font-bold text-primary-light">
-              Q: {currentQuestionIndex + 1} / {questions.length}
-          </h2>
+          <h2 className="text-xl md:text-2xl font-bold text-primary-light">Q: {currentQuestionIndex + 1} / {questions.length}</h2>
           <div className={`text-lg md:text-xl font-semibold ${gamePhase === 'answering' && timeLeft > 0 ? 'text-warning-light' : 'text-gray-500'}`}>
               <TimerIcon className="inline-block mr-1"/> {timeLeft > 0 ? `${timeLeft}s` : (gamePhase === 'answer_revealed' ? 'Revealed' : "Time's Up")}
           </div>
       </div>
 
-      {/* Question Area */}
       <div key={`question-area-${currentQuestionIndex}`} className="flex-grow flex flex-col justify-center items-center text-center bg-gray-700 p-6 rounded mb-4 shadow">
         <p className="text-xl md:text-2xl font-medium text-textPrimary">{renderQuestionText(currentQuestion)}</p>
       </div>
 
-      {/* Options Area (if MC mode, non-interactive) */}
       {gameConfig.includeChoices && currentQuestion.options && currentQuestion.options.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
           {currentQuestion.options.map((option, index) => (
-            <div // Changed from button to div for non-interactivity
-              key={index}
-              className={`p-3 rounded-lg text-left text-md border-2
-                ${ gamePhase === 'answer_revealed' ?
-                    (option === currentQuestion.correctAnswer ? 'bg-success-dark border-success text-white' : 'bg-gray-600 border-gray-500 text-gray-300')
-                    : 'bg-gray-600 border-gray-500 text-textPrimary'
-                }
-              `}
-            >
+            <div key={index} className={`p-3 rounded-lg text-left text-md border-2 ${gamePhase === 'answer_revealed' ? (option === currentQuestion.correctAnswer ? 'bg-success-dark border-success text-white' : 'bg-gray-600 border-gray-500 text-gray-300') : 'bg-gray-600 border-gray-500 text-textPrimary'}`}>
               {option}
               {gamePhase === 'answer_revealed' && option === currentQuestion.correctAnswer && <CheckIcon className="h-5 w-5 float-right text-white" />}
             </div>
@@ -229,54 +251,62 @@ function QuizPage() {
         </div>
       )}
 
-      {/* Revealed Answer Display (Always shown when answer is revealed) */}
       {gamePhase === 'answer_revealed' && (
         <div className={`mb-4 p-3 rounded text-center bg-info-dark border border-info`}>
-            <p className="font-semibold text-lg text-white">
-                The correct answer is: <span className="font-bold">{currentQuestion.correctAnswer}</span>
-            </p>
-            {playerScoredThisRound && <p className="text-sm text-success-light mt-1">{players.find(p=>p.id === playerScoredThisRound)?.name} scored this round!</p>}
+            <p className="font-semibold text-lg text-white">The correct answer is: <span className="font-bold">{currentQuestion.correctAnswer}</span></p>
+            {awardedPlayerIdsThisRound.length > 0 && <p className="text-sm text-success-light mt-1">{players.filter(p => awardedPlayerIdsThisRound.includes(p.id)).map(p => p.name).join(', ')} scored this round!</p>}
         </div>
       )}
       
-      {/* Player Score Boxes / Award Point Buttons */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-          {players.map(p => (
-              <button
-                  key={p.id}
-                  onClick={() => handleAwardPoint(p.id)}
-                  disabled={playerScoredThisRound || (gamePhase !== 'answering' && gamePhase !== 'answer_revealed')}
-                  className={`p-3 rounded-lg text-center transition duration-200 ease-in-out border-2
-                              ${playerScoredThisRound === p.id ? '!bg-success border-success-light ring-2 ring-white' :
-                                (playerScoredThisRound || (gamePhase !== 'answering' && gamePhase !== 'answer_revealed')) ? 'bg-gray-700 border-gray-600 opacity-70 cursor-not-allowed'
-                                : 'bg-gray-600 hover:bg-success hover:border-success-light border-gray-500 cursor-pointer'
-                              }
-                            `}
-              >
-                  <p className="text-md font-semibold truncate text-white">{p.name}</p>
-                  <p className="text-xl font-bold text-success-light">{p.score}</p>
-              </button>
-          ))}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 mb-4">
+          {players.map(p => {
+              const isConfirmedAward = awardedPlayerIdsThisRound.includes(p.id);
+              const isPendingAward = pendingAwardedPlayerIds.includes(p.id) && !isConfirmedAward;
+              
+              let buttonClass = 'bg-gray-600 hover:bg-gray-500 border-gray-500 hover:border-gray-400 cursor-pointer'; // Default
+              if (isConfirmedAward) {
+                buttonClass = '!bg-success border-success-light ring-2 ring-white cursor-not-allowed';
+              } else if (isPendingAward) {
+                buttonClass = 'bg-yellow-600 hover:bg-yellow-500 border-yellow-400 ring-2 ring-yellow-200 cursor-pointer';
+              }
+
+              return (
+                <button
+                    key={p.id}
+                    onClick={() => handlePlayerSelectionToggle(p.id)}
+                    disabled={isConfirmedAward || (gamePhase !== 'answering' && gamePhase !== 'answer_revealed')}
+                    className={`p-3 rounded-lg text-center transition duration-200 ease-in-out border-2 ${buttonClass}`}
+                >
+                    <p className="text-md font-semibold truncate text-white">{p.name}</p>
+                    <p className="text-xl font-bold text-success-light">{p.score}</p>
+                </button>
+              );
+          })}
       </div>
 
-      {/* Host Action Buttons */}
       <div className="flex-shrink-0 flex flex-col sm:flex-row gap-3 mt-auto">
           {gamePhase === 'answering' && (
               <button
-                  onClick={() => handleShowAnswer(false)}
+                  onClick={handleShowAnswer}
                   className="flex-1 bg-info hover:bg-info-dark text-white font-bold py-3 px-6 rounded-lg text-lg"
-                  disabled={playerScoredThisRound}
               >
                   Show Answer
               </button>
           )}
+          {(gamePhase === 'answering' || gamePhase === 'answer_revealed') && pendingAwardedPlayerIds.length > 0 && (
+              <button
+                  onClick={handleConfirmAwards}
+                  className="flex-1 bg-success hover:bg-success-dark text-white font-bold py-3 px-6 rounded-lg text-lg"
+              >
+                  Confirm Awards ({pendingAwardedPlayerIds.length})
+              </button>
+          )}
           <button
               onClick={handleNextQuestion}
-              className={`flex-1 bg-primary hover:bg-primary-dark text-white font-bold py-3 px-6 rounded-lg text-lg
-                          ${(gamePhase === 'loading' || gamePhase === 'finished') ? 'opacity-50 cursor-not-allowed' : ''}`}
-              disabled={gamePhase === 'loading' || gamePhase === 'finished' || (gamePhase === 'answering' && playerScoredThisRound && timeLeft > 0) } // Also disable if someone scored and timer still running (host should click next)
+              className={`flex-1 bg-primary hover:bg-primary-dark text-white font-bold py-3 px-6 rounded-lg text-lg ${(gamePhase === 'loading' || gamePhase === 'finished') ? 'opacity-50 cursor-not-allowed' : ''}`}
+              disabled={gamePhase === 'loading' || gamePhase === 'finished'}
           >
-              {gamePhase === 'answering' ? 'Skip / Next Question' : 'Next Question'}
+              {gamePhase === 'answering' && awardedPlayerIdsThisRound.length === 0 && pendingAwardedPlayerIds.length === 0 ? 'Skip Question' : 'Next Question'}
           </button>
       </div>
     </div>

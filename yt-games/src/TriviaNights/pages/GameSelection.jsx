@@ -11,7 +11,7 @@ const CATEGORIES = [
   { id: 'languages', name: 'Languages' },
 ];
 
-const MAX_PLAYERS = 4;
+const MAX_PLAYERS = 10; // Increased max players
 const MIN_PLAYERS = 2; // Assuming a local multiplayer game needs at least 2 players
 
 function GameSelection() {
@@ -20,6 +20,7 @@ function GameSelection() {
   const [numQuestions, setNumQuestions] = useState(10);
   const [timePerQuestion, setTimePerQuestion] = useState(10);
   const [includeChoices, setIncludeChoices] = useState(true);
+  const [scoringMode, setScoringMode] = useState('fastest'); // 'fastest' or 'multiple'
 
   const [numPlayersUI, setNumPlayersUI] = useState(MIN_PLAYERS);
   const [playerNames, setPlayerNames] = useState(Array(MIN_PLAYERS).fill(''));
@@ -107,6 +108,7 @@ function GameSelection() {
         numQuestions: Math.min(50, Math.max(1, numQuestions)),
         timePerQuestion: Math.min(60, Math.max(2, timePerQuestion)),
         includeChoices,
+        scoringMode, // Add scoring mode to game config
     };
 
     const activePlayers = playerNames.slice(0, numPlayersUI).map(name => ({
@@ -142,24 +144,26 @@ function GameSelection() {
             </select>
         </div>
 
-        {Array.from({ length: numPlayersUI }).map((_, index) => (
-          <div key={`player-input-${index}`} className="mb-3 flex flex-col items-start">
-            <label htmlFor={`player-name-${index}`} className="mb-1 text-xs font-medium text-textSecondary">Player {index + 1} Name:</label>
-            <input
-              type="text"
-              id={`player-name-${index}`}
-              value={playerNames[index] || ''}
-              onChange={(e) => handlePlayerNameChange(index, e.target.value)}
-              maxLength="20"
-              placeholder={`Enter Player ${index + 1} Name (max 20)`}
-              className={`w-full px-3 py-2 bg-gray-600 border rounded-md text-textPrimary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:opacity-50 ${errors.playerNames && errors.playerNames[index] ? 'border-danger' : 'border-gray-500'}`}
-              disabled={isLoading}
-              aria-invalid={!!(errors.playerNames && errors.playerNames[index])}
-              aria-describedby={`player-name-error-${index}`}
-            />
-            {errors.playerNames && errors.playerNames[index] && <p id={`player-name-error-${index}`} className="mt-1 text-xs text-danger-light">{errors.playerNames[index]}</p>}
-          </div>
-        ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4"> {/* Added grid for player inputs */}
+          {Array.from({ length: numPlayersUI }).map((_, index) => (
+            <div key={`player-input-${index}`} className="mb-3 flex flex-col items-start">
+              <label htmlFor={`player-name-${index}`} className="mb-1 text-xs font-medium text-textSecondary">Player {index + 1} Name:</label>
+              <input
+                type="text"
+                id={`player-name-${index}`}
+                value={playerNames[index] || ''}
+                onChange={(e) => handlePlayerNameChange(index, e.target.value)}
+                maxLength="20"
+                placeholder={`Player ${index + 1} (max 20)`}
+                className={`w-full px-3 py-2 bg-gray-600 border rounded-md text-textPrimary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:opacity-50 ${errors.playerNames && errors.playerNames[index] ? 'border-danger' : 'border-gray-500'}`}
+                disabled={isLoading}
+                aria-invalid={!!(errors.playerNames && errors.playerNames[index])}
+                aria-describedby={`player-name-error-${index}`}
+              />
+              {errors.playerNames && errors.playerNames[index] && <p id={`player-name-error-${index}`} className="mt-1 text-xs text-danger-light">{errors.playerNames[index]}</p>}
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Game Settings Section */}
@@ -209,6 +213,38 @@ function GameSelection() {
             </label>
             <p className="ml-auto text-xs text-gray-400">(If unchecked, questions are identification)</p>
         </div>
+
+        {/* Scoring Mode Selection */}
+        <div className="mb-4 p-3 bg-gray-650 rounded-md border border-gray-600">
+            <label className="block text-md font-medium text-gray-200 mb-2">Scoring Mode:</label>
+            <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-2 sm:space-y-0">
+                <label className="flex items-center space-x-2 px-3 py-1.5 rounded-md cursor-pointer transition duration-200 border bg-gray-600 hover:bg-gray-500 text-textPrimary border-gray-600 hover:border-gray-500 has-[:checked]:bg-primary-dark has-[:checked]:text-white has-[:checked]:border-primary-light has-[:checked]:ring-1 has-[:checked]:ring-primary-light">
+                    <input
+                        type="radio"
+                        name="scoringMode"
+                        value="fastest"
+                        checked={scoringMode === 'fastest'}
+                        onChange={(e) => setScoringMode(e.target.value)}
+                        disabled={isLoading}
+                        className="form-radio h-4 w-4 text-primary focus:ring-primary-light disabled:opacity-50"
+                    />
+                    <span>Fastest Finger (One winner per question)</span>
+                </label>
+                <label className="flex items-center space-x-2 px-3 py-1.5 rounded-md cursor-pointer transition duration-200 border bg-gray-600 hover:bg-gray-500 text-textPrimary border-gray-600 hover:border-gray-500 has-[:checked]:bg-primary-dark has-[:checked]:text-white has-[:checked]:border-primary-light has-[:checked]:ring-1 has-[:checked]:ring-primary-light">
+                    <input
+                        type="radio"
+                        name="scoringMode"
+                        value="multiple"
+                        checked={scoringMode === 'multiple'}
+                        onChange={(e) => setScoringMode(e.target.value)}
+                        disabled={isLoading}
+                        className="form-radio h-4 w-4 text-primary focus:ring-primary-light disabled:opacity-50"
+                    />
+                    <span>Anyone Correct (Multiple winners possible)</span>
+                </label>
+            </div>
+        </div>
+
       </div>
       
       <div className="mt-8 p-4 bg-gray-700 rounded-md shadow flex justify-center">

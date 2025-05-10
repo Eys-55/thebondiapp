@@ -38,7 +38,16 @@ const games = [
     tags: ['Drawing', 'Party', 'Creative'],
     disabled: true,
   },
-    {
+  {
+    id: 'truth-or-dare',
+    name: 'Truth or Dare',
+    description: 'The classic party game of embarrassing questions and funny challenges. Spin the bottle (figuratively!) and choose your fate.',
+    imageUrl: 'https://via.placeholder.com/300x200/8B5CF6/FFFFFF?text=Truth+or+Dare', // Purple theme
+    link: '/truth-or-dare/setup',
+    tags: ['Party', 'Social', 'Icebreaker'],
+    disabled: false, // Enable this game
+  },
+  {
     id: 'never-have-i-ever',
     name: 'Never Have I Ever',
     description: 'Discover secrets and funny stories with this classic icebreaker.',
@@ -94,7 +103,11 @@ function HomePage() {
               ) : (
                 <Link
                     to={game.link}
-                    className="block w-full mt-auto text-center bg-primary hover:bg-primary-dark text-white font-bold py-2 px-4 rounded transition duration-200"
+                    className={`block w-full mt-auto text-center font-bold py-2 px-4 rounded transition duration-200 text-white ${
+                      game.id === 'truth-or-dare'
+                        ? 'bg-purple-600 hover:bg-purple-700'
+                        : 'bg-primary hover:bg-primary-dark'
+                    }`}
                 >
                     Play Now
                 </Link>

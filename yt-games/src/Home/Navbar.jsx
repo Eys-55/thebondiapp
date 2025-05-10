@@ -10,7 +10,7 @@ function Navbar() {
 
   // Trivia Nights Setup page
   if (location.pathname.startsWith('/trivia-nights/setup')) {
-    pageContextTitle = "Quiz Game Setup";
+    pageContextTitle = "Trivia Game Setup"; // Changed for clarity
     actionButton = (
       <button
         onClick={() => navigate('/')}
@@ -30,6 +30,34 @@ function Navbar() {
           // if (window.confirm("Are you sure you want to leave the game? Your progress will be lost.")) {
           navigate('/trivia-nights/setup');
           // }
+        }}
+        className="bg-danger hover:bg-danger-dark text-white font-semibold py-2 px-4 rounded-lg text-sm transition duration-200 ease-in-out"
+      >
+        Leave Game
+      </button>
+    );
+  }
+  // Truth or Dare Setup page
+  else if (location.pathname.startsWith('/truth-or-dare/setup')) {
+    pageContextTitle = "Truth or Dare Setup";
+    actionButton = (
+      <button
+        onClick={() => navigate('/')}
+        className="bg-gray-600 hover:bg-gray-500 text-white font-semibold py-2 px-4 rounded-lg text-sm transition duration-200 ease-in-out"
+      >
+        Back to Home
+      </button>
+    );
+  }
+  // Truth or Dare Play page
+  else if (location.pathname.startsWith('/truth-or-dare/play')) {
+    pageContextTitle = "Truth or Dare";
+    actionButton = (
+      <button
+        onClick={() => {
+          if (window.confirm("Are you sure you want to leave the game?")) {
+            navigate('/truth-or-dare/setup');
+          }
         }}
         className="bg-danger hover:bg-danger-dark text-white font-semibold py-2 px-4 rounded-lg text-sm transition duration-200 ease-in-out"
       >
