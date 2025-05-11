@@ -4,39 +4,44 @@ import { toast } from 'react-toastify';
 
 const ROULETTE_INTERVAL = 100;
 const PLAYER_ROULETTE_DURATION = 2500;
-const TASK_ROULETTE_DURATION = 1500;
+const TASK_ROULETTE_DURATION = 1500; // Only for classic mode system-generated tasks
+const RESPONSE_ANIMATION_DURATION = 2500; // Duration for accept/reject animation
 
 function TruthOrDareGame() {
   const navigate = useNavigate();
   const location = useLocation();
   const { gameConfig } = location.state || {};
 
-  const [allTruths, setAllTruths] = useState({});
-  const [allDares, setAllDares] = useState({});
-  const [filteredTruths, setFilteredTruths] = useState([]);
-  const [filteredDares, setFilteredDares] = useState([]);
+  const [allTruthsData, setAllTruthsData] = useState({}); // Stores full data objects by category
+  const [allDaresData, setAllDaresData] = useState({});   // Stores full data objects by category
+  
+  const [filteredTruthTexts, setFilteredTruthTexts] = useState([]); // Stores only task texts for current game
+  const [filteredDareTexts, setFilteredDareTexts] = useState([]);   // Stores only task texts for current game
   
   const [players, setPlayers] = useState([]);
-  const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0); // For sequential
-  const [doer, setDoer] = useState(null); // Player A
-  const [commander, setCommander] = useState(null); // Player B (for Pair mode)
+  const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
+  const [doer, setDoer] = useState(null);
+  const [commander, setCommander] = useState(null);
 
   const [gamePhase, setGamePhase] = useState('loading');
-  // Phases: loading, player_selection_start, player_selection_roulette,
-  // classic_choice_pending, pair_commander_chooses_type,
-  // task_selection_roulette, task_revealed_system,
-  // pair_commander_defines_task, task_revealed_player_defined,
-  // doer_responds, turn_ended
+  // Phases: loading,
+  // player_selection_start, doer_selection_roulette,
+  // doer_selected_pending_commander_selection, commander_selection_roulette,
+  // classic_choice_pending (Classic Mode),
+  // pair_doer_chooses_type (Pair Mode - Doer picks T/D type),
+  // task_selection_roulette (Classic Mode - System picks task),
+  // task_revealed_system (Classic Mode - System task shown),
+  // task_revealed_verbal (Pair Mode - Commander to give task, Doer to respond),
+  // doer_responds (intermediate state before animation), turn_ended
 
-  const [currentTask, setCurrentTask] = useState({ type: '', text: '' }); // type: 'truth' or 'dare'
+  const [currentTask, setCurrentTask] = useState({ type: '', text: '' });
   const [rouletteDisplayText, setRouletteDisplayText] = useState('');
-  const [playerDefinedTaskText, setPlayerDefinedTaskText] = useState('');
+  const [responseAnimation, setResponseAnimation] = useState(null); // { type: 'accepted' | 'rejected', doerName: string, taskType: string }
   
   const rouletteIntervalRef = useRef(null);
   const rouletteTimeoutRef = useRef(null);
   const isMountedRef = useRef(true);
 
-  // Load T/D data
   useEffect(() => {
     isMountedRef.current = true;
     const fetchData = async () => {
@@ -46,115 +51,175 @@ function TruthOrDareGame() {
         if (!truthsRes.ok || !daresRes.ok) throw new Error("Failed to load T/D data.");
         const truthsData = await truthsRes.json();
         const daresData = await daresRes.json();
-        setAllTruths(truthsData);
-        setAllDares(daresData);
+        if (isMountedRef.current) {
+          setAllTruthsData(truthsData);
+          setAllDaresData(daresData);
+        }
       } catch (error) {
-        toast.error(`Error loading data: ${error.message}`);
-        navigate('/truth-or-dare/setup');
+        if (isMountedRef.current) {
+          toast.error(`Error loading data: ${error.message}`);
+          navigate('/truth-or-dare/setup');
+        }
       }
     };
     fetchData();
-    return () => { isMountedRef.current = false; };
+    return () => {
+      isMountedRef.current = false;
+      clearInterval(rouletteIntervalRef.current);
+      clearTimeout(rouletteTimeoutRef.current);
+    };
   }, [navigate]);
 
-  // Initialize game with config
   useEffect(() => {
-    if (!gameConfig || Object.keys(allTruths).length === 0 || Object.keys(allDares).length === 0) {
-      if (gameConfig && (Object.keys(allTruths).length === 0 || Object.keys(allDares).length === 0) && gamePhase !== 'loading') {
-        // Data not loaded yet, but config is there. Wait for data.
-      } else if (!gameConfig && gamePhase !== 'loading') {
+    if (!gameConfig || Object.keys(allTruthsData).length === 0 || Object.keys(allDaresData).length === 0) {
+      if (!gameConfig && gamePhase !== 'loading' && isMountedRef.current) {
         toast.error("Game configuration missing. Returning to setup.");
         navigate('/truth-or-dare/setup');
       }
       return;
     }
 
-    setPlayers(gameConfig.players);
+    if (isMountedRef.current) {
+        setPlayers(gameConfig.players);
+        if (gameConfig.gameMode === 'classic' && gameConfig.selectedCategory) {
+            const categoryTruths = allTruthsData[gameConfig.selectedCategory] || [];
+            const categoryDares = allDaresData[gameConfig.selectedCategory] || [];
+            setFilteredTruthTexts(categoryTruths.map(item => item.text));
+            setFilteredDareTexts(categoryDares.map(item => item.text));
+        } else if (gameConfig.gameMode === 'pair') {
+            // For pair mode, tasks are verbal, so no pre-filtering needed from JSON.
+            // We can clear them or leave them empty.
+            setFilteredTruthTexts([]);
+            setFilteredDareTexts([]);
+        }
+    }
     
-    const getFilteredItems = (allItems, selectedCategories) => {
-      return selectedCategories.reduce((acc, cat) => acc.concat(allItems[cat] || []), []);
-    };
+    if (gamePhase === 'loading' && isMountedRef.current) {
+      setGamePhase('player_selection_start');
+    }
+  }, [gameConfig, allTruthsData, allDaresData, navigate, gamePhase]);
 
-    setFilteredTruths(getFilteredItems(allTruths, gameConfig.selectedTruthCategories));
-    setFilteredDares(getFilteredItems(allDares, gameConfig.selectedDareCategories));
-    
-    setGamePhase('player_selection_start');
-
-    return () => {
-      clearInterval(rouletteIntervalRef.current);
-      clearTimeout(rouletteTimeoutRef.current);
-    };
-  }, [gameConfig, allTruths, allDares, navigate]); // Removed gamePhase from dependencies
-
-
-  const startPlayerSelectionRoulette = useCallback(() => {
+  const startDoerSelectionRoulette = useCallback(() => {
     if (!isMountedRef.current || players.length === 0) return;
-    setGamePhase('player_selection_roulette');
-    setDoer(null); setCommander(null); // Reset roles
-    
+    setGamePhase('doer_selection_roulette');
+    setDoer(null);
+    setCommander(null);
     let namesToSpin = players.map(p => p.name);
-    if (gameConfig.gameMode === 'pair') namesToSpin = players.map(p => `${p.name} (Doer?)`);
-
     setRouletteDisplayText(namesToSpin[0]);
     let currentIndex = 0;
-    
     rouletteIntervalRef.current = setInterval(() => {
       if (!isMountedRef.current) return;
       currentIndex = (currentIndex + 1) % namesToSpin.length;
       setRouletteDisplayText(namesToSpin[currentIndex]);
     }, ROULETTE_INTERVAL);
-
     rouletteTimeoutRef.current = setTimeout(() => {
       if (!isMountedRef.current) return;
       clearInterval(rouletteIntervalRef.current);
-
       let selectedDoer;
       if (gameConfig.turnProgression === 'sequential') {
         selectedDoer = players[currentPlayerIndex];
         setCurrentPlayerIndex((prevIndex) => (prevIndex + 1) % players.length);
-      } else { // random
+      } else {
         selectedDoer = players[Math.floor(Math.random() * players.length)];
       }
       setDoer(selectedDoer);
+      setRouletteDisplayText(selectedDoer.name);
       toast.success(`${selectedDoer.name} is the Doer!`);
-
       if (gameConfig.gameMode === 'classic') {
         setGamePhase('classic_choice_pending');
-      } else { // pair mode
-        // Select Commander (must be different from Doer)
-        let potentialCommanders = players.filter(p => p.id !== selectedDoer.id);
-        if (potentialCommanders.length === 0 && players.length > 0) { // Only one player left, or only one player total (edge case for <2 players)
-            potentialCommanders = players; // Allow self-command if only one player (should not happen with MIN_PLAYERS=2)
-        }
-        const selectedCommander = potentialCommanders[Math.floor(Math.random() * potentialCommanders.length)];
-        setCommander(selectedCommander);
-        toast.info(`${selectedCommander.name} is the Commander!`);
-        setGamePhase('pair_commander_chooses_type');
+      } else {
+        setGamePhase('doer_selected_pending_commander_selection');
       }
     }, PLAYER_ROULETTE_DURATION);
   }, [players, gameConfig, currentPlayerIndex]);
 
-  const startTaskSelectionRoulette = useCallback((taskType) => { // 'truth' or 'dare'
+  const startCommanderSelectionRoulette = useCallback(() => {
+    if (!isMountedRef.current || !doer || players.length < 1) {
+        toast.error("Error in player setup for Pair Mode.");
+        setGamePhase('turn_ended');
+        return;
+    }
+    setGamePhase('commander_selection_roulette');
+    let potentialCommanders = players.filter(p => p.id !== doer.id);
+    
+    if (potentialCommanders.length === 0 && players.length === 1 && players[0].id === doer.id) {
+        setCommander(doer);
+        setRouletteDisplayText(doer.name);
+        toast.info(`${doer.name} will also be the Commander.`);
+        setGamePhase('pair_doer_chooses_type');
+        return;
+    } else if (potentialCommanders.length === 0) {
+        toast.error("Could not select a different Commander. Defaulting to Doer.");
+        setCommander(doer);
+        setRouletteDisplayText(doer.name);
+        setGamePhase('pair_doer_chooses_type');
+        return;
+    }
+
+    let namesToSpin = potentialCommanders.map(p => p.name);
+    setRouletteDisplayText(namesToSpin[0]);
+    let currentIndex = 0;
+    rouletteIntervalRef.current = setInterval(() => {
+        if (!isMountedRef.current) return;
+        currentIndex = (currentIndex + 1) % namesToSpin.length;
+        setRouletteDisplayText(namesToSpin[currentIndex]);
+    }, ROULETTE_INTERVAL);
+    rouletteTimeoutRef.current = setTimeout(() => {
+        if (!isMountedRef.current) return;
+        clearInterval(rouletteIntervalRef.current);
+        const selectedCommander = potentialCommanders[Math.floor(Math.random() * potentialCommanders.length)];
+        setCommander(selectedCommander);
+        setRouletteDisplayText(selectedCommander.name);
+        toast.info(`${selectedCommander.name} is the Commander!`);
+        setGamePhase('pair_doer_chooses_type');
+    }, PLAYER_ROULETTE_DURATION);
+  }, [players, doer]);
+
+  useEffect(() => {
+    if (gamePhase === 'player_selection_start') {
+      startDoerSelectionRoulette();
+    } else if (gamePhase === 'doer_selected_pending_commander_selection') {
+      const timer = setTimeout(() => {
+        if (isMountedRef.current) startCommanderSelectionRoulette();
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [gamePhase, startDoerSelectionRoulette, startCommanderSelectionRoulette]);
+  
+  useEffect(() => {
+    if (responseAnimation && isMountedRef.current) {
+      const timer = setTimeout(() => {
+        if (isMountedRef.current) {
+          setResponseAnimation(null);
+          setGamePhase('turn_ended');
+        }
+      }, RESPONSE_ANIMATION_DURATION);
+      return () => clearTimeout(timer);
+    }
+  }, [responseAnimation]);
+
+  const handleClassicChoice = (choice) => {
+    startSystemTaskSelectionRoulette(choice);
+  };
+
+  const startSystemTaskSelectionRoulette = useCallback((taskType) => {
     if (!isMountedRef.current) return;
-    const taskPool = taskType === 'truth' ? filteredTruths : filteredDares;
+    const taskPool = taskType === 'truth' ? filteredTruthTexts : filteredDareTexts;
     if (taskPool.length === 0) {
-        toast.error(`No ${taskType}s available in selected categories!`);
-        // Revert to previous choice phase
-        if (gameConfig.gameMode === 'classic') setGamePhase('classic_choice_pending');
-        else setGamePhase('pair_commander_chooses_type');
+        toast.error(`No ${taskType}s available in the selected category: ${gameConfig.selectedCategory}!`);
+        setGamePhase('classic_choice_pending');
         return;
     }
     setGamePhase('task_selection_roulette');
     setCurrentTask({ type: taskType, text: '' });
     setRouletteDisplayText(`Choosing a ${taskType}...`);
     let currentIndex = 0;
-
     rouletteIntervalRef.current = setInterval(() => {
         if (!isMountedRef.current) return;
         currentIndex = (currentIndex + 1) % taskPool.length;
+        // taskPool items are now strings (the text of the task)
         setRouletteDisplayText(taskPool[currentIndex].substring(0, 30) + '...');
     }, ROULETTE_INTERVAL);
-
     rouletteTimeoutRef.current = setTimeout(() => {
         if (!isMountedRef.current) return;
         clearInterval(rouletteIntervalRef.current);
@@ -162,47 +227,30 @@ function TruthOrDareGame() {
         setCurrentTask({ type: taskType, text: selectedTaskText });
         setGamePhase('task_revealed_system');
     }, TASK_ROULETTE_DURATION);
-  }, [filteredTruths, filteredDares, gameConfig]);
+  }, [filteredTruthTexts, filteredDareTexts, gameConfig]);
 
-
-  useEffect(() => {
-    if (gamePhase === 'player_selection_start') {
-      startPlayerSelectionRoulette();
-    }
-  }, [gamePhase, startPlayerSelectionRoulette]);
-
-
-  const handleClassicChoice = (choice) => { // 'truth' or 'dare'
-    startTaskSelectionRoulette(choice);
-  };
-
-  const handleCommanderChoosesType = (choice) => {
-    if (gameConfig.pairModeTaskType === 'system') {
-      startTaskSelectionRoulette(choice);
-    } else { // player_defined
-      setCurrentTask({ type: choice, text: '' });
-      setGamePhase('pair_commander_defines_task');
-    }
-  };
-  
-  const handleCommanderSubmitDefinedTask = () => {
-    if (!playerDefinedTaskText.trim()) {
-        toast.warn("Commander, please enter a task!");
+  const handlePairDoerChoosesType = (choice) => {
+    if (!doer || !commander) {
+        toast.error("Error: Doer or Commander not set for Pair Mode.");
+        setGamePhase('turn_ended');
         return;
     }
-    setCurrentTask(prev => ({ ...prev, text: playerDefinedTaskText.trim() }));
-    setGamePhase('task_revealed_player_defined');
-    setPlayerDefinedTaskText(''); // Clear input
+    setCurrentTask({
+        type: choice,
+        text: `It's time for a ${choice.toUpperCase()}! ${commander.name}, please give ${doer.name} the task verbally.`
+    });
+    setGamePhase('task_revealed_verbal');
   };
-
+  
   const handleDoerResponse = (accepted) => {
-    if (!isMountedRef.current || !doer) return;
+    if (!isMountedRef.current || !doer || !currentTask.type) return;
     if (accepted) {
-      toast.info(`${doer.name} accepted the challenge!`);
+      toast.info(`${doer.name} accepted the ${currentTask.type}!`);
+      setResponseAnimation({ type: 'accepted', doerName: doer.name, taskType: currentTask.type });
     } else {
-      toast.warn(`${doer.name} rejected the challenge! (The group decides the consequence!)`);
+      toast.warn(`${doer.name} rejected the ${currentTask.type}!`);
+      setResponseAnimation({ type: 'rejected', doerName: doer.name, taskType: currentTask.type });
     }
-    setGamePhase('turn_ended');
   };
 
   const handleNextTurn = () => {
@@ -214,115 +262,157 @@ function TruthOrDareGame() {
     setGamePhase('player_selection_start');
   };
 
+  // Check if data is loaded, but no tasks for classic mode if selected
+  const noTasksAvailableForClassic = gameConfig && gameConfig.gameMode === 'classic' &&
+                                   filteredTruthTexts.length === 0 && filteredDareTexts.length === 0 &&
+                                   Object.keys(allTruthsData).length > 0 && Object.keys(allDaresData).length > 0;
 
-  // --- Render Logic ---
-  if (gamePhase === 'loading' || !gameConfig || players.length === 0 || (filteredTruths.length === 0 && filteredDares.length === 0 && Object.keys(allTruths).length > 0)) {
-    return <div className="text-center py-10 text-xl text-purple-300">Loading Game & Data...</div>;
+
+  if (gamePhase === 'loading' || !gameConfig || players.length === 0 || (Object.keys(allTruthsData).length === 0 && Object.keys(allDaresData).length === 0)) {
+    return <div className="text-center py-10 text-xl text-blue-300">Loading Game & Data...</div>;
   }
-  if (filteredTruths.length === 0 && filteredDares.length === 0 && gamePhase !== 'loading') {
+
+  if (noTasksAvailableForClassic && gamePhase !== 'loading') {
      return (
-        <div className="max-w-xl mx-auto p-6 bg-purple-800 rounded-lg shadow-xl text-white text-center">
+        <div className="max-w-xl mx-auto p-6 bg-gray-800 rounded-lg shadow-xl text-white text-center">
             <h2 className="text-2xl font-bold text-red-400 mb-4">No Tasks Available!</h2>
-            <p className="text-purple-200 mb-6">No truths or dares could be found for the selected categories. Please go back and adjust your category selections.</p>
-            <button onClick={() => navigate('/truth-or-dare/setup')} className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-6 rounded-lg">Back to Setup</button>
+            <p className="text-gray-200 mb-6">No truths or dares could be found for the selected category: "{gameConfig.selectedCategory}". Please go back and adjust your category selection.</p>
+            <button onClick={() => navigate('/truth-or-dare/setup')} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg">Back to Setup</button>
         </div>
      );
   }
 
-
-  const renderPlayerSelection = () => (
-    <div className="text-center my-10 p-8 bg-purple-800 rounded-lg">
-      <p className="text-2xl text-purple-200 mb-2">Selecting Player(s)...</p>
-      <p className="text-4xl font-bold text-yellow-400 h-12 animate-pulse">{rouletteDisplayText}</p>
+  const renderRouletteScreen = (title, currentSelectionText) => (
+    <div className="text-center my-6 p-8 bg-gray-800 rounded-lg shadow-lg">
+      <p className="text-2xl text-gray-200 mb-2">{title}</p>
+      <p className="text-4xl font-bold text-blue-400 h-12 animate-pulse">{currentSelectionText}</p>
     </div>
   );
 
-  const renderClassicChoice = () => doer && (
-    <div className="text-center my-10 p-8 bg-purple-800 rounded-lg">
-      <p className="text-3xl font-semibold text-yellow-400 mb-6">{doer.name}, it's your turn!</p>
-      <p className="text-xl text-purple-200 mb-6">Choose your fate:</p>
+  const renderClassicChoiceScreen = () => doer && (
+    <div className="text-center my-6 p-8 bg-gray-800 rounded-lg shadow-lg">
+      <p className="text-3xl font-semibold text-blue-400 mb-6">{doer.name}, it's your turn!</p>
+      <p className="text-xl text-gray-200 mb-6">Choose your fate:</p>
       <div className="flex justify-center gap-4">
-        <button onClick={() => handleClassicChoice('truth')} className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-lg text-xl">Truth</button>
-        <button onClick={() => handleClassicChoice('dare')} className="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-8 rounded-lg text-xl">Dare</button>
+        <button onClick={() => handleClassicChoice('truth')} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg text-xl" disabled={filteredTruthTexts.length === 0}>Truth</button>
+        <button onClick={() => handleClassicChoice('dare')} className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-lg text-xl" disabled={filteredDareTexts.length === 0}>Dare</button>
       </div>
+       {(filteredTruthTexts.length === 0 && filteredDareTexts.length === 0) && <p className="text-red-400 mt-4">No tasks available for the selected category.</p>}
+       {filteredTruthTexts.length === 0 && filteredDareTexts.length > 0 && <p className="text-yellow-400 mt-4">No truths available for this category.</p>}
+       {filteredDareTexts.length === 0 && filteredTruthTexts.length > 0 && <p className="text-yellow-400 mt-4">No dares available for this category.</p>}
     </div>
   );
 
-  const renderPairCommanderChoosesType = () => commander && doer && (
-    <div className="text-center my-10 p-8 bg-purple-800 rounded-lg">
-      <p className="text-2xl font-semibold text-yellow-400 mb-2">{commander.name} (Commander), choose for {doer.name} (Doer):</p>
-      <div className="flex justify-center gap-4 mt-4">
-        <button onClick={() => handleCommanderChoosesType('truth')} className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-lg text-xl">Truth</button>
-        <button onClick={() => handleCommanderChoosesType('dare')} className="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-8 rounded-lg text-xl">Dare</button>
+  const renderPairDoerChoosesTypeScreen = () => commander && doer && (
+    <div className="text-center my-6 p-8 bg-gray-800 rounded-lg shadow-lg">
+      <p className="text-2xl font-semibold text-gray-100 mb-4">
+        {doer.name}, what will it be? <span className="text-blue-400">{commander.name}</span> will give you a task.
+      </p>
+      <div className="flex justify-center gap-4">
+        <button onClick={() => handlePairDoerChoosesType('truth')} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg text-xl">Truth</button>
+        <button onClick={() => handlePairDoerChoosesType('dare')} className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-lg text-xl">Dare</button>
       </div>
     </div>
   );
   
-  const renderTaskSelectionRoulette = () => (
-    <div className="text-center my-10 p-8 bg-purple-800 rounded-lg">
-      <p className="text-2xl text-purple-200 mb-2">Choosing a {currentTask.type}...</p>
-      <p className="text-4xl font-bold text-yellow-400 h-12 animate-pulse">{rouletteDisplayText}</p>
-    </div>
-  );
-
-  const renderPairCommanderDefinesTask = () => commander && doer && (
-    <div className="text-center my-6 p-6 bg-purple-800 rounded-lg">
-        <p className="text-2xl font-semibold text-yellow-400 mb-3">{commander.name}, define the {currentTask.type} for {doer.name}:</p>
-        <textarea
-            value={playerDefinedTaskText}
-            onChange={(e) => setPlayerDefinedTaskText(e.target.value)}
-            placeholder={`Enter custom ${currentTask.type}...`}
-            className="w-full p-2 rounded bg-purple-700 text-white border border-purple-500 focus:ring-yellow-400 focus:border-yellow-400 min-h-[80px]"
-        />
-        <button onClick={handleCommanderSubmitDefinedTask} className="mt-4 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-lg text-lg">Submit Task</button>
-    </div>
-  );
-
-  const renderTaskRevealed = () => doer && currentTask.text && (
-    <div className="text-center my-6 p-6 bg-purple-800 rounded-lg">
-      <p className="text-2xl font-semibold text-yellow-400 mb-1">
-        {doer.name}, your {currentTask.type} is:
+  const renderTaskRevealedScreen = () => doer && currentTask.text && (
+    <div className="text-center my-6 p-6 bg-gray-800 rounded-lg shadow-lg">
+      <p className="text-2xl font-semibold text-blue-400 mb-1">
+        {gameConfig.gameMode === 'pair' && commander
+          ? `${commander.name}, your turn to assign!`
+          : `${doer.name}, your ${currentTask.type} is:`}
       </p>
-      {gamePhase === 'task_revealed_player_defined' && commander && <p className="text-sm text-purple-300 mb-3">(Task defined by {commander.name})</p>}
-      <div className="bg-purple-700 p-4 rounded-md my-4 min-h-[100px] flex items-center justify-center">
-          <p className="text-lg text-white">{currentTask.text}</p>
+      
+      <div className="bg-gray-700 p-4 rounded-md my-4 min-h-[100px] flex items-center justify-center">
+          <p className="text-lg text-white text-center">
+            {currentTask.text}
+          </p>
       </div>
-      <p className="text-xl text-purple-200 mb-5">Will you accept?</p>
+
+      <p className="text-xl text-gray-200 mb-5">
+        {doer.name}, will you accept the challenge?
+      </p>
       <div className="flex justify-center gap-4">
-        <button onClick={() => handleDoerResponse(true)} className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-lg text-lg">Accept</button>
-        <button onClick={() => handleDoerResponse(false)} className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-6 rounded-lg text-lg">Reject</button>
+        <button onClick={() => handleDoerResponse(true)} className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg text-lg">Accept</button>
+        <button onClick={() => handleDoerResponse(false)} className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-6 rounded-lg text-lg">Reject (Wuss Out)</button>
       </div>
     </div>
   );
   
-  const renderTurnEnded = () => doer && (
-    <div className="text-center my-10 p-8 bg-purple-800 rounded-lg">
-      <p className="text-2xl text-purple-200 mb-4">
-        Turn for <span className="font-bold text-yellow-400">{doer.name}</span> is over.
+  const renderTurnEndedScreen = () => doer && (
+    <div className="text-center my-6 p-8 bg-gray-800 rounded-lg shadow-lg">
+      <p className="text-2xl text-gray-200 mb-4">
+        Turn for <span className="font-bold text-blue-400">{doer.name}</span> is over.
       </p>
-      <button onClick={handleNextTurn} className="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-4 px-6 rounded-lg text-xl">Next Turn</button>
+      <button onClick={handleNextTurn} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-lg text-xl">Next Turn</button>
     </div>
   );
-
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-purple-900 text-white rounded-lg shadow-2xl min-h-[calc(100vh-150px)] flex flex-col">
-      <div className="flex-grow">
-        <h2 className="text-3xl font-bold text-center text-purple-300 mb-2">Truth or Dare!</h2>
-        <div className="text-xs text-center text-purple-400 mb-4">
-            Mode: {gameConfig.gameMode} | Turn: {gameConfig.turnProgression}
-            {gameConfig.gameMode === 'pair' && ` | Task: ${gameConfig.pairModeTaskType === 'system' ? 'System' : 'Player-Defined'}`}
+    <>
+      {responseAnimation && (
+        <div
+          className={`fixed inset-0 flex flex-col items-center justify-center z-[1000] animate-fade-in text-white text-center px-4
+                      ${responseAnimation.type === 'accepted' ? 'bg-green-600' : 'bg-red-600'}`}
+        >
+          <h2 className="text-6xl font-extrabold mb-6">
+            {responseAnimation.type === 'accepted' ? 'Accepted!' : 'Wussed Out!'}
+          </h2>
+          <p className="text-3xl">
+            {responseAnimation.doerName}
+            {responseAnimation.type === 'accepted'
+              ? ` is taking on the ${responseAnimation.taskType}!`
+              : ` chickened out of the ${responseAnimation.taskType}!`}
+          </p>
+        </div>
+      )}
+      <div className={`max-w-2xl mx-auto p-6 bg-gray-900 text-white rounded-lg shadow-2xl min-h-[calc(100vh-150px)] flex flex-col space-y-4 ${responseAnimation ? 'filter blur-sm pointer-events-none' : ''}`}>
+        <div>
+          <h2 className="text-3xl font-bold text-center text-blue-400 mb-2">Truth or Dare!</h2>
+          <div className="text-xs text-center text-gray-400 mb-1">
+              Mode: {gameConfig.gameMode} | Turn: {gameConfig.turnProgression}
+          </div>
+          {gameConfig.gameMode === 'classic' && gameConfig.selectedCategory && (
+            <div className="text-xs text-center text-gray-400 mb-4">
+                Category: {gameConfig.selectedCategory}
+            </div>
+          )}
         </div>
 
-        {gamePhase === 'player_selection_roulette' && renderPlayerSelection()}
-        {gamePhase === 'classic_choice_pending' && renderClassicChoice()}
-        {gamePhase === 'pair_commander_chooses_type' && renderPairCommanderChoosesType()}
-        {gamePhase === 'task_selection_roulette' && renderTaskSelectionRoulette()}
-        {gamePhase === 'pair_commander_defines_task' && renderPairCommanderDefinesTask()}
-        {(gamePhase === 'task_revealed_system' || gamePhase === 'task_revealed_player_defined') && renderTaskRevealed()}
-        {gamePhase === 'turn_ended' && renderTurnEnded()}
+        {gamePhase === 'doer_selection_roulette' &&
+          renderRouletteScreen("Selecting Doer...", rouletteDisplayText)
+        }
+        
+        {doer && (gamePhase !== 'doer_selection_roulette' && gamePhase !== 'player_selection_start' && gamePhase !== 'loading' && gamePhase !== 'turn_ended') && (
+            <div className={`p-3 bg-gray-700 rounded-lg text-center shadow-md ${gameConfig.gameMode === 'pair' ? 'mb-2' : 'mb-4'}`}>
+                <p className="text-lg text-gray-100">Doer: <span className="font-bold text-blue-300">{doer.name}</span></p>
+            </div>
+        )}
+        {gameConfig.gameMode === 'pair' && commander && (gamePhase !== 'doer_selection_roulette' && gamePhase !== 'commander_selection_roulette' && gamePhase !== 'player_selection_start' && gamePhase !== 'loading' && gamePhase !== 'turn_ended') && (
+            <div className="p-3 bg-gray-700 rounded-lg text-center shadow-md mb-4">
+                <p className="text-lg text-gray-100">Commander: <span className="font-bold text-blue-300">{commander.name}</span></p>
+            </div>
+        )}
+        
+        {gameConfig.gameMode === 'pair' && doer && gamePhase === 'doer_selected_pending_commander_selection' && (
+          <div className="text-center p-6 bg-gray-800 rounded-lg shadow-lg">
+            <p className="text-xl text-gray-300 animate-pulse">Now selecting Commander...</p>
+          </div>
+        )}
+        {gameConfig.gameMode === 'pair' && gamePhase === 'commander_selection_roulette' &&
+          renderRouletteScreen("Selecting Commander...", rouletteDisplayText)
+        }
+
+        {gameConfig.gameMode === 'classic' && gamePhase === 'classic_choice_pending' && renderClassicChoiceScreen()}
+        {gameConfig.gameMode === 'classic' && gamePhase === 'task_selection_roulette' && renderRouletteScreen(`Choosing a ${currentTask.type}...`, rouletteDisplayText)}
+        {gameConfig.gameMode === 'classic' && gamePhase === 'task_revealed_system' && renderTaskRevealedScreen()}
+
+        {gameConfig.gameMode === 'pair' && gamePhase === 'pair_doer_chooses_type' && renderPairDoerChoosesTypeScreen()}
+        {gameConfig.gameMode === 'pair' && gamePhase === 'task_revealed_verbal' && renderTaskRevealedScreen()}
+        
+        {gamePhase === 'turn_ended' && renderTurnEndedScreen()}
       </div>
-    </div>
+    </>
   );
 }
 

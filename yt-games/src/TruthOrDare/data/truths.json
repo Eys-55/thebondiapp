@@ -1,23 +1,23 @@
 {
   "Family": [
-    "What's a family secret you weren't supposed to know?",
-    "Which family member are you closest to and why?",
-    "What's the biggest argument you've had with a family member?",
-    "What's something you admire about your parents?",
-    "If you could change one family tradition, what would it be?"
+    { "text": "What's a family secret you weren't supposed to know?", "isRRated": false },
+    { "text": "Which family member are you closest to and why?", "isRRated": false },
+    { "text": "What's the biggest argument you've had with a family member?", "isRRated": false },
+    { "text": "What's something you admire about your parents?", "isRRated": false },
+    { "text": "If you could change one family tradition, what would it be?", "isRRated": false }
   ],
   "Friends": [
-    "What's the craziest thing you've done with your friends?",
-    "Who is your oldest friend and how did you meet?",
-    "Have you ever been betrayed by a friend?",
-    "What's a secret you've kept for a friend?",
-    "If your friend group had a theme song, what would it be?"
+    { "text": "What's the craziest thing you've done with your friends?", "isRRated": false },
+    { "text": "Who is your oldest friend and how did you meet?", "isRRated": false },
+    { "text": "Have you ever been betrayed by a friend?", "isRRated": false },
+    { "text": "What's a secret you've kept for a friend?", "isRRated": false },
+    { "text": "If your friend group had a theme song, what would it be?", "isRRated": false }
   ],
   "Relationship": [
-    "What's your ideal first date?",
-    "Have you ever been in love?",
-    "What's a deal-breaker for you in a relationship?",
-    "Do you believe in soulmates?",
-    "What's the most romantic thing someone has done for you?"
+    { "text": "What's your ideal first date?", "isRRated": true },
+    { "text": "Have you ever been in love?", "isRRated": true },
+    { "text": "What's a deal-breaker for you in a relationship?", "isRRated": true },
+    { "text": "Do you believe in soulmates?", "isRRated": true },
+    { "text": "What's the most romantic thing someone has done for you?", "isRRated": true }
   ]
 }
