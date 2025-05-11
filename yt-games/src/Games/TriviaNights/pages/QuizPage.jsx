@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { concepts } from '../data/concepts';
+import concepts from '../data/concepts.json';
 import { generateQuestions as generateQuestionsForGame } from '../services/questionGenerator';
-
+// SVG Icons
 // SVG Icons
 const CheckIcon = ({ className = "h-5 w-5" }) => (
     <svg xmlns="http://www.w3.org/2000/svg" className={`${className} inline-block`} viewBox="0 0 20 20" fill="currentColor">

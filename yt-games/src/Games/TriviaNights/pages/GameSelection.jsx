@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import SetupPageLayout from '../../Utils/SetupPageLayout'; // Import the layout
 
 // Updated categories based on concepts.js
 const CATEGORIES = [
@@ -13,26 +14,79 @@ const CATEGORIES = [
 
 const MAX_PLAYERS = 10; // Increased max players
 const MIN_PLAYERS = 2; // Assuming a local multiplayer game needs at least 2 players
+const SESSION_STORAGE_KEY = 'triviaNightsSetup';
 
-function GameSelection() {
+// Define default state values for reset
+const defaultState = {
+  selectedCategories: [],
+  numQuestions: 10,
+  timePerQuestion: 10,
+  includeChoices: true,
+  scoringMode: 'fastest',
+  numPlayersUI: MIN_PLAYERS,
+  playerNames: Array(MIN_PLAYERS).fill(''),
+};
+
+function GameSelection({ registerNavbarActions, unregisterNavbarActions }) {
   const navigate = useNavigate();
-  const [selectedCategories, setSelectedCategories] = useState([]);
-  const [numQuestions, setNumQuestions] = useState(10);
-  const [timePerQuestion, setTimePerQuestion] = useState(10);
-  const [includeChoices, setIncludeChoices] = useState(true);
-  const [scoringMode, setScoringMode] = useState('fastest'); // 'fastest' or 'multiple'
+  const [selectedCategories, setSelectedCategories] = useState(defaultState.selectedCategories);
+  const [numQuestions, setNumQuestions] = useState(defaultState.numQuestions);
+  const [timePerQuestion, setTimePerQuestion] = useState(defaultState.timePerQuestion);
+  const [includeChoices, setIncludeChoices] = useState(defaultState.includeChoices);
+  const [scoringMode, setScoringMode] = useState(defaultState.scoringMode);
 
-  const [numPlayersUI, setNumPlayersUI] = useState(MIN_PLAYERS);
-  const [playerNames, setPlayerNames] = useState(Array(MIN_PLAYERS).fill(''));
+  const [numPlayersUI, setNumPlayersUI] = useState(defaultState.numPlayersUI);
+  const [playerNames, setPlayerNames] = useState(defaultState.playerNames);
 
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
-  // --- Validation ---
-  const validateForm = () => {
-    const newErrors = {};
+  // Load settings from session storage on mount
+  useEffect(() => {
+    try {
+      const savedSettings = sessionStorage.getItem(SESSION_STORAGE_KEY);
+      if (savedSettings) {
+        const parsedSettings = JSON.parse(savedSettings);
+        setSelectedCategories(parsedSettings.selectedCategories || defaultState.selectedCategories);
+        setNumQuestions(parsedSettings.numQuestions || defaultState.numQuestions);
+        setTimePerQuestion(parsedSettings.timePerQuestion || defaultState.timePerQuestion);
+        setIncludeChoices(parsedSettings.includeChoices === undefined ? defaultState.includeChoices : parsedSettings.includeChoices);
+        setScoringMode(parsedSettings.scoringMode || defaultState.scoringMode);
+        setNumPlayersUI(parsedSettings.numPlayersUI || defaultState.numPlayersUI);
+        
+        // Ensure playerNames array matches numPlayersUI
+        const loadedPlayerNames = parsedSettings.playerNames || [];
+        const numPlayers = parsedSettings.numPlayersUI || defaultState.numPlayersUI;
+        setPlayerNames(Array(numPlayers).fill('').map((_, i) => loadedPlayerNames[i] || ''));
+      }
+    } catch (error) {
+      console.error("Failed to load Trivia Nights settings from session storage:", error);
+      toast.error("Could not load saved settings.");
+    }
+  }, []);
 
-    // Player name validation
+  // Save settings to session storage when they change
+  useEffect(() => {
+    const settingsToSave = {
+      selectedCategories,
+      numQuestions,
+      timePerQuestion,
+      includeChoices,
+      scoringMode,
+      numPlayersUI,
+      playerNames,
+    };
+    try {
+      sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(settingsToSave));
+    } catch (error) {
+      console.error("Failed to save Trivia Nights settings to session storage:", error);
+    }
+  }, [selectedCategories, numQuestions, timePerQuestion, includeChoices, scoringMode, numPlayersUI, playerNames]);
+
+
+  // --- Validation ---
+  const validateForm = useCallback((updateState = true) => {
+    const newErrors = {};
     const currentPlayersToValidate = playerNames.slice(0, numPlayersUI);
     currentPlayersToValidate.forEach((name, index) => {
         if (!name.trim()) {
@@ -43,30 +97,30 @@ function GameSelection() {
             newErrors.playerNames[index] = `Player ${index + 1} name max 20 chars.`;
         }
     });
-    // Ensure playerNames error object is only set if there's an actual error string
     if (newErrors.playerNames && !newErrors.playerNames.some(e => e)) {
         delete newErrors.playerNames;
     }
-
 
     if (selectedCategories.length === 0) newErrors.categories = 'Please select at least one category.';
     if (numQuestions <= 0 || numQuestions > 50) newErrors.numQuestions = 'Must be between 1 and 50.';
     if (timePerQuestion < 2 || timePerQuestion > 60) newErrors.timePerQuestion = 'Must be between 2 and 60 seconds.';
     
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+    if (updateState) {
+      setErrors(newErrors);
+    }
+    return newErrors;
+  }, [playerNames, numPlayersUI, selectedCategories, numQuestions, timePerQuestion]);
 
   // --- Event Handlers ---
    const handlePlayerNameChange = (index, value) => {
     const newPlayerNames = [...playerNames];
     newPlayerNames[index] = value;
     setPlayerNames(newPlayerNames);
+    // Clear specific error when user types
     if (errors.playerNames && errors.playerNames[index]) {
-        setErrors(prev => ({
-            ...prev,
-            playerNames: prev.playerNames.map((err, i) => (i === index ? null : err))
-        }));
+        const updatedPlayerErrors = [...errors.playerNames];
+        updatedPlayerErrors[index] = null;
+        setErrors(prev => ({ ...prev, playerNames: updatedPlayerErrors.some(e => e) ? updatedPlayerErrors : null }));
     }
   };
 
@@ -75,7 +129,7 @@ function GameSelection() {
     setNumPlayersUI(count);
     const newPlayerNames = Array(count).fill('').map((_, i) => playerNames[i] || '');
     setPlayerNames(newPlayerNames);
-    if (errors.playerNames) setErrors(prev => ({ ...prev, playerNames: null })); // Clear all player name errors on count change
+    if (errors.playerNames) setErrors(prev => ({ ...prev, playerNames: null }));
   };
 
   const handleNumberInputChange = (setter, fieldName) => (event) => {
@@ -95,8 +149,9 @@ function GameSelection() {
     setIncludeChoices(event.target.checked);
   };
 
-  const handleStartLocalMultiplayerGame = () => {
-    if (!validateForm()) {
+  const handleStartLocalMultiplayerGame = useCallback(() => {
+    const formErrors = validateForm(true); // Validate and set errors
+    if (Object.keys(formErrors).length > 0) {
         toast.warn("Please fix the errors in the form.");
         return;
     }
@@ -108,7 +163,7 @@ function GameSelection() {
         numQuestions: Math.min(50, Math.max(1, numQuestions)),
         timePerQuestion: Math.min(60, Math.max(2, timePerQuestion)),
         includeChoices,
-        scoringMode, // Add scoring mode to game config
+        scoringMode,
     };
 
     const activePlayers = playerNames.slice(0, numPlayersUI).map(name => ({
@@ -116,15 +171,52 @@ function GameSelection() {
         name: name.trim(),
         score: 0
     }));
-
+    
     navigate('/trivia-nights/play', { state: { gameConfig, players: activePlayers } });
-    // setIsLoading(false); // Navigation will unmount
-  };
+  }, [validateForm, selectedCategories, numQuestions, timePerQuestion, includeChoices, scoringMode, playerNames, numPlayersUI, navigate]);
+
+  const handleResetSettings = useCallback(() => {
+    sessionStorage.removeItem(SESSION_STORAGE_KEY);
+    setSelectedCategories(defaultState.selectedCategories);
+    setNumQuestions(defaultState.numQuestions);
+    setTimePerQuestion(defaultState.timePerQuestion);
+    setIncludeChoices(defaultState.includeChoices);
+    setScoringMode(defaultState.scoringMode);
+    setNumPlayersUI(defaultState.numPlayersUI);
+    setPlayerNames(defaultState.playerNames);
+    setErrors({}); // Clear errors
+    toast.info("Settings have been reset to default.");
+  }, []);
+
+  const checkValidity = useCallback(() => {
+    const currentErrors = validateForm(false); // Don't set state
+    const allPlayerNamesFilled = playerNames.slice(0, numPlayersUI).every(name => name.trim() !== '');
+    return Object.keys(currentErrors).length === 0 && allPlayerNamesFilled;
+  }, [validateForm, playerNames, numPlayersUI]);
+
+  useEffect(() => {
+    if (registerNavbarActions) {
+      registerNavbarActions({
+        startHandler: handleStartLocalMultiplayerGame,
+        resetHandler: handleResetSettings,
+        isLoading: isLoading,
+        isValidToStart: checkValidity(),
+      });
+    }
+    return () => {
+      if (unregisterNavbarActions) {
+        unregisterNavbarActions();
+      }
+    };
+  }, [
+    registerNavbarActions, unregisterNavbarActions,
+    handleStartLocalMultiplayerGame, handleResetSettings,
+    isLoading, checkValidity,
+    playerNames, numPlayersUI, selectedCategories, numQuestions, timePerQuestion, errors
+  ]);
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-gray-800 rounded-lg shadow-xl text-textPrimary">
-      <h2 className="text-3xl font-bold text-center text-primary-light mb-6">Multiplayer Quiz Setup</h2>
-      
+    <SetupPageLayout title="Multiplayer Quiz Setup">
       {/* Player Setup Section */}
       <div className="mb-6 p-4 bg-gray-700 rounded-md shadow">
         <h3 className="text-xl font-semibold mb-4 text-success-light border-b border-gray-600 pb-2">1. Player Setup</h3>
@@ -144,7 +236,7 @@ function GameSelection() {
             </select>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4"> {/* Added grid for player inputs */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4">
           {Array.from({ length: numPlayersUI }).map((_, index) => (
             <div key={`player-input-${index}`} className="mb-3 flex flex-col items-start">
               <label htmlFor={`player-name-${index}`} className="mb-1 text-xs font-medium text-textSecondary">Player {index + 1} Name:</label>
@@ -177,7 +269,7 @@ function GameSelection() {
               const isSelected = selectedCategories.includes(category.id);
               return (
                 <label key={category.id} className={`flex items-center space-x-2 px-3 py-1.5 rounded-md cursor-pointer transition duration-200 border ${ isSelected ? 'bg-primary-dark text-white border-primary-light ring-1 ring-primary-light' : 'bg-gray-600 hover:bg-gray-500 text-textPrimary border-gray-600 hover:border-gray-500' } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                  <input type="checkbox" id={`category-${category.id}`} value={category.id} checked={isSelected} onChange={handleCategoryChange} className="form-checkbox h-4 w-4 text-primary rounded border-gray-400 focus:ring-primary-light disabled:opacity-50" disabled={isLoading} />
+                  <input type="checkbox" id={`category-${category.id}`} value={category.id} checked={isSelected} onChange={handleCategoryChange} className="form-checkbox h-4 w-4 text-primary rounded border-gray-400 focus:ring-primary-light disabled:opacity-50 sr-only" disabled={isLoading} />
                   <span>{category.name}</span>
                 </label>
               );
@@ -226,7 +318,7 @@ function GameSelection() {
                         checked={scoringMode === 'fastest'}
                         onChange={(e) => setScoringMode(e.target.value)}
                         disabled={isLoading}
-                        className="form-radio h-4 w-4 text-primary focus:ring-primary-light disabled:opacity-50"
+                        className="form-radio h-4 w-4 text-primary focus:ring-primary-light disabled:opacity-50 sr-only"
                     />
                     <span>Fastest Finger (One winner per question)</span>
                 </label>
@@ -238,25 +330,14 @@ function GameSelection() {
                         checked={scoringMode === 'multiple'}
                         onChange={(e) => setScoringMode(e.target.value)}
                         disabled={isLoading}
-                        className="form-radio h-4 w-4 text-primary focus:ring-primary-light disabled:opacity-50"
+                        className="form-radio h-4 w-4 text-primary focus:ring-primary-light disabled:opacity-50 sr-only"
                     />
                     <span>Anyone Correct (Multiple winners possible)</span>
                 </label>
             </div>
         </div>
-
       </div>
-      
-      <div className="mt-8 p-4 bg-gray-700 rounded-md shadow flex justify-center">
-        <button
-            onClick={handleStartLocalMultiplayerGame}
-            disabled={isLoading}
-            className={`w-full md:w-auto bg-success hover:bg-success-dark text-white font-bold py-3 px-10 rounded-lg text-lg transition duration-200 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-success focus:ring-opacity-50 shadow-lg flex items-center justify-center ${isLoading ? 'opacity-50 cursor-wait' : ''}`}
-        >
-          {isLoading ? ( <span className="ml-2">Starting Game...</span> ) : ( 'Start Local Multiplayer Game' )}
-        </button>
-      </div>
-    </div>
+    </SetupPageLayout>
   );
 }
 

@@ -46,8 +46,8 @@ function TruthOrDareGame() {
     isMountedRef.current = true;
     const fetchData = async () => {
       try {
-        const truthsRes = await fetch('/src/TruthOrDare/data/truths.json');
-        const daresRes = await fetch('/src/TruthOrDare/data/dares.json');
+        const truthsRes = await fetch('/src/Games/TruthOrDare/data/truths.json');
+        const daresRes = await fetch('/src/Games/TruthOrDare/data/dares.json');
         if (!truthsRes.ok || !daresRes.ok) throw new Error("Failed to load T/D data.");
         const truthsData = await truthsRes.json();
         const daresData = await daresRes.json();
@@ -329,9 +329,6 @@ function TruthOrDareGame() {
           </p>
       </div>
 
-      <p className="text-xl text-gray-200 mb-5">
-        {doer.name}, will you accept the challenge?
-      </p>
       <div className="flex justify-center gap-4">
         <button onClick={() => handleDoerResponse(true)} className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg text-lg">Accept</button>
         <button onClick={() => handleDoerResponse(false)} className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-6 rounded-lg text-lg">Reject (Wuss Out)</button>

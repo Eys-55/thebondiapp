@@ -1,4 +1,4 @@
-import { concepts } from '../data/concepts'; // Assuming concepts are needed directly or passed
+import concepts from '../data/concepts.json'; // Import the JSON data as default
 
 /**
  * Shuffles array in place.

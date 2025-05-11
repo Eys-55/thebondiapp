@@ -1,93 +1,179 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import Modal from '../Games/Utils/Modal'; // Import Modal component
 
-function Navbar() {
+const ResetIcon = ({ className = "w-5 h-5" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+  </svg>
+);
+
+const HomeIcon = ({ className = "w-6 h-6" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h7.5" />
+  </svg>
+);
+
+
+function Navbar({ navbarActions }) {
   const location = useLocation();
   const navigate = useNavigate();
+  const [showNavigationConfirmModal, setShowNavigationConfirmModal] = useState(false);
+  const [navigationTargetUrl, setNavigationTargetUrl] = useState('/'); // To store where to go after modal confirmation
 
-  let pageContextTitle = ""; // e.g., "Quiz Game Setup", "Trivia Nights"
-  let actionButton = null;
+  let pageContextTitle = "";
+  let actionButtons = null;
 
-  // Trivia Nights Setup page
-  if (location.pathname.startsWith('/trivia-nights/setup')) {
-    pageContextTitle = "Trivia Game Setup"; // Changed for clarity
-    actionButton = (
-      <button
-        onClick={() => navigate('/')}
-        className="bg-gray-600 hover:bg-gray-500 text-white font-semibold py-2 px-4 rounded-lg text-sm transition duration-200 ease-in-out"
-      >
-        Back to Home
-      </button>
-    );
-  }
-  // Trivia Nights Play page
-  else if (location.pathname.startsWith('/trivia-nights/play')) {
-    pageContextTitle = "Trivia Nights";
-    actionButton = (
-      <button
-        onClick={() => {
-          // Optional: Add confirmation dialog
-          // if (window.confirm("Are you sure you want to leave the game? Your progress will be lost.")) {
-          navigate('/trivia-nights/setup');
-          // }
-        }}
-        className="bg-danger hover:bg-danger-dark text-white font-semibold py-2 px-4 rounded-lg text-sm transition duration-200 ease-in-out"
-      >
-        Leave Game
-      </button>
-    );
-  }
-  // Truth or Dare Setup page
-  else if (location.pathname.startsWith('/truth-or-dare/setup')) {
+  const isHomePage = location.pathname === '/';
+  const isTriviaSetupPage = location.pathname.startsWith('/trivia-nights/setup');
+  const isTruthOrDareSetupPage = location.pathname.startsWith('/truth-or-dare/setup');
+  const isTriviaPlayPage = location.pathname.startsWith('/trivia-nights/play');
+  const isTruthOrDarePlayPage = location.pathname.startsWith('/truth-or-dare/play');
+  const isInGame = isTriviaPlayPage || isTruthOrDarePlayPage;
+
+  if (isTriviaSetupPage) {
+    pageContextTitle = "Trivia Game Setup";
+  } else if (isTruthOrDareSetupPage) {
     pageContextTitle = "Truth or Dare Setup";
-    actionButton = (
+  } else if (isTriviaPlayPage) {
+    pageContextTitle = "Trivia Nights";
+  } else if (isTruthOrDarePlayPage) {
+    pageContextTitle = "Truth or Dare";
+  } else if (isHomePage) {
+    pageContextTitle = "Select a Game";
+  }
+
+
+  const handleHomeClick = () => {
+    if (isInGame) {
+      setNavigationTargetUrl('/'); // Target is home
+      setShowNavigationConfirmModal(true);
+    } else {
+      navigate('/');
+    }
+  };
+
+  // New handler for "Leave Game" or other modal-confirmed navigations
+  const handleLeaveGameClick = (targetPath) => {
+    setNavigationTargetUrl(targetPath);
+    setShowNavigationConfirmModal(true);
+  };
+
+  const confirmNavigation = () => { // Renamed from confirmGoHome
+    navigate(navigationTargetUrl);
+    setShowNavigationConfirmModal(false);
+  };
+
+  if (isTriviaSetupPage || isTruthOrDareSetupPage) {
+    actionButtons = (
+      <>
+        {navbarActions && navbarActions.resetHandler && (
+          <button
+            onClick={navbarActions.resetHandler}
+            disabled={navbarActions.isLoading}
+            className="p-2 bg-gray-600 hover:bg-gray-500 text-white rounded-lg transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Reset Settings"
+            aria-label="Reset Settings"
+          >
+            <ResetIcon className="w-5 h-5" />
+          </button>
+        )}
+        {navbarActions && navbarActions.startHandler && (
+          <button
+            onClick={navbarActions.startHandler}
+            disabled={navbarActions.isLoading || !navbarActions.isValidToStart}
+            className={`font-semibold py-2 px-4 rounded-lg text-sm transition duration-200 ease-in-out
+                        ${(navbarActions.isLoading || !navbarActions.isValidToStart) ? 'bg-gray-500 text-gray-300 cursor-not-allowed' : 'bg-success hover:bg-success-dark text-white'}`}
+          >
+            {navbarActions.isLoading ? 'Starting...' : 'Start Game'}
+          </button>
+        )}
+      </>
+    );
+  } else if (isTriviaPlayPage) {
+    actionButtons = (
       <button
-        onClick={() => navigate('/')}
-        className="bg-gray-600 hover:bg-gray-500 text-white font-semibold py-2 px-4 rounded-lg text-sm transition duration-200 ease-in-out"
+        onClick={() => handleLeaveGameClick('/trivia-nights/setup')} // Use modal for leaving game
+        className="bg-danger hover:bg-danger-dark text-white font-semibold py-2 px-4 rounded-lg text-sm transition duration-200 ease-in-out"
       >
-        Back to Home
+        Leave Game
       </button>
     );
-  }
-  // Truth or Dare Play page
-  else if (location.pathname.startsWith('/truth-or-dare/play')) {
-    pageContextTitle = "Truth or Dare";
-    actionButton = (
+  } else if (isTruthOrDarePlayPage) {
+    actionButtons = (
       <button
-        onClick={() => {
-          if (window.confirm("Are you sure you want to leave the game?")) {
-            navigate('/truth-or-dare/setup');
-          }
-        }}
+        onClick={() => handleLeaveGameClick('/truth-or-dare/setup')} // Use modal for leaving game
         className="bg-danger hover:bg-danger-dark text-white font-semibold py-2 px-4 rounded-lg text-sm transition duration-200 ease-in-out"
       >
         Leave Game
       </button>
     );
   }
-  // For other pages like home or 404, no specific action button is added here from Navbar.
-  // Home page is linked by brand. NotFound page has its own controls.
 
   return (
-    <nav className="bg-gray-800 text-white sticky top-0 z-50 shadow-lg">
-      <div className="container mx-auto px-4 h-16 flex justify-between items-center"> {/* Fixed height for navbar */}
-        <div className="flex items-center flex-shrink-0"> {/* Added flex-shrink-0 */}
-          <Link to="/" className="text-2xl font-bold hover:text-primary-light transition duration-200 mr-2 sm:mr-6">
-            YT Games
-          </Link>
-          {pageContextTitle && (
-            // Context title, potentially truncated on very small screens if too long
-            <span className="text-lg sm:text-xl text-gray-300 hidden md:block truncate" title={pageContextTitle}>
-              | {pageContextTitle}
-            </span>
-          )}
+    <>
+      <nav className="bg-gray-800 text-white sticky top-0 z-50 shadow-lg">
+        <div className="container mx-auto px-4 h-16 grid grid-cols-3 items-center">
+          {/* Left Section: Logo/Home Link */}
+          <div className="flex items-center justify-start">
+            {!isHomePage && (
+              <button
+                onClick={handleHomeClick}
+                className="text-primary-light hover:text-primary transition duration-200 p-2 rounded-md"
+                title="Go to Home"
+                aria-label="Go to Home"
+              >
+                <HomeIcon className="w-7 h-7" />
+              </button>
+            )}
+             {isHomePage && ( // Placeholder for YT Games text or logo if needed on homepage
+                <span className="text-2xl font-bold text-primary-light">YT Games</span>
+             )}
+          </div>
+          
+          {/* Center Section: Page Context Title */}
+          <div className="text-center">
+            {pageContextTitle && (
+              <span className="text-lg sm:text-xl text-gray-300 truncate" title={pageContextTitle}>
+                {pageContextTitle}
+              </span>
+            )}
+          </div>
+          
+          {/* Right Section: Action Buttons */}
+          <div className="flex items-center justify-end space-x-2 sm:space-x-3">
+            {actionButtons}
+          </div>
         </div>
-        
-        <div className="flex items-center ml-auto"> {/* Ensure action button is pushed to the right */}
-          {actionButton}
-        </div>
-      </div>
-    </nav>
+      </nav>
+
+      <Modal
+        isOpen={showNavigationConfirmModal}
+        onClose={() => setShowNavigationConfirmModal(false)}
+        title="Leave Game?"
+        titleColor="text-warning-light"
+        footerContent={
+          <>
+            <button
+              onClick={() => setShowNavigationConfirmModal(false)}
+              className="px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded-md transition-colors"
+            >
+              No, Stay
+            </button>
+            <button
+              onClick={confirmNavigation}
+              className="px-4 py-2 bg-danger hover:bg-danger-dark text-white font-semibold rounded-md transition-colors"
+            >
+              Yes, Leave
+            </button>
+          </>
+        }
+      >
+        <p>
+          Are you sure you want to leave the current game? Your progress may be lost.
+        </p>
+      </Modal>
+    </>
   );
 }
 

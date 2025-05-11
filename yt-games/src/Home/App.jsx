@@ -1,30 +1,56 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { Routes, Route } from 'react-router-dom';
+import GameSelection from '../Games/TriviaNights/pages/GameSelection';
 import HomePage from './HomePage';
-import GameSelection from '../TriviaNights/pages/GameSelection';
-import QuizPage from '../TriviaNights/pages/QuizPage'; // Renamed from LocalMultiplayerQuiz
-import NotFound from '../TriviaNights/pages/NotFound';
+import QuizPage from '../Games/TriviaNights/pages/QuizPage'; // Renamed from LocalMultiplayerQuiz
+import NotFound from '../Games/Utils/NotFound'; // Import the NotFound component
 import Navbar from './Navbar'; // Import the Navbar
 
 // Truth or Dare components
-import TruthOrDareSetup from '../TruthOrDare/pages/TruthOrDareSetup';
-import TruthOrDareGame from '../TruthOrDare/pages/TruthOrDareGame';
+import TruthOrDareSetup from '../Games/TruthOrDare/pages/TruthOrDareSetup';
+import TruthOrDareGame from '../Games/TruthOrDare/pages/TruthOrDareGame';
 
 function App() {
+  const [navbarActions, setNavbarActions] = useState(null);
+
+  const registerNavbarActions = useCallback((actions) => {
+    setNavbarActions(actions);
+  }, []); // Empty dependency array as setNavbarActions is stable
+
+  const unregisterNavbarActions = useCallback(() => {
+    setNavbarActions(null);
+  }, []); // Empty dependency array as setNavbarActions is stable
+
   return (
       <div className="flex flex-col min-h-screen bg-background text-textPrimary">
-        <Navbar /> {/* Navbar is now global and sticky */}
+        <Navbar navbarActions={navbarActions} /> {/* Pass navbarActions to Navbar */}
         {/* Adjusted padding: Navbar h-16 (4rem=64px). Add some space, so pt-20 (5rem=80px) */}
         <main className="flex-grow container mx-auto px-4 pt-8 pb-4 md:pt-10"> {/* Adjust top padding for main content area */}
           <Routes>
             <Route path="/" element={<HomePage />} />
             
             {/* Trivia Nights Routes */}
-            <Route path="/trivia-nights/setup" element={<GameSelection />} />
+            <Route
+              path="/trivia-nights/setup"
+              element={
+                <GameSelection
+                  registerNavbarActions={registerNavbarActions}
+                  unregisterNavbarActions={unregisterNavbarActions}
+                />
+              }
+            />
             <Route path="/trivia-nights/play" element={<QuizPage />} />
 
             {/* Truth or Dare Routes */}
-            <Route path="/truth-or-dare/setup" element={<TruthOrDareSetup />} />
+            <Route
+              path="/truth-or-dare/setup"
+              element={
+                <TruthOrDareSetup
+                  registerNavbarActions={registerNavbarActions}
+                  unregisterNavbarActions={unregisterNavbarActions}
+                />
+              }
+            />
             <Route path="/truth-or-dare/play" element={<TruthOrDareGame />} />
 
             {/* Catch-all 404 */}
