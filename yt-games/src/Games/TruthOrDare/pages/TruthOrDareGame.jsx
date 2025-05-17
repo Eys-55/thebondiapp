@@ -1,22 +1,24 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import usePlayerRoulette from '../../Utils/usePlayerRoulette';
+import PlayerRouletteDisplay from '../../Utils/PlayerRouletteDisplay';
 
-const ROULETTE_INTERVAL = 100;
+const ROULETTE_INTERVAL = 100; // Kept for task roulette
 const PLAYER_ROULETTE_DURATION = 2500;
-const TASK_ROULETTE_DURATION = 1500; // Only for classic mode system-generated tasks
-const RESPONSE_ANIMATION_DURATION = 2500; // Duration for accept/reject animation
+const TASK_ROULETTE_DURATION = 1500;
+const RESPONSE_ANIMATION_DURATION = 2500;
 
 function TruthOrDareGame() {
   const navigate = useNavigate();
   const location = useLocation();
   const { gameConfig } = location.state || {};
 
-  const [allTruthsData, setAllTruthsData] = useState({}); // Stores full data objects by category
-  const [allDaresData, setAllDaresData] = useState({});   // Stores full data objects by category
+  const [allTruthsData, setAllTruthsData] = useState({});
+  const [allDaresData, setAllDaresData] = useState({});
   
-  const [filteredTruthTexts, setFilteredTruthTexts] = useState([]); // Stores only task texts for current game
-  const [filteredDareTexts, setFilteredDareTexts] = useState([]);   // Stores only task texts for current game
+  const [filteredTruthTexts, setFilteredTruthTexts] = useState([]);
+  const [filteredDareTexts, setFilteredDareTexts] = useState([]);
   
   const [players, setPlayers] = useState([]);
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
@@ -24,26 +26,23 @@ function TruthOrDareGame() {
   const [commander, setCommander] = useState(null);
 
   const [gamePhase, setGamePhase] = useState('loading');
-  // Phases: loading,
-  // player_selection_start, doer_selection_roulette,
+  // Phases: loading, player_selection_start, doer_selection_roulette,
   // doer_selected_pending_commander_selection, commander_selection_roulette,
-  // classic_choice_pending (Classic Mode),
-  // pair_doer_chooses_type (Pair Mode - Doer picks T/D type),
-  // task_selection_roulette (Classic Mode - System picks task),
-  // task_revealed_system (Classic Mode - System task shown),
-  // task_revealed_verbal (Pair Mode - Commander to give task, Doer to respond),
-  // doer_responds (intermediate state before animation), turn_ended
+  // classic_choice_pending, pair_doer_chooses_type, task_selection_roulette,
+  // task_revealed_system, task_revealed_verbal, doer_responds, turn_ended
 
   const [currentTask, setCurrentTask] = useState({ type: '', text: '' });
-  const [rouletteDisplayText, setRouletteDisplayText] = useState('');
-  const [responseAnimation, setResponseAnimation] = useState(null); // { type: 'accepted' | 'rejected', doerName: string, taskType: string }
+  const [taskSelectionText, setTaskSelectionText] = useState(''); // For task roulette display
+  const [responseAnimation, setResponseAnimation] = useState(null);
   
-  const rouletteIntervalRef = useRef(null);
-  const rouletteTimeoutRef = useRef(null);
-  const isMountedRef = useRef(true);
+  const taskRouletteIntervalRef = useRef(null);
+  const taskRouletteTimeoutRef = useRef(null);
+  const isMountedRef = useRef(true); // Component's own mounted ref
+
+  const playerRoulette = usePlayerRoulette(players);
 
   useEffect(() => {
-    isMountedRef.current = true;
+    isMountedRef.current = true; // Set on mount
     const fetchData = async () => {
       try {
         const truthsRes = await fetch('/src/Games/TruthOrDare/data/truths.json');
@@ -64,9 +63,10 @@ function TruthOrDareGame() {
     };
     fetchData();
     return () => {
-      isMountedRef.current = false;
-      clearInterval(rouletteIntervalRef.current);
-      clearTimeout(rouletteTimeoutRef.current);
+      isMountedRef.current = false; // Set on unmount
+      clearInterval(taskRouletteIntervalRef.current);
+      clearTimeout(taskRouletteTimeoutRef.current);
+      // playerRoulette hook manages its own cleanup
     };
   }, [navigate]);
 
@@ -81,14 +81,13 @@ function TruthOrDareGame() {
 
     if (isMountedRef.current) {
         setPlayers(gameConfig.players);
+        playerRoulette.setSelectedPlayer(null);
         if (gameConfig.gameMode === 'classic' && gameConfig.selectedCategory) {
             const categoryTruths = allTruthsData[gameConfig.selectedCategory] || [];
             const categoryDares = allDaresData[gameConfig.selectedCategory] || [];
             setFilteredTruthTexts(categoryTruths.map(item => item.text));
             setFilteredDareTexts(categoryDares.map(item => item.text));
         } else if (gameConfig.gameMode === 'pair') {
-            // For pair mode, tasks are verbal, so no pre-filtering needed from JSON.
-            // We can clear them or leave them empty.
             setFilteredTruthTexts([]);
             setFilteredDareTexts([]);
         }
@@ -97,41 +96,40 @@ function TruthOrDareGame() {
     if (gamePhase === 'loading' && isMountedRef.current) {
       setGamePhase('player_selection_start');
     }
-  }, [gameConfig, allTruthsData, allDaresData, navigate, gamePhase]);
+  }, [gameConfig, allTruthsData, allDaresData, navigate, gamePhase, playerRoulette]); // Added playerRoulette to deps
 
   const startDoerSelectionRoulette = useCallback(() => {
     if (!isMountedRef.current || players.length === 0) return;
+
     setGamePhase('doer_selection_roulette');
     setDoer(null);
     setCommander(null);
-    let namesToSpin = players.map(p => p.name);
-    setRouletteDisplayText(namesToSpin[0]);
-    let currentIndex = 0;
-    rouletteIntervalRef.current = setInterval(() => {
+
+    let preSelectedDoer = null;
+    if (gameConfig.turnProgression === 'sequential' && players.length > 0) {
+        preSelectedDoer = players[currentPlayerIndex];
+    }
+
+    playerRoulette.spinPlayerRoulette(PLAYER_ROULETTE_DURATION, (selectedByHook) => {
       if (!isMountedRef.current) return;
-      currentIndex = (currentIndex + 1) % namesToSpin.length;
-      setRouletteDisplayText(namesToSpin[currentIndex]);
-    }, ROULETTE_INTERVAL);
-    rouletteTimeoutRef.current = setTimeout(() => {
-      if (!isMountedRef.current) return;
-      clearInterval(rouletteIntervalRef.current);
-      let selectedDoer;
+      
+      const finalSelectedDoer = preSelectedDoer || selectedByHook;
+
+      setDoer(finalSelectedDoer);
+      playerRoulette.setRouletteDisplayText(finalSelectedDoer.name); // Ensure display text is correct if overridden
+      toast.success(`${finalSelectedDoer.name} is the Doer!`);
+
       if (gameConfig.turnProgression === 'sequential') {
-        selectedDoer = players[currentPlayerIndex];
         setCurrentPlayerIndex((prevIndex) => (prevIndex + 1) % players.length);
-      } else {
-        selectedDoer = players[Math.floor(Math.random() * players.length)];
       }
-      setDoer(selectedDoer);
-      setRouletteDisplayText(selectedDoer.name);
-      toast.success(`${selectedDoer.name} is the Doer!`);
+
       if (gameConfig.gameMode === 'classic') {
         setGamePhase('classic_choice_pending');
       } else {
         setGamePhase('doer_selected_pending_commander_selection');
       }
-    }, PLAYER_ROULETTE_DURATION);
-  }, [players, gameConfig, currentPlayerIndex]);
+    }, players); // Spin from all players
+  }, [players, gameConfig, currentPlayerIndex, playerRoulette]);
 
   const startCommanderSelectionRoulette = useCallback(() => {
     if (!isMountedRef.current || !doer || players.length < 1) {
@@ -140,40 +138,24 @@ function TruthOrDareGame() {
         return;
     }
     setGamePhase('commander_selection_roulette');
-    let potentialCommanders = players.filter(p => p.id !== doer.id);
+    const potentialCommanders = players.filter(p => p.id !== doer.id);
     
-    if (potentialCommanders.length === 0 && players.length === 1 && players[0].id === doer.id) {
-        setCommander(doer);
-        setRouletteDisplayText(doer.name);
-        toast.info(`${doer.name} will also be the Commander.`);
-        setGamePhase('pair_doer_chooses_type');
-        return;
-    } else if (potentialCommanders.length === 0) {
-        toast.error("Could not select a different Commander. Defaulting to Doer.");
-        setCommander(doer);
-        setRouletteDisplayText(doer.name);
+    if (potentialCommanders.length === 0) {
+        const fallbackCommander = (players.length === 1 && players[0].id === doer.id) ? doer : (players.length > 0 ? players[0] : doer); // Broader fallback
+        setCommander(fallbackCommander);
+        playerRoulette.setRouletteDisplayText(fallbackCommander.name);
+        toast.info(`${fallbackCommander.name} will also be the Commander.`);
         setGamePhase('pair_doer_chooses_type');
         return;
     }
 
-    let namesToSpin = potentialCommanders.map(p => p.name);
-    setRouletteDisplayText(namesToSpin[0]);
-    let currentIndex = 0;
-    rouletteIntervalRef.current = setInterval(() => {
-        if (!isMountedRef.current) return;
-        currentIndex = (currentIndex + 1) % namesToSpin.length;
-        setRouletteDisplayText(namesToSpin[currentIndex]);
-    }, ROULETTE_INTERVAL);
-    rouletteTimeoutRef.current = setTimeout(() => {
-        if (!isMountedRef.current) return;
-        clearInterval(rouletteIntervalRef.current);
-        const selectedCommander = potentialCommanders[Math.floor(Math.random() * potentialCommanders.length)];
-        setCommander(selectedCommander);
-        setRouletteDisplayText(selectedCommander.name);
-        toast.info(`${selectedCommander.name} is the Commander!`);
-        setGamePhase('pair_doer_chooses_type');
-    }, PLAYER_ROULETTE_DURATION);
-  }, [players, doer]);
+    playerRoulette.spinPlayerRoulette(PLAYER_ROULETTE_DURATION, (selectedCommander) => {
+      if (!isMountedRef.current) return;
+      setCommander(selectedCommander);
+      toast.info(`${selectedCommander.name} is the Commander!`);
+      setGamePhase('pair_doer_chooses_type');
+    }, potentialCommanders);
+  }, [players, doer, playerRoulette]);
 
   useEffect(() => {
     if (gamePhase === 'player_selection_start') {
@@ -181,7 +163,7 @@ function TruthOrDareGame() {
     } else if (gamePhase === 'doer_selected_pending_commander_selection') {
       const timer = setTimeout(() => {
         if (isMountedRef.current) startCommanderSelectionRoulette();
-      }, 2000);
+      }, 2000); // Delay before starting commander selection
       return () => clearTimeout(timer);
     }
   }, [gamePhase, startDoerSelectionRoulette, startCommanderSelectionRoulette]);
@@ -207,22 +189,21 @@ function TruthOrDareGame() {
     const taskPool = taskType === 'truth' ? filteredTruthTexts : filteredDareTexts;
     if (taskPool.length === 0) {
         toast.error(`No ${taskType}s available in the selected category: ${gameConfig.selectedCategory}!`);
-        setGamePhase('classic_choice_pending');
+        setGamePhase('classic_choice_pending'); // Go back to choice
         return;
     }
     setGamePhase('task_selection_roulette');
     setCurrentTask({ type: taskType, text: '' });
-    setRouletteDisplayText(`Choosing a ${taskType}...`);
+    setTaskSelectionText(`Choosing a ${taskType}...`); // Use specific state setter
     let currentIndex = 0;
-    rouletteIntervalRef.current = setInterval(() => {
+    taskRouletteIntervalRef.current = setInterval(() => {
         if (!isMountedRef.current) return;
         currentIndex = (currentIndex + 1) % taskPool.length;
-        // taskPool items are now strings (the text of the task)
-        setRouletteDisplayText(taskPool[currentIndex].substring(0, 30) + '...');
+        setTaskSelectionText(taskPool[currentIndex].substring(0, 30) + '...'); // Use specific state setter
     }, ROULETTE_INTERVAL);
-    rouletteTimeoutRef.current = setTimeout(() => {
+    taskRouletteTimeoutRef.current = setTimeout(() => {
         if (!isMountedRef.current) return;
-        clearInterval(rouletteIntervalRef.current);
+        clearInterval(taskRouletteIntervalRef.current);
         const selectedTaskText = taskPool[Math.floor(Math.random() * taskPool.length)];
         setCurrentTask({ type: taskType, text: selectedTaskText });
         setGamePhase('task_revealed_system');
@@ -244,6 +225,7 @@ function TruthOrDareGame() {
   
   const handleDoerResponse = (accepted) => {
     if (!isMountedRef.current || !doer || !currentTask.type) return;
+    setGamePhase('doer_responds'); // Intermediate phase
     if (accepted) {
       toast.info(`${doer.name} accepted the ${currentTask.type}!`);
       setResponseAnimation({ type: 'accepted', doerName: doer.name, taskType: currentTask.type });
@@ -251,6 +233,7 @@ function TruthOrDareGame() {
       toast.warn(`${doer.name} rejected the ${currentTask.type}!`);
       setResponseAnimation({ type: 'rejected', doerName: doer.name, taskType: currentTask.type });
     }
+    // useEffect for responseAnimation will handle moving to 'turn_ended'
   };
 
   const handleNextTurn = () => {
@@ -258,15 +241,14 @@ function TruthOrDareGame() {
     setDoer(null);
     setCommander(null);
     setCurrentTask({ type: '', text: '' });
-    setRouletteDisplayText('');
+    playerRoulette.setRouletteDisplayText(''); // Reset player roulette display
+    setTaskSelectionText(''); // Reset task roulette display
     setGamePhase('player_selection_start');
   };
 
-  // Check if data is loaded, but no tasks for classic mode if selected
   const noTasksAvailableForClassic = gameConfig && gameConfig.gameMode === 'classic' &&
                                    filteredTruthTexts.length === 0 && filteredDareTexts.length === 0 &&
                                    Object.keys(allTruthsData).length > 0 && Object.keys(allDaresData).length > 0;
-
 
   if (gamePhase === 'loading' || !gameConfig || players.length === 0 || (Object.keys(allTruthsData).length === 0 && Object.keys(allDaresData).length === 0)) {
     return <div className="text-center py-10 text-xl text-blue-300">Loading Game & Data...</div>;
@@ -282,10 +264,11 @@ function TruthOrDareGame() {
      );
   }
 
-  const renderRouletteScreen = (title, currentSelectionText) => (
+  // This render function is specifically for the TASK selection roulette
+  const renderTaskRouletteScreen = (title, currentSelectionText) => (
     <div className="text-center my-6 p-8 bg-gray-800 rounded-lg shadow-lg">
       <p className="text-2xl text-gray-200 mb-2">{title}</p>
-      <p className="text-4xl font-bold text-blue-400 h-12 animate-pulse">{currentSelectionText}</p>
+      <p className="text-4xl font-bold text-blue-400 h-12 animate-pulse">{currentSelectionText || '...'}</p>
     </div>
   );
 
@@ -376,16 +359,20 @@ function TruthOrDareGame() {
           )}
         </div>
 
-        {gamePhase === 'doer_selection_roulette' &&
-          renderRouletteScreen("Selecting Doer...", rouletteDisplayText)
-        }
+        {gamePhase === 'doer_selection_roulette' && (
+          <PlayerRouletteDisplay
+            title="Selecting Doer..."
+            displayText={playerRoulette.rouletteDisplayText}
+            isSpinning={playerRoulette.isRouletteSpinning}
+          />
+        )}
         
-        {doer && (gamePhase !== 'doer_selection_roulette' && gamePhase !== 'player_selection_start' && gamePhase !== 'loading' && gamePhase !== 'turn_ended') && (
+        {doer && (gamePhase !== 'doer_selection_roulette' && gamePhase !== 'player_selection_start' && gamePhase !== 'loading' && gamePhase !== 'turn_ended' && gamePhase !== 'doer_responds') && (
             <div className={`p-3 bg-gray-700 rounded-lg text-center shadow-md ${gameConfig.gameMode === 'pair' ? 'mb-2' : 'mb-4'}`}>
                 <p className="text-lg text-gray-100">Doer: <span className="font-bold text-blue-300">{doer.name}</span></p>
             </div>
         )}
-        {gameConfig.gameMode === 'pair' && commander && (gamePhase !== 'doer_selection_roulette' && gamePhase !== 'commander_selection_roulette' && gamePhase !== 'player_selection_start' && gamePhase !== 'loading' && gamePhase !== 'turn_ended') && (
+        {gameConfig.gameMode === 'pair' && commander && (gamePhase !== 'doer_selection_roulette' && gamePhase !== 'commander_selection_roulette' && gamePhase !== 'player_selection_start' && gamePhase !== 'loading' && gamePhase !== 'turn_ended' && gamePhase !== 'doer_responds') && (
             <div className="p-3 bg-gray-700 rounded-lg text-center shadow-md mb-4">
                 <p className="text-lg text-gray-100">Commander: <span className="font-bold text-blue-300">{commander.name}</span></p>
             </div>
@@ -396,12 +383,16 @@ function TruthOrDareGame() {
             <p className="text-xl text-gray-300 animate-pulse">Now selecting Commander...</p>
           </div>
         )}
-        {gameConfig.gameMode === 'pair' && gamePhase === 'commander_selection_roulette' &&
-          renderRouletteScreen("Selecting Commander...", rouletteDisplayText)
-        }
+        {gameConfig.gameMode === 'pair' && gamePhase === 'commander_selection_roulette' && (
+           <PlayerRouletteDisplay
+            title="Selecting Commander..."
+            displayText={playerRoulette.rouletteDisplayText}
+            isSpinning={playerRoulette.isRouletteSpinning}
+          />
+        )}
 
         {gameConfig.gameMode === 'classic' && gamePhase === 'classic_choice_pending' && renderClassicChoiceScreen()}
-        {gameConfig.gameMode === 'classic' && gamePhase === 'task_selection_roulette' && renderRouletteScreen(`Choosing a ${currentTask.type}...`, rouletteDisplayText)}
+        {gameConfig.gameMode === 'classic' && gamePhase === 'task_selection_roulette' && renderTaskRouletteScreen(`Choosing a ${currentTask.type}...`, taskSelectionText)}
         {gameConfig.gameMode === 'classic' && gamePhase === 'task_revealed_system' && renderTaskRevealedScreen()}
 
         {gameConfig.gameMode === 'pair' && gamePhase === 'pair_doer_chooses_type' && renderPairDoerChoosesTypeScreen()}

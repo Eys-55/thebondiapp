@@ -27,18 +27,24 @@ function Navbar({ navbarActions }) {
   const isHomePage = location.pathname === '/';
   const isTriviaSetupPage = location.pathname.startsWith('/trivia-nights/setup');
   const isTruthOrDareSetupPage = location.pathname.startsWith('/truth-or-dare/setup');
+  const isCharadesSetupPage = location.pathname.startsWith('/charades/setup'); // Added
   const isTriviaPlayPage = location.pathname.startsWith('/trivia-nights/play');
   const isTruthOrDarePlayPage = location.pathname.startsWith('/truth-or-dare/play');
-  const isInGame = isTriviaPlayPage || isTruthOrDarePlayPage;
+  const isCharadesPlayPage = location.pathname.startsWith('/charades/play'); // Added
+  const isInGame = isTriviaPlayPage || isTruthOrDarePlayPage || isCharadesPlayPage; // Updated
 
   if (isTriviaSetupPage) {
     pageContextTitle = "Trivia Game Setup";
   } else if (isTruthOrDareSetupPage) {
     pageContextTitle = "Truth or Dare Setup";
+  } else if (isCharadesSetupPage) { // Added
+    pageContextTitle = "Charades Setup";
   } else if (isTriviaPlayPage) {
     pageContextTitle = "Trivia Nights";
   } else if (isTruthOrDarePlayPage) {
     pageContextTitle = "Truth or Dare";
+  } else if (isCharadesPlayPage) { // Added
+    pageContextTitle = "Charades!";
   } else if (isHomePage) {
     pageContextTitle = "Select a Game";
   }
@@ -64,7 +70,7 @@ function Navbar({ navbarActions }) {
     setShowNavigationConfirmModal(false);
   };
 
-  if (isTriviaSetupPage || isTruthOrDareSetupPage) {
+  if (isTriviaSetupPage || isTruthOrDareSetupPage || isCharadesSetupPage) { // Updated
     actionButtons = (
       <>
         {navbarActions && navbarActions.resetHandler && (
@@ -103,6 +109,15 @@ function Navbar({ navbarActions }) {
     actionButtons = (
       <button
         onClick={() => handleLeaveGameClick('/truth-or-dare/setup')} // Use modal for leaving game
+        className="bg-danger hover:bg-danger-dark text-white font-semibold py-2 px-4 rounded-lg text-sm transition duration-200 ease-in-out"
+      >
+        Leave Game
+      </button>
+    );
+  } else if (isCharadesPlayPage) { // Added
+    actionButtons = (
+      <button
+        onClick={() => handleLeaveGameClick('/charades/setup')} // Use modal for leaving game
         className="bg-danger hover:bg-danger-dark text-white font-semibold py-2 px-4 rounded-lg text-sm transition duration-200 ease-in-out"
       >
         Leave Game

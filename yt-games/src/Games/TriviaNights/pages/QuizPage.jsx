@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import concepts from '../data/concepts.json';
 import { generateQuestions as generateQuestionsForGame } from '../services/questionGenerator';
+import Leaderboard from '../../Utils/Leaderboard'; // Import Leaderboard
 // SVG Icons
 // SVG Icons
 const CheckIcon = ({ className = "h-5 w-5" }) => (
@@ -207,20 +208,30 @@ function QuizPage() {
   }
   
   if (gamePhase === 'finished') {
-    const sortedPlayers = [...players].sort((a, b) => b.score - a.score);
+    // Prepare playerScores for the Leaderboard component
+    const playerScoresForLeaderboard = players.reduce((acc, player) => {
+      acc[player.id] = { score: player.score, name: player.name }; // Leaderboard expects score data under player.id
+      return acc;
+    }, {});
+
+    const triviaLeaderboardFormatter = (player, scoreData, rank) => (
+      <li key={player.id} className={`flex justify-between items-center px-4 py-2 rounded border ${ rank === 1 ? 'bg-success-dark border-success-light ring-2 ring-success-light shadow-lg' : 'bg-gray-700 border-gray-600' }`}>
+        <span className={`font-medium ${rank === 1 ? 'text-white' : 'text-textPrimary'}`}>{rank}. {player.name} {rank === 1 ? '🏆' : ''}</span>
+        <span className={`${rank === 1 ? 'text-white' : 'text-textPrimary'} font-medium`}>Score: {scoreData.score}</span>
+      </li>
+    );
+
     return (
       <div className="max-w-lg mx-auto p-8 bg-gray-800 rounded-lg shadow-xl text-center">
         <h2 className="text-4xl font-bold mb-4 text-warning-light">🏁 Game Over! 🏁</h2>
-        <h3 className="text-2xl font-semibold mb-6 text-success-light">Final Scores:</h3>
-        <ul className="space-y-2 mb-8 text-left max-w-sm mx-auto">
-            {sortedPlayers.map((p, index) => (
-                <li key={p.id} className={`flex justify-between items-center px-4 py-2 rounded border ${ index === 0 ? 'bg-success-dark border-success-light ring-2 ring-success-light shadow-lg' : 'bg-gray-700 border-gray-600' }`}>
-                    <span className={`font-medium ${index === 0 ? 'text-white' : 'text-textPrimary'}`}>{index + 1}. {p.name} {index === 0 ? '🏆' : ''}</span>
-                    <span className={`${index === 0 ? 'text-white' : 'text-textPrimary'} font-medium`}>Score: {p.score}</span>
-                </li>
-            ))}
-        </ul>
-        <button onClick={() => navigate('/trivia-nights/setup')} className="bg-primary hover:bg-primary-dark text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-200 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50 shadow-lg"> Play Again? </button>
+        <Leaderboard
+          title="Final Scores"
+          players={players} // The players array already contains names and IDs
+          playerScores={playerScoresForLeaderboard}
+          primarySortField="score"
+          displayFormatter={triviaLeaderboardFormatter}
+        />
+        <button onClick={() => navigate('/trivia-nights/setup')} className="mt-8 bg-primary hover:bg-primary-dark text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-200 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50 shadow-lg"> Play Again? </button>
       </div>
     );
   }

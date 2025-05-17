@@ -10,6 +10,10 @@ import Navbar from './Navbar'; // Import the Navbar
 import TruthOrDareSetup from '../Games/TruthOrDare/pages/TruthOrDareSetup';
 import TruthOrDareGame from '../Games/TruthOrDare/pages/TruthOrDareGame';
 
+// Charades components
+import CharadesSetup from '../Games/Charades/pages/CharadesSetup';
+import CharadesGame from '../Games/Charades/pages/CharadesGame';
+
 function App() {
   const [navbarActions, setNavbarActions] = useState(null);
 
@@ -52,6 +56,18 @@ function App() {
               }
             />
             <Route path="/truth-or-dare/play" element={<TruthOrDareGame />} />
+
+            {/* Charades Routes */}
+            <Route
+              path="/charades/setup"
+              element={
+                <CharadesSetup
+                  registerNavbarActions={registerNavbarActions}
+                  unregisterNavbarActions={unregisterNavbarActions}
+                />
+              }
+            />
+            <Route path="/charades/play" element={<CharadesGame />} />
 
             {/* Catch-all 404 */}
             <Route path="*" element={<NotFound />} />

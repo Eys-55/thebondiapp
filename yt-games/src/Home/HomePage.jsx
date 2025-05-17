@@ -23,9 +23,9 @@ const games = [
     id: 'charades-challenge',
     name: 'Charades Challenge',
     description: 'Act it out! A classic party game for hilarious moments.',
-    link: '#',
+    link: '/charades/setup',
     tags: ['Party', 'Acting', 'Multiplayer'],
-    disabled: true,
+    disabled: false,
   },
   {
     id: 'picture-puzzle',
