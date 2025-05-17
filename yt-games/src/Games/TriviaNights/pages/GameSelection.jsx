@@ -5,11 +5,11 @@ import SetupPageLayout from '../../Utils/SetupPageLayout'; // Import the layout
 
 // Updated categories based on concepts.js
 const CATEGORIES = [
-  { id: 'geography', name: 'Geography' },
-  { id: 'science', name: 'Science' },
-  { id: 'literature', name: 'Literature' },
-  { id: 'flags', name: 'Flags' },
-  { id: 'languages', name: 'Languages' },
+  { id: 'geography', name: '🌍 Geography' },
+  { id: 'science', name: '🔬 Science' },
+  { id: 'literature', name: '📚 Literature' },
+  { id: 'flags', name: '🚩 Flags' },
+  { id: 'languages', name: '🗣️ Languages' },
 ];
 
 const MAX_PLAYERS = 10; // Increased max players

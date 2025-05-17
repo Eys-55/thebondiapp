@@ -7,19 +7,19 @@ import Modal from '../../Utils/Modal'; // Import the new Modal component
 const MIN_PLAYERS = 2;
 const MAX_PLAYERS = 10;
 const CATEGORIES = [
-    { id: "Family", name: "Family" },
-    { id: "Friends", name: "Friends" },
-    { id: "Relationship", name: "Relationship (18+)" }
+    { id: "Family", name: "👨‍👩‍👧‍👦 Family" },
+    { id: "Friends", name: "🧑‍🤝‍🧑 Friends" },
+    { id: "Relationship", name: "❤️‍🔥 Relationship (18+)" }
 ];
 const SESSION_STORAGE_KEY = 'truthOrDareSetup';
 
 const defaultState = {
-  numPlayersUI: MIN_PLAYERS,
-  playerNames: Array(MIN_PLAYERS).fill(''),
-  selectedCategory: null,
-  turnProgression: 'random',
-  gameMode: 'classic',
-  rRatedModalConfirmed: false,
+numPlayersUI: MIN_PLAYERS,
+playerNames: Array(MIN_PLAYERS).fill(''),
+selectedCategory: null,
+// turnProgression is now fixed to 'random' and not part of default state for user selection
+gameMode: 'classic',
+rRatedModalConfirmed: false,
 };
 
 function TruthOrDareSetup({ registerNavbarActions, unregisterNavbarActions }) {
@@ -28,7 +28,8 @@ function TruthOrDareSetup({ registerNavbarActions, unregisterNavbarActions }) {
   const [playerNames, setPlayerNames] = useState(defaultState.playerNames);
   
   const [selectedCategory, setSelectedCategory] = useState(defaultState.selectedCategory);
-  const [turnProgression, setTurnProgression] = useState(defaultState.turnProgression);
+  // turnProgression is now fixed to 'random' and not a state variable for user selection.
+  const turnProgression = 'random'; // Always random
   const [gameMode, setGameMode] = useState(defaultState.gameMode);
   
   const [showRRatedModal, setShowRRatedModal] = useState(false);
@@ -47,11 +48,12 @@ function TruthOrDareSetup({ registerNavbarActions, unregisterNavbarActions }) {
         const numPlayers = parsedSettings.numPlayersUI || defaultState.numPlayersUI;
         setPlayerNames(Array(numPlayers).fill('').map((_, i) => loadedPlayerNames[i] || ''));
         setSelectedCategory(parsedSettings.selectedCategory || defaultState.selectedCategory);
-        setTurnProgression(parsedSettings.turnProgression || defaultState.turnProgression);
+        // turnProgression is fixed, no need to load/set from storage for this
         setGameMode(parsedSettings.gameMode || defaultState.gameMode);
         setRRatedModalConfirmed(parsedSettings.rRatedModalConfirmed || defaultState.rRatedModalConfirmed);
-      }
-    } catch (error) {
+        // turnProgression is a const, no need to load from session storage
+        }
+        } catch (error) {
       console.error("Failed to load Truth or Dare settings from session storage:", error);
       toast.error("Could not load saved settings.");
     }
@@ -62,7 +64,8 @@ function TruthOrDareSetup({ registerNavbarActions, unregisterNavbarActions }) {
       numPlayersUI,
       playerNames,
       selectedCategory,
-      turnProgression,
+      // turnProgression is fixed, but can be saved for consistency if needed elsewhere, though not user-configurable
+      turnProgression: 'random',
       gameMode,
       rRatedModalConfirmed,
     };
@@ -71,7 +74,7 @@ function TruthOrDareSetup({ registerNavbarActions, unregisterNavbarActions }) {
     } catch (error) {
       console.error("Failed to save Truth or Dare settings to session storage:", error);
     }
-  }, [numPlayersUI, playerNames, selectedCategory, turnProgression, gameMode, rRatedModalConfirmed]);
+  }, [numPlayersUI, playerNames, selectedCategory, gameMode, rRatedModalConfirmed]);
 
   useEffect(() => {
     if (gameMode === 'pair') {
@@ -196,7 +199,7 @@ function TruthOrDareSetup({ registerNavbarActions, unregisterNavbarActions }) {
     setNumPlayersUI(defaultState.numPlayersUI);
     setPlayerNames(defaultState.playerNames);
     setSelectedCategory(defaultState.selectedCategory);
-    setTurnProgression(defaultState.turnProgression);
+    // turnProgression is a const, no need to reset
     setGameMode(defaultState.gameMode);
     setRRatedModalConfirmed(defaultState.rRatedModalConfirmed);
     setShowRRatedModal(false);
@@ -278,26 +281,13 @@ function TruthOrDareSetup({ registerNavbarActions, unregisterNavbarActions }) {
 
       {/* Game Settings */}
       <div className="mb-6 p-4 bg-gray-700 rounded-md shadow">
-        <h3 className="text-xl font-semibold mb-4 text-gray-200 border-b border-gray-600 pb-2">2. Game Rules</h3>
-        <div className="mb-4 p-3 bg-gray-650 rounded-md border border-gray-600">
-          <label className="block text-md font-medium text-gray-200 mb-2">Turn Progression:</label>
-          <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-2 sm:space-y-0">
-            <label className="flex items-center space-x-2 px-3 py-1.5 rounded-md cursor-pointer transition duration-200 border bg-gray-600 hover:bg-gray-500 text-textPrimary border-gray-600 hover:border-gray-500 has-[:checked]:bg-primary-dark has-[:checked]:text-white has-[:checked]:border-primary-light has-[:checked]:ring-1 has-[:checked]:ring-primary-light">
-                <input type="radio" name="turnProgression" value="random" checked={turnProgression === 'random'} onChange={(e) => setTurnProgression(e.target.value)} disabled={isLoading} className="form-radio h-4 w-4 text-primary focus:ring-primary-light disabled:opacity-50 sr-only"/>
-                <span>Random</span>
-            </label>
-            <label className="flex items-center space-x-2 px-3 py-1.5 rounded-md cursor-pointer transition duration-200 border bg-gray-600 hover:bg-gray-500 text-textPrimary border-gray-600 hover:border-gray-500 has-[:checked]:bg-primary-dark has-[:checked]:text-white has-[:checked]:border-primary-light has-[:checked]:ring-1 has-[:checked]:ring-primary-light">
-                <input type="radio" name="turnProgression" value="sequential" checked={turnProgression === 'sequential'} onChange={(e) => setTurnProgression(e.target.value)} disabled={isLoading} className="form-radio h-4 w-4 text-primary focus:ring-primary-light disabled:opacity-50 sr-only"/>
-                <span>Sequential</span>
-            </label>
-          </div>
-        </div>
-        <div className="p-3 bg-gray-650 rounded-md border border-gray-600">
-          <label className="block text-md font-medium text-gray-200 mb-2">Game Mode:</label>
-          <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-2 sm:space-y-0">
+      <h3 className="text-xl font-semibold mb-4 text-gray-200 border-b border-gray-600 pb-2">2. Game Rules</h3>
+      <div className="p-3 bg-gray-650 rounded-md border border-gray-600">
+      <label className="block text-md font-medium text-gray-200 mb-2">Game Mode:</label>
+      <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-2 sm:space-y-0">
             <label className="flex items-center space-x-2 px-3 py-1.5 rounded-md cursor-pointer transition duration-200 border bg-gray-600 hover:bg-gray-500 text-textPrimary border-gray-600 hover:border-gray-500 has-[:checked]:bg-primary-dark has-[:checked]:text-white has-[:checked]:border-primary-light has-[:checked]:ring-1 has-[:checked]:ring-primary-light">
                 <input type="radio" name="gameMode" value="classic" checked={gameMode === 'classic'} onChange={() => handleGameModeChange('classic')} disabled={isLoading} className="form-radio h-4 w-4 text-primary focus:ring-primary-light disabled:opacity-50 sr-only"/>
-                <span>Classic (System picks tasks)</span>
+                <span>Classic (System assigns Truths & Dares)</span>
             </label>
             <label className="flex items-center space-x-2 px-3 py-1.5 rounded-md cursor-pointer transition duration-200 border bg-gray-600 hover:bg-gray-500 text-textPrimary border-gray-600 hover:border-gray-500 has-[:checked]:bg-primary-dark has-[:checked]:text-white has-[:checked]:border-primary-light has-[:checked]:ring-1 has-[:checked]:ring-primary-light">
                 <input type="radio" name="gameMode" value="pair" checked={gameMode === 'pair'} onChange={() => handleGameModeChange('pair')} disabled={isLoading} className="form-radio h-4 w-4 text-primary focus:ring-primary-light disabled:opacity-50 sr-only"/>
