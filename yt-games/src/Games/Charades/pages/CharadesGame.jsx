@@ -158,18 +158,55 @@ function CharadesGame() {
   }, [players, gameTimer, playerRoulette, gameConfig?.gameMode, playerScores, numRounds, totalTurnsCompleted, itemSelector]);
 
   useEffect(() => {
-    if (gamePhase === 'actor_selection_start') {
+    if (gamePhase === 'actor_selection_start' && !playerRoulette.isRouletteSpinning && !actor) { // ensure it only runs if not already spinning and no actor
       startActorSelectionRoulette();
     }
-  }, [gamePhase, actor, gameConfig?.gameMode, startActorSelectionRoulette]); 
+  }, [gamePhase, actor, playerRoulette.isRouletteSpinning, startActorSelectionRoulette]);
 
   const handleDifficultySelect = (difficulty) => {
-    if (!isMountedRef.current || !wordsData[difficulty] || gameConfig.gameMode !== 'system_word') return; // Use wordsData
+    if (!isMountedRef.current || !wordsData[difficulty] || gameConfig.gameMode !== 'system_word') return;
     itemSelector.selectCategory(difficulty);
-    itemSelector.drawItem(); 
-    toast.info(`${actor.name} selected ${difficulty.toUpperCase()} difficulty (Base Score: ${itemSelector.selectedItem?.baseScore || wordsData[difficulty].baseScore})`); // Use wordsData
+    // itemSelector.drawItem(); // Removed: Will be handled by useEffect
+    // toast.info(...) // Removed: Will be handled by useEffect
     setGamePhase('word_assignment');
   };
+
+  // useEffect to draw item when category is selected and game phase expects it
+  useEffect(() => {
+    if (gamePhase === 'word_assignment' &&
+      gameConfig.gameMode === 'system_word' &&
+      itemSelector.currentCategory && // Ensures category is set in the hook
+      !itemSelector.selectedItem && // Only draw if no item is selected yet for this phase/category
+      isMountedRef.current) {
+      itemSelector.drawItem();
+    }
+  }, [gamePhase, gameConfig?.gameMode, itemSelector.currentCategory, itemSelector.selectedItem, itemSelector.drawItem]);
+
+  // useEffect to show toast after item is drawn
+  useEffect(() => {
+    if (gamePhase === 'word_assignment' &&
+      gameConfig.gameMode === 'system_word' &&
+      itemSelector.selectedItem && // An item has been successfully drawn
+      itemSelector.selectedItem.categoryName && // It's a system word with category info
+      actor &&
+      isMountedRef.current) {
+
+      const difficulty = itemSelector.selectedItem.categoryName;
+      const baseScore = itemSelector.selectedItem.baseScore;
+
+      if (baseScore !== undefined) {
+        toast.info(`${actor.name} selected ${difficulty.toUpperCase()} difficulty (Base Score: ${baseScore})`);
+      } else {
+        // Fallback or error if baseScore wasn't part of the selectedItem
+        const fallbackBaseScore = wordsData[difficulty]?.baseScore;
+        if (fallbackBaseScore !== undefined) {
+          toast.info(`${actor.name} selected ${difficulty.toUpperCase()} difficulty (Base Score: ${fallbackBaseScore}, fallback)`);
+        } else {
+          toast.error(`Error determining base score for ${difficulty}.`);
+        }
+      }
+    }
+  }, [gamePhase, gameConfig?.gameMode, itemSelector.selectedItem, actor, wordsData]);
 
   const handleShowWord = () => {
     if (gameConfig.gameMode === 'system_word' && itemSelector.selectedItem?.rawItem) {

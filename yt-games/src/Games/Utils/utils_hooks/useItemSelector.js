@@ -60,6 +60,23 @@ function useItemSelector({
   }, [availableCategories, itemsData]);
 
   const drawItem = useCallback(() => {
+    // --- Start Enhanced Logging ---
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[useItemSelector] Attempting to draw item.');
+      console.log('[useItemSelector] Current category:', currentCategory);
+      console.log('[useItemSelector] itemKey:', itemKey);
+      console.log('[useItemSelector] itemsData available:', !!itemsData);
+      if (itemsData && currentCategory) {
+        console.log(`[useItemSelector] Data for category itemsData["${currentCategory}"]:`, itemsData[currentCategory]);
+        if (itemsData[currentCategory]) {
+          console.log(`[useItemSelector] Items array at itemsData["${currentCategory}"]["${itemKey}"]:`, itemsData[currentCategory][itemKey]);
+        } else {
+          console.log(`[useItemSelector] No data found for category "${currentCategory}" in itemsData.`);
+        }
+      }
+    }
+    // --- End Enhanced Logging ---
+
     if (!itemsData) {
       toast.warn("useItemSelector: No itemsData provided.");
       setSelectedItem(null);
@@ -73,19 +90,40 @@ function useItemSelector({
     if (Array.isArray(itemsData)) { // Flat array of items
       itemsToDrawFrom = itemsData;
       categoryNameForSelectedItem = null; // No specific category name
-    } else if (currentCategory && itemsData[currentCategory] && Array.isArray(itemsData[currentCategory][itemKey])) {
-      itemsToDrawFrom = itemsData[currentCategory][itemKey];
-      categoryDataForSelectedItem = { ...itemsData[currentCategory] };
-      delete categoryDataForSelectedItem[itemKey]; // Remove the items array itself from category data
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[useItemSelector] itemsData is a flat array. Using it directly. Length:', itemsToDrawFrom.length);
+      }
+    } else if (currentCategory && itemsData[currentCategory]) {
+      if (Array.isArray(itemsData[currentCategory][itemKey])) {
+        itemsToDrawFrom = itemsData[currentCategory][itemKey];
+        categoryDataForSelectedItem = { ...itemsData[currentCategory] };
+        delete categoryDataForSelectedItem[itemKey]; // Remove the items array itself from category data
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`[useItemSelector] Successfully accessed items array for category "${currentCategory}" using itemKey "${itemKey}". Length:`, itemsToDrawFrom.length);
+          if (itemsToDrawFrom.length === 0) {
+            console.warn(`[useItemSelector] DIAGNOSTIC: The items array for category "${currentCategory}" (key "${itemKey}") is EMPTY.`);
+          }
+        }
+      } else {
+        // This case means itemsData[currentCategory] exists, but itemsData[currentCategory][itemKey] is not an array.
+        if (process.env.NODE_ENV === 'development') {
+          console.warn(`[useItemSelector] For category "${currentCategory}", itemKey "${itemKey}" does not point to an array. Value:`, itemsData[currentCategory][itemKey]);
+        }
+        toast.warn(`useItemSelector: No items array found for category "${currentCategory}" with key "${itemKey}".`);
+        setSelectedItem(null);
+        return;
+      }
     } else {
-      toast.warn(`useItemSelector: No items found for category "${currentCategory}" or category not selected.`);
+      // This case means currentCategory is not set, or itemsData[currentCategory] does not exist.
+      if (process.env.NODE_ENV === 'development') {
+        console.warn(`[useItemSelector] Category "${currentCategory}" not found in itemsData or category not selected.`);
+      }
+      toast.warn(`useItemSelector: No data found for category "${currentCategory}" or category not selected.`);
       setSelectedItem(null);
       return;
     }
 
     if (itemsToDrawFrom.length > 0) {
-      // Simple random selection.
-      // Future: Could use previouslyDrawnIndices to avoid repeats within the same draw session for a category.
       const randomIndex = Math.floor(Math.random() * itemsToDrawFrom.length);
       const rawDrawnItem = itemsToDrawFrom[randomIndex];
 
@@ -94,7 +132,13 @@ function useItemSelector({
         categoryName: categoryNameForSelectedItem,
         ...categoryDataForSelectedItem,
       });
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[useItemSelector] Successfully drew item:', rawDrawnItem, 'from category:', categoryNameForSelectedItem);
+      }
     } else {
+      if (process.env.NODE_ENV === 'development') {
+        console.warn(`[useItemSelector] Final check: No items to draw from in category "${categoryNameForSelectedItem || 'default'}" (itemsToDrawFrom array was empty).`);
+      }
       toast.warn(`useItemSelector: No items to draw in category "${categoryNameForSelectedItem || 'default'}".`);
       setSelectedItem(null);
     }
