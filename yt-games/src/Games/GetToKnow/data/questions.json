@@ -1,0 +1,38 @@
+{
+"Friends": [
+{ "text": "What's a hobby you've always wanted to try but haven't yet?", "isRRated": false },
+{ "text": "If you could travel anywhere in the world, where would you go and why?", "isRRated": false },
+{ "text": "What's one of your favorite childhood memories?", "isRRated": false },
+{ "text": "What's a skill you're proud of?", "isRRated": false },
+{ "text": "What's a movie or book that deeply impacted you?", "isRRated": false },
+{ "text": "What's something you're looking forward to in the next year?", "isRRated": false },
+{ "text": "Who is a person you admire and why?", "isRRated": false },
+{ "text": "What's your go-to comfort food?", "isRRated": false },
+{ "text": "What's a small thing that always makes your day better?", "isRRated": false },
+{ "text": "If you had a superpower, what would it be?", "isRRated": false }
+],
+"Family": [
+{ "text": "What's a family tradition you cherish?", "isRRated": false },
+{ "text": "What's one piece of advice from a family member that stuck with you?", "isRRated": false },
+{ "text": "What's a funny family story that gets retold often?", "isRRated": false },
+{ "text": "What's something you appreciate about your family members?", "isRRated": false },
+{ "text": "If your family had a motto, what would it be?", "isRRated": false },
+{ "text": "What's a lesson you learned from your family?", "isRRated": false },
+{ "text": "What's your favorite way to spend time with family?", "isRRated": false },
+{ "text": "What's a place that's special to your family?", "isRRated": false },
+{ "text": "What's a talent or trait that runs in your family?", "isRRated": false },
+{ "text": "How has your family influenced who you are today?", "isRRated": false }
+],
+"Couple": [
+{ "text": "What's your favorite memory together so far?", "isRRated": true },
+{ "text": "What's one thing you love most about your partner's personality?", "isRRated": true },
+{ "text": "What's a dream or goal you share for the future?", "isRRated": true },
+{ "text": "How do you prefer to spend a quiet evening together?", "isRRated": true },
+{ "text": "What's something new you'd like to try together?", "isRRated": true },
+{ "text": "What's a quality you admire in your partner that you've seen grow?", "isRRated": true },
+{ "text": "What's a small gesture from your partner that means a lot to you?", "isRRated": true },
+{ "text": "If you could describe your relationship in three words, what would they be?", "isRRated": true },
+{ "text": "What's one way your partner always makes you laugh?", "isRRated": true },
+{ "text": "What's a song that reminds you of your relationship?", "isRRated": true }
+]
+}

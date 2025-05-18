@@ -28,6 +28,14 @@ const games = [
     disabled: false,
   },
   {
+    id: 'get-to-know',
+    name: 'Get to Know',
+    description: 'Answer personal questions and learn more about your friends, family, or partner!',
+    link: '/get-to-know/setup',
+    tags: ['Social', 'Icebreaker', 'Personal'],
+    disabled: false,
+  },
+  {
     id: 'picture-puzzle',
     name: 'Picture Puzzle',
     description: 'Guess the word or phrase based on the pictures shown.',

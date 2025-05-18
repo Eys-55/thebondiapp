@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import Modal from '../Games/Utils/Modal'; // Import Modal component
+import Modal from '../Games/Utils/utils_components/Modal'; // Import Modal component
 
 const ResetIcon = ({ className = "w-5 h-5" }) => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
@@ -27,24 +27,30 @@ function Navbar({ navbarActions }) {
   const isHomePage = location.pathname === '/';
   const isTriviaSetupPage = location.pathname.startsWith('/trivia-nights/setup');
   const isTruthOrDareSetupPage = location.pathname.startsWith('/truth-or-dare/setup');
-  const isCharadesSetupPage = location.pathname.startsWith('/charades/setup'); // Added
+  const isCharadesSetupPage = location.pathname.startsWith('/charades/setup');
+  const isGetToKnowSetupPage = location.pathname.startsWith('/get-to-know/setup'); // Added
   const isTriviaPlayPage = location.pathname.startsWith('/trivia-nights/play');
   const isTruthOrDarePlayPage = location.pathname.startsWith('/truth-or-dare/play');
-  const isCharadesPlayPage = location.pathname.startsWith('/charades/play'); // Added
-  const isInGame = isTriviaPlayPage || isTruthOrDarePlayPage || isCharadesPlayPage; // Updated
+  const isCharadesPlayPage = location.pathname.startsWith('/charades/play');
+  const isGetToKnowPlayPage = location.pathname.startsWith('/get-to-know/play'); // Added
+  const isInGame = isTriviaPlayPage || isTruthOrDarePlayPage || isCharadesPlayPage || isGetToKnowPlayPage; // Updated
 
   if (isTriviaSetupPage) {
     pageContextTitle = "Trivia Game Setup";
   } else if (isTruthOrDareSetupPage) {
     pageContextTitle = "Truth or Dare Setup";
-  } else if (isCharadesSetupPage) { // Added
+  } else if (isCharadesSetupPage) {
     pageContextTitle = "Charades Setup";
+  } else if (isGetToKnowSetupPage) { // Added
+    pageContextTitle = "Get to Know Setup";
   } else if (isTriviaPlayPage) {
     pageContextTitle = "Trivia Nights";
   } else if (isTruthOrDarePlayPage) {
     pageContextTitle = "Truth or Dare";
-  } else if (isCharadesPlayPage) { // Added
+  } else if (isCharadesPlayPage) {
     pageContextTitle = "Charades!";
+  } else if (isGetToKnowPlayPage) { // Added
+    pageContextTitle = "Get to Know";
   } else if (isHomePage) {
     pageContextTitle = "Select a Game";
   }
@@ -70,7 +76,7 @@ function Navbar({ navbarActions }) {
     setShowNavigationConfirmModal(false);
   };
 
-  if (isTriviaSetupPage || isTruthOrDareSetupPage || isCharadesSetupPage) { // Updated
+  if (isTriviaSetupPage || isTruthOrDareSetupPage || isCharadesSetupPage || isGetToKnowSetupPage) { // Updated
     actionButtons = (
       <>
         {navbarActions && navbarActions.resetHandler && (
@@ -118,6 +124,15 @@ function Navbar({ navbarActions }) {
     actionButtons = (
       <button
         onClick={() => handleLeaveGameClick('/charades/setup')} // Use modal for leaving game
+        className="bg-danger hover:bg-danger-dark text-white font-semibold py-2 px-4 rounded-lg text-sm transition duration-200 ease-in-out"
+      >
+        Leave Game
+      </button>
+    );
+  } else if (isGetToKnowPlayPage) { // Added
+    actionButtons = (
+      <button
+        onClick={() => handleLeaveGameClick('/get-to-know/setup')} // Use modal for leaving game
         className="bg-danger hover:bg-danger-dark text-white font-semibold py-2 px-4 rounded-lg text-sm transition duration-200 ease-in-out"
       >
         Leave Game

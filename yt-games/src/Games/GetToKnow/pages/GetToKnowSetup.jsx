@@ -2,29 +2,35 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import SetupPageLayout from '../../Utils/utils_setup/SetupPageLayout';
+import Modal from '../../Utils/utils_components/Modal';
 import PlayerSetup from '../../Utils/utils_setup/PlayerSetup';
 import GameOptionSelector from '../../Utils/utils_setup/GameOptionSelector';
 
+
 const MIN_PLAYERS = 2;
 const MAX_PLAYERS = 10;
-const SESSION_STORAGE_KEY = 'charadesSetup';
+const CATEGORIES = [
+  { id: "Friends", name: "🫂 Friends" },
+  { id: "Family", name: "👨‍👩‍👧‍👦 Family" },
+  { id: "Couple", name: "❤️‍🔥 Couple (18+)" }
+];
+const SESSION_STORAGE_KEY = 'getToKnowSetup';
 
 const defaultState = {
   numPlayersUI: MIN_PLAYERS,
   playerNames: Array(MIN_PLAYERS).fill(''),
-  gameMode: 'system_word', // 'system_word' or 'own_word'
-  numRounds: 2, // Default number of rounds per player
-  actingTimeSeconds: 90, // Default acting time per turn
+  selectedCategory: null,
+  rRatedModalConfirmed: false,
 };
 
-function CharadesSetup({ registerNavbarActions, unregisterNavbarActions }) {
+function GetToKnowSetup({ registerNavbarActions, unregisterNavbarActions }) {
   const navigate = useNavigate();
   const [numPlayersUI, setNumPlayersUI] = useState(defaultState.numPlayersUI);
   const [playerNames, setPlayerNames] = useState(defaultState.playerNames);
-  const [gameMode, setGameMode] = useState(defaultState.gameMode);
-  const [numRounds, setNumRounds] = useState(defaultState.numRounds);
-  const [actingTimeSeconds, setActingTimeSeconds] = useState(defaultState.actingTimeSeconds);
-  
+  const [selectedCategory, setSelectedCategory] = useState(defaultState.selectedCategory);
+  const [showRRatedModal, setShowRRatedModal] = useState(false);
+  const [rRatedModalConfirmed, setRRatedModalConfirmed] = useState(defaultState.rRatedModalConfirmed);
+
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
@@ -37,12 +43,11 @@ function CharadesSetup({ registerNavbarActions, unregisterNavbarActions }) {
         const loadedPlayerNames = parsedSettings.playerNames || [];
         const numPlayers = parsedSettings.numPlayersUI || defaultState.numPlayersUI;
         setPlayerNames(Array(numPlayers).fill('').map((_, i) => loadedPlayerNames[i] || ''));
-        setGameMode(parsedSettings.gameMode || defaultState.gameMode);
-        setNumRounds(parsedSettings.numRounds || defaultState.numRounds);
-        setActingTimeSeconds(parsedSettings.actingTimeSeconds || defaultState.actingTimeSeconds);
+        setSelectedCategory(parsedSettings.selectedCategory || defaultState.selectedCategory);
+        setRRatedModalConfirmed(parsedSettings.rRatedModalConfirmed || defaultState.rRatedModalConfirmed);
       }
     } catch (error) {
-      console.error("Failed to load Charades settings from session storage:", error);
+      console.error("Failed to load Get To Know settings from session storage:", error);
       toast.error("Could not load saved settings.");
     }
   }, []);
@@ -51,16 +56,28 @@ function CharadesSetup({ registerNavbarActions, unregisterNavbarActions }) {
     const settingsToSave = {
       numPlayersUI,
       playerNames,
-      gameMode,
-      numRounds,
-      actingTimeSeconds,
+      selectedCategory,
+      rRatedModalConfirmed,
     };
     try {
       sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(settingsToSave));
     } catch (error) {
-      console.error("Failed to save Charades settings to session storage:", error);
+      console.error("Failed to save Get To Know settings to session storage:", error);
     }
-  }, [numPlayersUI, playerNames, gameMode, numRounds, actingTimeSeconds]);
+  }, [numPlayersUI, playerNames, selectedCategory, rRatedModalConfirmed]);
+
+  useEffect(() => {
+    // If category changes away from "Couple", reset confirmation and hide modal
+    if (selectedCategory !== 'Couple') {
+      setRRatedModalConfirmed(false);
+      setShowRRatedModal(false);
+    }
+    // If "Couple" is selected and not yet confirmed, show modal (handled in handleCategoryChange too for immediate effect)
+    else if (selectedCategory === 'Couple' && !rRatedModalConfirmed) {
+        // setShowRRatedModal(true); // This can cause loops if not careful, handleCategoryChange is better place
+    }
+  }, [selectedCategory, rRatedModalConfirmed]);
+
 
   const validateForm = useCallback((updateState = true) => {
     const newErrors = {};
@@ -78,11 +95,22 @@ function CharadesSetup({ registerNavbarActions, unregisterNavbarActions }) {
       delete newErrors.playerNames;
     }
 
+    if (!selectedCategory) {
+      newErrors.category = 'Please select a question category.';
+    }
+
+    if (selectedCategory === 'Couple' && !rRatedModalConfirmed) {
+        newErrors.category = 'Please confirm age restriction for Couple category.';
+        if (updateState && !showRRatedModal) setShowRRatedModal(true);
+    }
+
     if (updateState) {
       setErrors(newErrors);
     }
     return newErrors;
-  }, [playerNames, numPlayersUI]);
+
+
+  }, [playerNames, numPlayersUI, selectedCategory, rRatedModalConfirmed, showRRatedModal]);
 
   const handlePlayerNameChange = (index, value) => {
     const newPlayerNames = [...playerNames];
@@ -103,8 +131,29 @@ function CharadesSetup({ registerNavbarActions, unregisterNavbarActions }) {
     if (errors.playerNames) setErrors(prev => ({ ...prev, playerNames: null }));
   };
 
-  const handleGameModeChange = (mode) => {
-    setGameMode(mode);
+  const handleCategoryChange = (categoryValue) => {
+    setSelectedCategory(categoryValue);
+    setRRatedModalConfirmed(false); // Reset confirmation when category changes
+    if (errors.category) setErrors(prev => ({ ...prev, category: null }));
+
+    if (categoryValue === 'Couple') {
+      setShowRRatedModal(true);
+    } else {
+      setShowRRatedModal(false);
+    }
+  };
+
+  const handleRRatedModalConfirm = () => {
+    setRRatedModalConfirmed(true);
+    setShowRRatedModal(false);
+    if (errors.category) setErrors(prev => ({ ...prev, category: null })); // Clear error after confirmation
+  };
+
+  const handleRRatedModalCancel = () => {
+    setSelectedCategory(null); // Deselect Couple category
+    setRRatedModalConfirmed(false);
+    setShowRRatedModal(false);
+    toast.info("Couple category deselected. Please choose a category or confirm age if you reselect Couple.");
   };
 
   const handleStartGame = useCallback(() => {
@@ -113,40 +162,45 @@ function CharadesSetup({ registerNavbarActions, unregisterNavbarActions }) {
       toast.warn("Please fix the errors in the form.");
       return;
     }
+    if (selectedCategory === 'Couple' && !rRatedModalConfirmed) {
+        if (!showRRatedModal) setShowRRatedModal(true); // Ensure modal is shown if somehow bypassed
+        toast.warn("Please confirm age restriction for Couple category.");
+        return;
+    }
 
     setIsLoading(true);
     const activePlayers = playerNames.slice(0, numPlayersUI).map(name => ({
       id: crypto.randomUUID(),
       name: name.trim(),
-      score: 0, // Initial score or time
-      roundsPlayed: 0,
     }));
     const gameConfig = {
       players: activePlayers,
-      gameMode,
-      numRounds,
-      actingTimeSeconds,
-      turnProgression: 'random', // Charades typically has random actor selection or sequential turns
+      selectedCategory,
     };
-    navigate('/charades/play', { state: { gameConfig } });
-  }, [validateForm, playerNames, numPlayersUI, gameMode, numRounds, actingTimeSeconds, navigate]);
+    navigate('/get-to-know/play', { state: { gameConfig } });
+
+  }, [validateForm, selectedCategory, rRatedModalConfirmed, showRRatedModal, playerNames, numPlayersUI, navigate]);
 
   const handleResetSettings = useCallback(() => {
     sessionStorage.removeItem(SESSION_STORAGE_KEY);
     setNumPlayersUI(defaultState.numPlayersUI);
     setPlayerNames(defaultState.playerNames);
-    setGameMode(defaultState.gameMode);
-    setNumRounds(defaultState.numRounds);
-    setActingTimeSeconds(defaultState.actingTimeSeconds);
+    setSelectedCategory(defaultState.selectedCategory);
+    setRRatedModalConfirmed(defaultState.rRatedModalConfirmed);
+    setShowRRatedModal(false);
     setErrors({});
     toast.info("Settings have been reset to default.");
   }, []);
-  
+
   const checkValidity = useCallback(() => {
-    const currentErrors = validateForm(false);
+    const currentErrors = validateForm(false); // Don't set state
     const allPlayerNamesFilled = playerNames.slice(0, numPlayersUI).every(name => name.trim() !== '');
-    return Object.keys(currentErrors).length === 0 && allPlayerNamesFilled;
-  }, [validateForm, playerNames, numPlayersUI]);
+    let rRatedCheckPassed = true;
+    if (selectedCategory === 'Couple' && !rRatedModalConfirmed) {
+      rRatedCheckPassed = false;
+    }
+    return Object.keys(currentErrors).length === 0 && allPlayerNamesFilled && rRatedCheckPassed;
+  }, [validateForm, playerNames, numPlayersUI, selectedCategory, rRatedModalConfirmed]);
 
   const isValidToStartValue = useMemo(() => checkValidity(), [checkValidity]);
 
@@ -179,7 +233,7 @@ function CharadesSetup({ registerNavbarActions, unregisterNavbarActions }) {
   }, [navbarConfig]);
 
   return (
-    <SetupPageLayout title="Charades Setup">
+    <SetupPageLayout title="Get to Know Setup">
       {/* Player Setup */}
       <div className="mb-6 p-4 bg-gray-700 rounded-md shadow">
         <h3 className="text-xl font-semibold mb-4 text-gray-200 border-b border-gray-600 pb-2">1. Players</h3>
@@ -195,62 +249,45 @@ function CharadesSetup({ registerNavbarActions, unregisterNavbarActions }) {
         />
       </div>
 
-      {/* Game Settings */}
+      {/* Category Selection */}
       <div className="mb-6 p-4 bg-gray-700 rounded-md shadow">
-        <h3 className="text-xl font-semibold mb-4 text-gray-200 border-b border-gray-600 pb-2">2. Game Mode</h3>
+        <h3 className="text-xl font-semibold mb-4 text-gray-200 border-b border-gray-600 pb-2">2. Question Category</h3>
         <GameOptionSelector
-          label="How are words chosen?"
-          options={[
-            { id: 'system_word', value: 'system_word', name: 'System Assigns Word' },
-            { id: 'own_word', value: 'own_word', name: 'Player Chooses Own Word' },
-          ]}
-          selectedOption={gameMode}
-          onOptionChange={(value) => handleGameModeChange(value)}
+          options={CATEGORIES.map(cat => ({ id: cat.id, value: cat.id, name: cat.name }))}
+          selectedOption={selectedCategory}
+          onOptionChange={(value) => handleCategoryChange(value)}
           type="radio"
-          groupName="charadesGameMode"
+          groupName="getToKnowCategory"
           isLoading={isLoading}
+          error={errors.category}
+          layoutClass="flex flex-wrap gap-3 justify-center p-2 rounded"
+          containerClass="bg-transparent border-none p-0"
         />
       </div>
 
-      {/* Number of Rounds Setup */}
-      <div className="mb-6 p-4 bg-gray-700 rounded-md shadow">
-        <h3 className="text-xl font-semibold mb-4 text-gray-200 border-b border-gray-600 pb-2">3. Turns</h3>
-        <div className="flex flex-col items-start">
-          <label htmlFor="num-rounds-select" className="mb-1 text-sm font-medium text-textSecondary">Turns per Player (1-5):</label>
-          <select
-            id="num-rounds-select"
-            value={numRounds}
-            onChange={(e) => setNumRounds(parseInt(e.target.value, 10))}
-            disabled={isLoading}
-            className="w-full px-3 py-2 bg-gray-600 border rounded-md text-textPrimary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:opacity-50 border-gray-500"
-          >
-            {[1, 2, 3, 4, 5].map(n => <option key={n} value={n}>{n}</option>)}
-          </select>
-        </div>
-      </div>
-
-      {/* Acting Time Setup */}
-      <div className="mb-6 p-4 bg-gray-700 rounded-md shadow">
-        <h3 className="text-xl font-semibold mb-4 text-gray-200 border-b border-gray-600 pb-2">4. Turn Timer</h3>
-        <div className="flex flex-col items-start">
-          <label htmlFor="acting-time-select" className="mb-1 text-sm font-medium text-textSecondary">Time per Turn:</label>
-          <select
-            id="acting-time-select"
-            value={actingTimeSeconds}
-            onChange={(e) => setActingTimeSeconds(parseInt(e.target.value, 10))}
-            disabled={isLoading}
-            className="w-full px-3 py-2 bg-gray-600 border rounded-md text-textPrimary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:opacity-50 border-gray-500"
-          >
-            <option value="60">1 Minute</option>
-            <option value="90">1 Minute 30 Seconds</option>
-            <option value="120">2 Minutes</option>
-            <option value="150">2 Minutes 30 Seconds</option>
-            <option value="180">3 Minutes</option>
-          </select>
-        </div>
-      </div>
+      <Modal
+        isOpen={showRRatedModal && selectedCategory === 'Couple'}
+        onClose={handleRRatedModalCancel}
+        title="Age Restriction Warning!"
+        titleColor="text-yellow-400"
+        footerContent={
+          <>
+            <button onClick={handleRRatedModalCancel} className="px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded-md transition-colors">
+              Go Back / Choose Another
+            </button>
+            <button onClick={handleRRatedModalConfirm} className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-black font-semibold rounded-md transition-colors">
+              Confirm (All Players 18+)
+            </button>
+          </>
+        }
+      >
+        <p>
+          The "Couple" category may contain content intended for players aged 18 and above.
+          Please ensure all players meet this age requirement before proceeding.
+        </p>
+      </Modal>
     </SetupPageLayout>
   );
 }
 
-export default CharadesSetup;
+export default GetToKnowSetup;

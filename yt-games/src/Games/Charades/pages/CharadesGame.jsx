@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import usePlayerRoulette from '../../Utils/usePlayerRoulette';
-import PlayerRouletteDisplay from '../../Utils/PlayerRouletteDisplay';
-import useGameTimer, { formatTime } from '../../Utils/useGameTimer';
-import GameTimerDisplay from '../../Utils/GameTimerDisplay';
-import Leaderboard from '../../Utils/Leaderboard';
+import usePlayerRoulette from '../../Utils/utils_hooks/usePlayerRoulette';
+import PlayerRouletteDisplay from '../../Utils/utils_gameplay/PlayerRouletteDisplay';
+import useGameTimer, { formatTime } from '../../Utils/utils_hooks/useGameTimer';
+import GameTimerDisplay from '../../Utils/utils_gameplay/GameTimerDisplay';
+import Leaderboard from '../../Utils/utils_gameplay/Leaderboard';
 
 const PLAYER_ROULETTE_DURATION = 2500;
 const OWN_WORD_BASE_SCORE = 25; // Default base score for 'own_word' mode

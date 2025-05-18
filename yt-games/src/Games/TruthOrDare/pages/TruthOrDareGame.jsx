@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import usePlayerRoulette from '../../Utils/usePlayerRoulette';
-import PlayerRouletteDisplay from '../../Utils/PlayerRouletteDisplay';
+import usePlayerRoulette from '../../Utils/utils_hooks/usePlayerRoulette';
+import PlayerRouletteDisplay from '../../Utils/utils_gameplay/PlayerRouletteDisplay';
 
 const ROULETTE_INTERVAL = 100; // Kept for task roulette
 const PLAYER_ROULETTE_DURATION = 2500;

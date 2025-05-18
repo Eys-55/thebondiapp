@@ -3,7 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import GameSelection from '../Games/TriviaNights/pages/GameSelection';
 import HomePage from './HomePage';
 import QuizPage from '../Games/TriviaNights/pages/QuizPage'; // Renamed from LocalMultiplayerQuiz
-import NotFound from '../Games/Utils/NotFound'; // Import the NotFound component
+import NotFound from '../Games/Utils/utils_components/NotFound'; // Import the NotFound component
 import Navbar from './Navbar'; // Import the Navbar
 
 // Truth or Dare components
@@ -13,6 +13,10 @@ import TruthOrDareGame from '../Games/TruthOrDare/pages/TruthOrDareGame';
 // Charades components
 import CharadesSetup from '../Games/Charades/pages/CharadesSetup';
 import CharadesGame from '../Games/Charades/pages/CharadesGame';
+
+// Get To Know components
+import GetToKnowSetup from '../Games/GetToKnow/pages/GetToKnowSetup';
+import GetToKnowGame from '../Games/GetToKnow/pages/GetToKnowGame';
 
 function App() {
   const [navbarActions, setNavbarActions] = useState(null);
@@ -68,6 +72,18 @@ function App() {
               }
             />
             <Route path="/charades/play" element={<CharadesGame />} />
+
+            {/* Get To Know Routes */}
+            <Route
+              path="/get-to-know/setup"
+              element={
+                <GetToKnowSetup
+                  registerNavbarActions={registerNavbarActions}
+                  unregisterNavbarActions={unregisterNavbarActions}
+                />
+              }
+            />
+            <Route path="/get-to-know/play" element={<GetToKnowGame />} />
 
             {/* Catch-all 404 */}
             <Route path="*" element={<NotFound />} />
