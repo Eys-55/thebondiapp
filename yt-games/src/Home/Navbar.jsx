@@ -36,23 +36,23 @@ function Navbar({ navbarActions }) {
   const isInGame = isTriviaPlayPage || isTruthOrDarePlayPage || isCharadesPlayPage || isGetToKnowPlayPage; // Updated
 
   if (isTriviaSetupPage) {
-    pageContextTitle = "Trivia Game Setup";
+    pageContextTitle = "Trivia Game Setup ❓";
   } else if (isTruthOrDareSetupPage) {
-    pageContextTitle = "Truth or Dare Setup";
+    pageContextTitle = "Truth or Dare Setup 🔥";
   } else if (isCharadesSetupPage) {
-    pageContextTitle = "Charades Setup";
+    pageContextTitle = "Charades Setup 🎭";
   } else if (isGetToKnowSetupPage) { // Added
-    pageContextTitle = "Get to Know Setup";
+    pageContextTitle = "Get to Know Setup 👋";
   } else if (isTriviaPlayPage) {
-    pageContextTitle = "Trivia Nights";
+    pageContextTitle = "Trivia Nights ❓";
   } else if (isTruthOrDarePlayPage) {
-    pageContextTitle = "Truth or Dare";
+    pageContextTitle = "Truth or Dare 🔥";
   } else if (isCharadesPlayPage) {
-    pageContextTitle = "Charades!";
+    pageContextTitle = "Charades! 🎭";
   } else if (isGetToKnowPlayPage) { // Added
-    pageContextTitle = "Get to Know";
+    pageContextTitle = "Get to Know 👋";
   } else if (isHomePage) {
-    pageContextTitle = "Select a Game";
+    pageContextTitle = "Select a Game 🎮";
   }
 
 

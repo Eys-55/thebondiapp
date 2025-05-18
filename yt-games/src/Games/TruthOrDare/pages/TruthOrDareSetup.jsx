@@ -14,14 +14,16 @@ const CATEGORIES = [
     { id: "Relationship", name: "❤️‍🔥 Relationship (18+)" }
 ];
 const SESSION_STORAGE_KEY = 'truthOrDareSetup';
+import StyledNumberInput from '../../Utils/utils_setup/StyledNumberInput';
 
 const defaultState = {
-numPlayersUI: MIN_PLAYERS,
-playerNames: Array(MIN_PLAYERS).fill(''),
-selectedCategory: null,
-// turnProgression is now fixed to 'random' and not part of default state for user selection
-gameMode: 'classic',
-rRatedModalConfirmed: false,
+  numPlayersUI: MIN_PLAYERS,
+  playerNames: Array(MIN_PLAYERS).fill(''),
+  selectedCategory: null,
+  // turnProgression is now fixed to 'random' and not part of default state for user selection
+  gameMode: 'classic',
+  rRatedModalConfirmed: false,
+  numberOfTurns: 10, // 0 for unlimited
 };
 
 function TruthOrDareSetup({ registerNavbarActions, unregisterNavbarActions }) {
@@ -33,6 +35,7 @@ function TruthOrDareSetup({ registerNavbarActions, unregisterNavbarActions }) {
   // turnProgression is now fixed to 'random' and not a state variable for user selection.
   const turnProgression = 'random'; // Always random
   const [gameMode, setGameMode] = useState(defaultState.gameMode);
+  const [numberOfTurns, setNumberOfTurns] = useState(defaultState.numberOfTurns);
   
   const [showRRatedModal, setShowRRatedModal] = useState(false);
   const [rRatedModalConfirmed, setRRatedModalConfirmed] = useState(defaultState.rRatedModalConfirmed);
@@ -53,6 +56,7 @@ function TruthOrDareSetup({ registerNavbarActions, unregisterNavbarActions }) {
         // turnProgression is fixed, no need to load/set from storage for this
         setGameMode(parsedSettings.gameMode || defaultState.gameMode);
         setRRatedModalConfirmed(parsedSettings.rRatedModalConfirmed || defaultState.rRatedModalConfirmed);
+        setNumberOfTurns(parsedSettings.numberOfTurns === undefined ? defaultState.numberOfTurns : parsedSettings.numberOfTurns);
         // turnProgression is a const, no need to load from session storage
         }
         } catch (error) {
@@ -70,13 +74,14 @@ function TruthOrDareSetup({ registerNavbarActions, unregisterNavbarActions }) {
       turnProgression: 'random',
       gameMode,
       rRatedModalConfirmed,
+      numberOfTurns,
     };
     try {
       sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(settingsToSave));
     } catch (error) {
       console.error("Failed to save Truth or Dare settings to session storage:", error);
     }
-  }, [numPlayersUI, playerNames, selectedCategory, gameMode, rRatedModalConfirmed]);
+  }, [numPlayersUI, playerNames, selectedCategory, gameMode, rRatedModalConfirmed, numberOfTurns]);
 
   useEffect(() => {
     if (gameMode === 'pair') {
@@ -112,11 +117,17 @@ function TruthOrDareSetup({ registerNavbarActions, unregisterNavbarActions }) {
         if (updateState && !showRRatedModal) setShowRRatedModal(true);
     }
 
+    if (numberOfTurns < 0 || numberOfTurns > 50) {
+      newErrors.numberOfTurns = 'Number of turns must be between 0 (unlimited) and 50.';
+    } else if (!Number.isInteger(numberOfTurns)) {
+      newErrors.numberOfTurns = 'Number of turns must be a whole number.';
+    }
+
     if (updateState) {
       setErrors(newErrors);
     }
     return newErrors;
-  }, [playerNames, numPlayersUI, gameMode, selectedCategory, rRatedModalConfirmed, showRRatedModal]);
+  }, [playerNames, numPlayersUI, gameMode, selectedCategory, rRatedModalConfirmed, showRRatedModal, numberOfTurns]);
 
   const handlePlayerNameChange = (index, value) => {
     const newPlayerNames = [...playerNames];
@@ -192,9 +203,10 @@ function TruthOrDareSetup({ registerNavbarActions, unregisterNavbarActions }) {
       turnProgression,
       gameMode,
       selectedCategory: gameMode === 'classic' ? selectedCategory : null,
+      numberOfTurns,
     };
     navigate('/truth-or-dare/play', { state: { gameConfig } });
-  }, [validateForm, gameMode, selectedCategory, rRatedModalConfirmed, showRRatedModal, playerNames, numPlayersUI, turnProgression, navigate]);
+  }, [validateForm, gameMode, selectedCategory, rRatedModalConfirmed, showRRatedModal, playerNames, numPlayersUI, turnProgression, navigate, numberOfTurns]);
 
   const handleResetSettings = useCallback(() => {
     sessionStorage.removeItem(SESSION_STORAGE_KEY);
@@ -204,6 +216,7 @@ function TruthOrDareSetup({ registerNavbarActions, unregisterNavbarActions }) {
     // turnProgression is a const, no need to reset
     setGameMode(defaultState.gameMode);
     setRRatedModalConfirmed(defaultState.rRatedModalConfirmed);
+    setNumberOfTurns(defaultState.numberOfTurns);
     setShowRRatedModal(false);
     setErrors({});
     toast.info("Settings have been reset to default.");
@@ -216,8 +229,9 @@ function TruthOrDareSetup({ registerNavbarActions, unregisterNavbarActions }) {
     if (gameMode === 'classic' && selectedCategory === 'Relationship' && !rRatedModalConfirmed) {
       rRatedCheckPassed = false;
     }
-    return Object.keys(currentErrors).length === 0 && allPlayerNamesFilled && rRatedCheckPassed;
-  }, [validateForm, playerNames, numPlayersUI, gameMode, selectedCategory, rRatedModalConfirmed]);
+    const numberOfTurnsValid = numberOfTurns >= 0 && numberOfTurns <= 50 && Number.isInteger(numberOfTurns);
+    return Object.keys(currentErrors).length === 0 && allPlayerNamesFilled && rRatedCheckPassed && numberOfTurnsValid;
+  }, [validateForm, playerNames, numPlayersUI, gameMode, selectedCategory, rRatedModalConfirmed, numberOfTurns]);
 
 
   // Memoize isValidToStartValue
@@ -257,7 +271,7 @@ function TruthOrDareSetup({ registerNavbarActions, unregisterNavbarActions }) {
 
 
   return (
-    <SetupPageLayout title="Truth or Dare Setup">
+    <SetupPageLayout>
       {/* Player Setup */}
       <div className="mb-6 p-4 bg-gray-700 rounded-md shadow">
         <h3 className="text-xl font-semibold mb-4 text-gray-200 border-b border-gray-600 pb-2">1. Players</h3>
@@ -329,6 +343,34 @@ function TruthOrDareSetup({ registerNavbarActions, unregisterNavbarActions }) {
           Please ensure all players meet this age requirement before proceeding.
         </p>
       </Modal>
+
+      {/* Game Length Setup */}
+      <div className="mb-6 p-4 bg-gray-700 rounded-md shadow">
+        <h3 className="text-xl font-semibold mb-4 text-gray-200 border-b border-gray-600 pb-2">4. Game Length</h3>
+        <StyledNumberInput
+          id="number-of-turns"
+          label="Number of Turns (1-50, 0 for unlimited):"
+          value={numberOfTurns}
+          onChange={(e) => {
+            const val = parseInt(e.target.value, 10);
+            if (isNaN(val)) {
+                setNumberOfTurns(0); // Default to unlimited if input is not a number
+            } else {
+                setNumberOfTurns(Math.max(0, Math.min(50, val))); // Clamp between 0 and 50
+            }
+            if (errors.numberOfTurns) setErrors(prev => ({ ...prev, numberOfTurns: null }));
+          }}
+          min={0}
+          max={50}
+          step="1"
+          disabled={isLoading}
+          error={errors.numberOfTurns}
+          containerClassName="flex flex-col items-start w-full sm:w-1/2"
+          labelClassName="mb-2 text-sm font-medium text-gray-200"
+          inputClassName="text-center"
+        />
+      </div>
+
     </SetupPageLayout>
   );
 }

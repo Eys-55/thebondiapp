@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import usePlayerRoulette from '../../Utils/utils_hooks/usePlayerRoulette';
 import PlayerRouletteDisplay from '../../Utils/utils_gameplay/PlayerRouletteDisplay';
+import GameProgressDisplay from '../../Utils/utils_gameplay/GameProgressDisplay'; // Import GameProgressDisplay
 
 const ROULETTE_INTERVAL = 100; // Kept for task roulette
 const PLAYER_ROULETTE_DURATION = 2500;
@@ -24,12 +25,13 @@ function TruthOrDareGame() {
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
   const [doer, setDoer] = useState(null);
   const [commander, setCommander] = useState(null);
+  const [turnsPlayed, setTurnsPlayed] = useState(0);
 
   const [gamePhase, setGamePhase] = useState('loading');
   // Phases: loading, player_selection_start, doer_selection_roulette,
   // doer_selected_pending_commander_selection, commander_selection_roulette,
   // classic_choice_pending, pair_doer_chooses_type, task_selection_roulette,
-  // task_revealed_system, task_revealed_verbal, doer_responds, turn_ended
+  // task_revealed_system, task_revealed_verbal, doer_responds, turn_ended, game_over
 
   const [currentTask, setCurrentTask] = useState({ type: '', text: '' });
   const [taskSelectionText, setTaskSelectionText] = useState(''); // For task roulette display
@@ -70,33 +72,58 @@ function TruthOrDareGame() {
     };
   }, [navigate]);
 
-  useEffect(() => {
-    if (!gameConfig || Object.keys(allTruthsData).length === 0 || Object.keys(allDaresData).length === 0) {
-      if (!gameConfig && gamePhase !== 'loading' && isMountedRef.current) {
-        toast.error("Game configuration missing. Returning to setup.");
-        navigate('/truth-or-dare/setup');
-      }
-      return;
-    }
+// Effect A: Handle missing game configuration post-loading
+useEffect(() => {
+  if (!gameConfig && gamePhase !== 'loading' && isMountedRef.current) {
+    toast.error("Game configuration missing. Returning to setup.");
+    navigate('/truth-or-dare/setup');
+  }
+}, [gameConfig, gamePhase, navigate]);
 
-    if (isMountedRef.current) {
-        setPlayers(gameConfig.players);
-        playerRoulette.setSelectedPlayer(null);
-        if (gameConfig.gameMode === 'classic' && gameConfig.selectedCategory) {
-            const categoryTruths = allTruthsData[gameConfig.selectedCategory] || [];
-            const categoryDares = allDaresData[gameConfig.selectedCategory] || [];
-            setFilteredTruthTexts(categoryTruths.map(item => item.text));
-            setFilteredDareTexts(categoryDares.map(item => item.text));
-        } else if (gameConfig.gameMode === 'pair') {
-            setFilteredTruthTexts([]);
-            setFilteredDareTexts([]);
-        }
-    }
-    
-    if (gamePhase === 'loading' && isMountedRef.current) {
-      setGamePhase('player_selection_start');
-    }
-  }, [gameConfig, allTruthsData, allDaresData, navigate, gamePhase, playerRoulette]); // Added playerRoulette to deps
+// Effect B: Initialize players, texts, and transition from 'loading' gamePhase
+useEffect(() => {
+  if (!isMountedRef.current) return; // Safety check
+
+  // Wait for gameConfig and data to be loaded
+  if (!gameConfig || Object.keys(allTruthsData).length === 0 || Object.keys(allDaresData).length === 0) {
+    return;
+  }
+
+  // Set players based on gameConfig.
+  setPlayers(gameConfig.players);
+
+  // Set filtered texts based on gameConfig and data.
+  if (gameConfig.gameMode === 'classic' && gameConfig.selectedCategory) {
+      const categoryTruths = allTruthsData[gameConfig.selectedCategory] || [];
+      const categoryDares = allDaresData[gameConfig.selectedCategory] || [];
+      setFilteredTruthTexts(categoryTruths.map(item => item.text));
+      setFilteredDareTexts(categoryDares.map(item => item.text));
+  } else if (gameConfig.gameMode === 'pair') {
+      setFilteredTruthTexts([]);
+      setFilteredDareTexts([]);
+  }
+
+  // Transition from 'loading' phase once everything is ready.
+  // This block will only run if gamePhase is 'loading'.
+  if (gamePhase === 'loading') {
+    playerRoulette.setSelectedPlayer(null); // Reset roulette's selected player before first selection.
+    setGamePhase('player_selection_start');
+  }
+  // Dependencies: This effect re-runs if gameConfig, data, or gamePhase change.
+  // All setter functions (setPlayers, setFiltered*, setGamePhase) and
+  // playerRoulette.setSelectedPlayer are stable and don't cause re-runs by themselves.
+}, [
+    gameConfig,
+    allTruthsData,
+    allDaresData,
+    gamePhase,
+    // navigate, // Not used in this effect's body
+    setPlayers,
+    setFilteredTruthTexts,
+    setFilteredDareTexts,
+    setGamePhase,
+    playerRoulette.setSelectedPlayer
+]);
 
   const startDoerSelectionRoulette = useCallback(() => {
     if (!isMountedRef.current || players.length === 0) return;
@@ -238,6 +265,16 @@ function TruthOrDareGame() {
 
   const handleNextTurn = () => {
     if (!isMountedRef.current) return;
+
+    const newTurnsPlayed = turnsPlayed + 1;
+    setTurnsPlayed(newTurnsPlayed);
+
+    if (gameConfig.numberOfTurns > 0 && newTurnsPlayed >= gameConfig.numberOfTurns) {
+      setGamePhase('game_over');
+      toast.success("Game Over! Maximum turns reached.");
+      return;
+    }
+
     setDoer(null);
     setCommander(null);
     setCurrentTask({ type: '', text: '' });
@@ -253,6 +290,32 @@ function TruthOrDareGame() {
   if (gamePhase === 'loading' || !gameConfig || players.length === 0 || (Object.keys(allTruthsData).length === 0 && Object.keys(allDaresData).length === 0)) {
     return <div className="text-center py-10 text-xl text-blue-300">Loading Game & Data...</div>;
   }
+  
+  if (gamePhase === 'game_over') {
+    return (
+        <div className="max-w-xl mx-auto p-6 bg-gray-800 rounded-lg shadow-xl text-white text-center">
+            <h2 className="text-3xl font-bold text-yellow-400 mb-6">Game Over!</h2>
+            <p className="text-gray-200 mb-6">
+              {gameConfig.numberOfTurns > 0 ? `All ${gameConfig.numberOfTurns} turns have been played.` : "Hope you had fun!"}
+            </p>
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
+                <button
+                    onClick={() => navigate('/truth-or-dare/setup')}
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg text-lg"
+                >
+                    Play Again
+                </button>
+                <button
+                    onClick={() => navigate('/')}
+                    className="bg-gray-600 hover:bg-gray-500 text-white font-semibold py-3 px-6 rounded-lg text-lg"
+                >
+                    Back to Home
+                </button>
+            </div>
+        </div>
+    );
+  }
+
 
   if (noTasksAvailableForClassic && gamePhase !== 'loading') {
      return (
@@ -350,12 +413,21 @@ function TruthOrDareGame() {
         <div>
           <h2 className="text-3xl font-bold text-center text-blue-400 mb-2">Truth or Dare!</h2>
           <div className="text-xs text-center text-gray-400 mb-1">
-              Mode: {gameConfig.gameMode} | Turn: {gameConfig.turnProgression}
+              Mode: {gameConfig.gameMode} | Player Order: {gameConfig.turnProgression}
           </div>
           {gameConfig.gameMode === 'classic' && gameConfig.selectedCategory && (
-            <div className="text-xs text-center text-gray-400 mb-4">
+            <div className="text-xs text-center text-gray-400">
                 Category: {gameConfig.selectedCategory}
             </div>
+          )}
+          {/* GameProgressDisplay for TruthOrDare - already implemented in previous step and aligns with current instructions */}
+          {gameConfig && gamePhase !== 'game_over' && gamePhase !== 'loading' && (
+            <GameProgressDisplay
+              currentTurn={turnsPlayed + 1}
+              totalTurns={gameConfig.numberOfTurns === 0 ? undefined : gameConfig.numberOfTurns}
+              turnLabel="Turn" // Ensuring turnLabel is explicit if not default
+              className="text-sm text-center text-gray-300 mt-1 mb-3"
+            />
           )}
         </div>
 

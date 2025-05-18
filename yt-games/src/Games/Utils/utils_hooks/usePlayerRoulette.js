@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 
 const ROULETTE_INTERVAL_MS = 100;
 
@@ -31,8 +31,16 @@ function usePlayerRoulette(initialPlayers = []) {
   }, []);
 
   const spinPlayerRoulette = useCallback((durationMs, onPlayerSelected, playersToSpin = initialPlayers) => {
-    if (!isMountedRef.current || playersToSpin.length === 0) {
-      if (playersToSpin.length === 0) console.warn("Player roulette initiated with no players.");
+    if (!isMountedRef.current || !Array.isArray(playersToSpin)) { // Ensure playersToSpin is an array
+         if (!Array.isArray(playersToSpin)) console.warn("Player roulette spin called with non-array playersToSpin");
+         return;
+    }
+    if (playersToSpin.length === 0) {
+      console.warn("Player roulette initiated with no players to spin.");
+      // Optionally, handle this by calling onPlayerSelected(null) or similar
+      setRouletteDisplayText('---');
+      setIsRouletteSpinning(false); // Ensure spinning stops
+      if (onPlayerSelected) onPlayerSelected(null);
       return;
     }
 
@@ -43,6 +51,13 @@ function usePlayerRoulette(initialPlayers = []) {
     let currentIndex = 0;
     rouletteIntervalRef.current = setInterval(() => {
       if (!isMountedRef.current) return;
+      // Ensure playersToSpin is still valid, though less likely to change mid-interval without unmount
+      if (playersToSpin.length === 0) {
+         clearInterval(rouletteIntervalRef.current);
+         setIsRouletteSpinning(false);
+         setRouletteDisplayText('---');
+         return;
+      }
       currentIndex = (currentIndex + 1) % playersToSpin.length;
       setRouletteDisplayText(playersToSpin[currentIndex].name);
     }, ROULETTE_INTERVAL_MS);
@@ -50,6 +65,14 @@ function usePlayerRoulette(initialPlayers = []) {
     rouletteTimeoutRef.current = setTimeout(() => {
       if (!isMountedRef.current) return;
       clearInterval(rouletteIntervalRef.current);
+      // Re-check playersToSpin length before random selection
+      if (playersToSpin.length === 0) {
+         setRouletteDisplayText('---');
+         setSelectedPlayer(null);
+         setIsRouletteSpinning(false);
+         if (onPlayerSelected) onPlayerSelected(null);
+         return;
+      }
       const finalSelectedPlayer = playersToSpin[Math.floor(Math.random() * playersToSpin.length)];
       
       setRouletteDisplayText(finalSelectedPlayer.name);
@@ -59,16 +82,17 @@ function usePlayerRoulette(initialPlayers = []) {
         onPlayerSelected(finalSelectedPlayer);
       }
     }, durationMs);
-  }, [initialPlayers]);
+  }, [initialPlayers]); // spinPlayerRoulette depends on initialPlayers
 
-  return {
+  // Memoize the returned object
+  return useMemo(() => ({
     rouletteDisplayText,
     isRouletteSpinning,
     spinPlayerRoulette,
-    selectedPlayer, // Exposing selectedPlayer directly from the hook
-    setRouletteDisplayText, // Allow manual setting for initial display or after selection
-    setSelectedPlayer // Allow manual override if needed
-  };
+    selectedPlayer,
+    setRouletteDisplayText, // Stable setState function
+    setSelectedPlayer     // Stable setState function
+  }), [rouletteDisplayText, isRouletteSpinning, spinPlayerRoulette, selectedPlayer]);
 }
 
 export default usePlayerRoulette;

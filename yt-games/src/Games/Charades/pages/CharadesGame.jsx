@@ -7,6 +7,8 @@ import PlayerRouletteDisplay from '../../Utils/utils_gameplay/PlayerRouletteDisp
 import useGameTimer, { formatTime } from '../../Utils/utils_hooks/useGameTimer';
 import GameTimerDisplay from '../../Utils/utils_gameplay/GameTimerDisplay';
 import Leaderboard from '../../Utils/utils_gameplay/Leaderboard';
+import GameProgressDisplay from '../../Utils/utils_gameplay/GameProgressDisplay';
+import wordsData from '../data/words.json'; // Import wordsData directly
 
 const PLAYER_ROULETTE_DURATION = 2500;
 const OWN_WORD_BASE_SCORE = 25; // Default base score for 'own_word' mode
@@ -16,7 +18,7 @@ function CharadesGame() {
   const location = useLocation();
   const { gameConfig } = location.state || {};
 
-  const [allWords, setAllWords] = useState({ easy: { words: [], baseScore: 10 }, medium: { words: [], baseScore: 25 }, hard: { words: [], baseScore: 50 } });
+  // const [allWords, setAllWords] = useState({ easy: { words: [], baseScore: 10 }, medium: { words: [], baseScore: 25 }, hard: { words: [], baseScore: 50 } }); // Removed state
   const [players, setPlayers] = useState([]);
   const [playerScores, setPlayerScores] = useState({}); // { playerId: { name: 'Player', totalScore: 0, roundsPlayed: 0 } }
   
@@ -57,31 +59,19 @@ function CharadesGame() {
   }), [gameConfig?.gameMode]);
 
   const itemSelector = useItemSelector({
-    itemsData: allWords,
+    itemsData: wordsData, // Use imported wordsData
     options: itemSelectorOptions,
   });
 
+  // useEffect to fetch words.json is removed as it's now imported directly.
+  // The isMountedRef setup is kept for other async operations or effects if any.
   useEffect(() => {
     isMountedRef.current = true;
-    const fetchData = async () => {
-      try {
-        const wordsRes = await fetch('/src/Games/Charades/data/words.json');
-        if (!wordsRes.ok) throw new Error("Failed to load words data.");
-        const wordsData = await wordsRes.json();
-        if (isMountedRef.current) {
-          setAllWords(wordsData);
-        }
-      } catch (error) {
-        if (isMountedRef.current) {
-          toast.error(`Error loading words: ${error.message}.`);
-        }
-      }
-    };
-    fetchData();
     return () => {
       isMountedRef.current = false;
     };
   }, []);
+
 
   useEffect(() => {
     if (!gameConfig) {
@@ -174,10 +164,10 @@ function CharadesGame() {
   }, [gamePhase, actor, gameConfig?.gameMode, startActorSelectionRoulette]); 
 
   const handleDifficultySelect = (difficulty) => {
-    if (!isMountedRef.current || !allWords[difficulty] || gameConfig.gameMode !== 'system_word') return;
+    if (!isMountedRef.current || !wordsData[difficulty] || gameConfig.gameMode !== 'system_word') return; // Use wordsData
     itemSelector.selectCategory(difficulty);
     itemSelector.drawItem(); 
-    toast.info(`${actor.name} selected ${difficulty.toUpperCase()} difficulty (Base Score: ${itemSelector.selectedItem?.baseScore || allWords[difficulty].baseScore})`);
+    toast.info(`${actor.name} selected ${difficulty.toUpperCase()} difficulty (Base Score: ${itemSelector.selectedItem?.baseScore || wordsData[difficulty].baseScore})`); // Use wordsData
     setGamePhase('word_assignment');
   };
 
@@ -278,9 +268,10 @@ function CharadesGame() {
           Mode: {gameConfig.gameMode === 'system_word' ? 'System Word' : 'Player Choice'} | Max Time: {formatTime(actingTime)}
       </div>
       {players.length > 0 && numRounds > 0 && gamePhase !== 'game_over' && gamePhase !== 'loading' && (
-        <div className="text-sm text-center text-gray-300 mb-3">
-            Turn: {Math.min(totalTurnsCompleted + 1, players.length * numRounds)} / {players.length * numRounds}
-        </div>
+        <GameProgressDisplay
+          currentTurn={totalTurnsCompleted + 1}
+          totalTurns={players.length * numRounds}
+        />
       )}
 
       {gamePhase === 'game_over' && (
@@ -352,7 +343,7 @@ function CharadesGame() {
                             ${diff === 'hard' ? 'bg-red-600 hover:bg-red-700' : ''}
                           `}
               >
-                {diff.toUpperCase()} (Base: {allWords[diff]?.baseScore || 'N/A'} pts)
+                {diff.toUpperCase()} (Base: {wordsData[diff]?.baseScore || 'N/A'} pts)
               </button>
             ))}
           </div>

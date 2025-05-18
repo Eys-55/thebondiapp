@@ -6,6 +6,7 @@ import { generateQuestions as generateQuestionsForGame } from '../services/quest
 import Leaderboard from '../../Utils/utils_gameplay/Leaderboard'; // Import Leaderboard
 import CheckIcon from '../../Utils/icons/CheckIcon';
 import TimerIcon from '../../Utils/icons/TimerIcon';
+import GameProgressDisplay from '../../Utils/utils_gameplay/GameProgressDisplay';
 
 function QuizPage() {
   const navigate = useNavigate();
@@ -230,14 +231,24 @@ function QuizPage() {
 
   return (
     <div className="max-w-4xl mx-auto p-5 md:p-8 bg-gray-800 rounded-lg shadow-xl flex flex-col min-h-[calc(100vh-120px)]">
-      <div className="mb-4 px-2 pb-3 border-b border-gray-700 flex justify-between items-center flex-shrink-0">
-          <h2 className="text-xl md:text-2xl font-bold text-primary-light">Q: {currentQuestionIndex + 1} / {questions.length}</h2>
+      <div className="mb-1 px-2 pb-2 border-b border-gray-700 flex-shrink-0">
+        <div className="flex justify-between items-center">
+          <h2 className="text-xl md:text-2xl font-bold text-primary-light">Trivia Quiz</h2>
           <div className={`text-lg md:text-xl font-semibold ${gamePhase === 'answering' && timeLeft > 0 ? 'text-warning-light' : 'text-gray-500'}`}>
               <TimerIcon className="inline-block mr-1"/> {timeLeft > 0 ? `${timeLeft}s` : (gamePhase === 'answer_revealed' ? 'Revealed' : "Time's Up")}
           </div>
+        </div>
+        {questions.length > 0 && gamePhase !== 'loading' && gamePhase !== 'finished' && (
+          <GameProgressDisplay
+            currentTurn={currentQuestionIndex + 1}
+            totalTurns={questions.length}
+            turnLabel="Question"
+            className="text-sm text-center text-gray-400 mt-1"
+          />
+        )}
       </div>
-
-      <div key={`question-area-${currentQuestionIndex}`} className="flex-grow flex flex-col justify-center items-center text-center bg-gray-700 p-6 rounded mb-4 shadow">
+      
+      <div key={`question-area-${currentQuestionIndex}`} className="flex-grow flex flex-col justify-center items-center text-center bg-gray-700 p-6 rounded my-4 shadow">
         <p className="text-xl md:text-2xl font-medium text-textPrimary">{renderQuestionText(currentQuestion)}</p>
       </div>
 

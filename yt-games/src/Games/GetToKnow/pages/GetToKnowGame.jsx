@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import questionsData from '../data/questions.json'; // Direct import for simplicity
+import GameProgressDisplay from '../../Utils/utils_gameplay/GameProgressDisplay';
 
 function GetToKnowGame() {
   const location = useLocation();
@@ -173,6 +174,9 @@ function GetToKnowGame() {
       return <p className="text-center text-xl">Loading game...</p>;
     }
     
+    // revealedCount, currentProgTurn, totalProgTurns moved outside this function
+    // to be in scope for the main return statement's GameProgressDisplay
+
     if (gamePhase === 'player_turn') {
       const player = getCurrentPlayer();
       if (!player) return <p className="text-center text-xl">Setting up player turn...</p>;
@@ -262,12 +266,38 @@ function GetToKnowGame() {
     return null; // Default case or unrecognized phase
   };
 
+  // Calculate progress variables here to be in scope for GameProgressDisplay
+  let revealedCount = 0;
+  let currentProgTurn = 0;
+  let totalProgTurns = 0;
+
+  if (gameQuestions && gameQuestions.length > 0) {
+    revealedCount = gameQuestions.filter(q => q.revealed).length;
+    if (gamePhase === 'question_display') {
+      currentProgTurn = revealedCount;
+    } else if (revealedCount === gameQuestions.length) {
+      currentProgTurn = revealedCount;
+    } else {
+      currentProgTurn = revealedCount + 1;
+    }
+    totalProgTurns = gameQuestions.length;
+  }
+
+
   return (
     <div className="max-w-2xl mx-auto py-8 px-4">
       {gameConfig && (
         <div className="mb-6 p-3 bg-gray-800 rounded-lg shadow text-center">
           <h1 className="text-2xl font-bold text-primary-light">Get to Know</h1>
           <p className="text-gray-300">Category: <span className="font-semibold">{gameConfig.selectedCategory}</span> | Questions: {gameConfig.numberOfQuestions} | Order: {gameConfig.playerSelectionOrder}</p>
+          {gamePhase !== 'loading' && gamePhase !== 'game_ended' && gameQuestions.length > 0 && totalProgTurns > 0 && (
+            <GameProgressDisplay
+              currentTurn={currentProgTurn}
+              totalTurns={totalProgTurns}
+              turnLabel="Card"
+              className="text-sm text-center text-gray-300 mt-2"
+            />
+          )}
         </div>
       )}
       {renderGameContent()}

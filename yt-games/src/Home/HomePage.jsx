@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 const games = [
   {
     id: 'trivia-nights',
-    name: 'Trivia Nights',
+    name: 'Trivia Nights ❓',
     description: 'Challenge friends in this local multiplayer quiz! Features flexible question styles: identification or multiple choice.',
     link: '/trivia-nights/setup',
     tags: ['Quiz', 'Multiplayer', 'Local'],
@@ -13,7 +13,7 @@ const games = [
   },
   {
     id: 'truth-or-dare',
-    name: 'Truth or Dare',
+    name: 'Truth or Dare 🔥',
     description: 'The classic party game of embarrassing questions and funny challenges. Spin the bottle (figuratively!) and choose your fate.',
     link: '/truth-or-dare/setup',
     tags: ['Party', 'Social', 'Icebreaker'],
@@ -21,7 +21,7 @@ const games = [
   },
   {
     id: 'charades-challenge',
-    name: 'Charades Challenge',
+    name: 'Charades 🎭',
     description: 'Act it out! A classic party game for hilarious moments.',
     link: '/charades/setup',
     tags: ['Party', 'Acting', 'Multiplayer'],
@@ -29,7 +29,7 @@ const games = [
   },
   {
     id: 'get-to-know',
-    name: 'Get to Know',
+    name: 'Get to Know 👋',
     description: 'Answer personal questions and learn more about your friends, family, or partner!',
     link: '/get-to-know/setup',
     tags: ['Social', 'Icebreaker', 'Personal'],
@@ -37,7 +37,7 @@ const games = [
   },
   {
     id: 'picture-puzzle',
-    name: 'Picture Puzzle',
+    name: 'Picture Puzzle 🖼️',
     description: 'Guess the word or phrase based on the pictures shown.',
     link: '#',
     tags: ['Puzzle', 'Word Game', 'Visual'],
@@ -45,7 +45,7 @@ const games = [
   },
   {
     id: 'drawing-duel',
-    name: 'Drawing Duel',
+    name: 'Drawing Duel ✏️',
     description: 'Can your friends guess what you\'re drawing before time runs out?',
     link: '#',
     tags: ['Drawing', 'Party', 'Creative'],
@@ -53,7 +53,7 @@ const games = [
   },
   {
     id: 'never-have-i-ever',
-    name: 'Never Have I Ever',
+    name: 'Never Have I Ever 🤫',
     description: 'Discover secrets and funny stories with this classic icebreaker.',
     link: '#',
     tags: ['Party', 'Icebreaker', 'Social'],
@@ -64,7 +64,7 @@ const games = [
 function HomePage() {
   return (
     <div className="container mx-auto px-4 py-8">
-      <h2 className="text-3xl font-semibold text-center text-gray-300 mb-10">Welcome to the Game Hub!</h2>
+      
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {games.map((game) => (

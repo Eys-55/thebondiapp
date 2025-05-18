@@ -179,7 +179,7 @@ function CharadesSetup({ registerNavbarActions, unregisterNavbarActions }) {
   }, [navbarConfig]);
 
   return (
-    <SetupPageLayout title="Charades Setup">
+    <SetupPageLayout>
       {/* Player Setup */}
       <div className="mb-6 p-4 bg-gray-700 rounded-md shadow">
         <h3 className="text-xl font-semibold mb-4 text-gray-200 border-b border-gray-600 pb-2">1. Players</h3>
