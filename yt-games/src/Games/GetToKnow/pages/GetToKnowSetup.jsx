@@ -5,6 +5,7 @@ import SetupPageLayout from '../../Utils/utils_setup/SetupPageLayout';
 import Modal from '../../Utils/utils_components/Modal';
 import PlayerSetup from '../../Utils/utils_setup/PlayerSetup';
 import GameOptionSelector from '../../Utils/utils_setup/GameOptionSelector';
+import StyledNumberInput from '../../Utils/utils_setup/StyledNumberInput';
 
 
 const MIN_PLAYERS = 2;
@@ -16,11 +17,21 @@ const CATEGORIES = [
 ];
 const SESSION_STORAGE_KEY = 'getToKnowSetup';
 
+const MIN_QUESTIONS = 1;
+const MAX_QUESTIONS_SETUP = 10; // Max selectable in setup
+
+const PLAYER_SELECTION_ORDER_OPTIONS = [
+  { id: "sequential", value: "sequential", name: "🔄 Sequential (Players take turns in order)" },
+  { id: "random", value: "random", name: "🎲 Random (Player order is shuffled each round)" }
+];
+
 const defaultState = {
   numPlayersUI: MIN_PLAYERS,
   playerNames: Array(MIN_PLAYERS).fill(''),
   selectedCategory: null,
   rRatedModalConfirmed: false,
+  playerSelectionOrder: 'sequential', // 'sequential' or 'random'
+  numberOfQuestions: 5, // Default number of questions
 };
 
 function GetToKnowSetup({ registerNavbarActions, unregisterNavbarActions }) {
@@ -30,6 +41,8 @@ function GetToKnowSetup({ registerNavbarActions, unregisterNavbarActions }) {
   const [selectedCategory, setSelectedCategory] = useState(defaultState.selectedCategory);
   const [showRRatedModal, setShowRRatedModal] = useState(false);
   const [rRatedModalConfirmed, setRRatedModalConfirmed] = useState(defaultState.rRatedModalConfirmed);
+  const [playerSelectionOrder, setPlayerSelectionOrder] = useState(defaultState.playerSelectionOrder);
+  const [numberOfQuestions, setNumberOfQuestions] = useState(defaultState.numberOfQuestions);
 
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -45,6 +58,8 @@ function GetToKnowSetup({ registerNavbarActions, unregisterNavbarActions }) {
         setPlayerNames(Array(numPlayers).fill('').map((_, i) => loadedPlayerNames[i] || ''));
         setSelectedCategory(parsedSettings.selectedCategory || defaultState.selectedCategory);
         setRRatedModalConfirmed(parsedSettings.rRatedModalConfirmed || defaultState.rRatedModalConfirmed);
+        setPlayerSelectionOrder(parsedSettings.playerSelectionOrder || defaultState.playerSelectionOrder);
+        setNumberOfQuestions(parsedSettings.numberOfQuestions || defaultState.numberOfQuestions);
       }
     } catch (error) {
       console.error("Failed to load Get To Know settings from session storage:", error);
@@ -58,13 +73,15 @@ function GetToKnowSetup({ registerNavbarActions, unregisterNavbarActions }) {
       playerNames,
       selectedCategory,
       rRatedModalConfirmed,
+      playerSelectionOrder,
+      numberOfQuestions,
     };
     try {
       sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(settingsToSave));
     } catch (error) {
       console.error("Failed to save Get To Know settings to session storage:", error);
     }
-  }, [numPlayersUI, playerNames, selectedCategory, rRatedModalConfirmed]);
+  }, [numPlayersUI, playerNames, selectedCategory, rRatedModalConfirmed, playerSelectionOrder, numberOfQuestions]);
 
   useEffect(() => {
     // If category changes away from "Couple", reset confirmation and hide modal
@@ -104,13 +121,24 @@ function GetToKnowSetup({ registerNavbarActions, unregisterNavbarActions }) {
         if (updateState && !showRRatedModal) setShowRRatedModal(true);
     }
 
+    if (!playerSelectionOrder) {
+      newErrors.playerSelectionOrder = 'Please select a player turn order.';
+    }
+
+    if (!numberOfQuestions || numberOfQuestions < MIN_QUESTIONS || numberOfQuestions > MAX_QUESTIONS_SETUP) {
+      newErrors.numberOfQuestions = `Number of questions must be between ${MIN_QUESTIONS} and ${MAX_QUESTIONS_SETUP}.`;
+    } else if (!Number.isInteger(numberOfQuestions)) {
+      newErrors.numberOfQuestions = 'Number of questions must be a whole number.';
+    }
+
+
     if (updateState) {
       setErrors(newErrors);
     }
     return newErrors;
 
 
-  }, [playerNames, numPlayersUI, selectedCategory, rRatedModalConfirmed, showRRatedModal]);
+  }, [playerNames, numPlayersUI, selectedCategory, rRatedModalConfirmed, showRRatedModal, playerSelectionOrder, numberOfQuestions]);
 
   const handlePlayerNameChange = (index, value) => {
     const newPlayerNames = [...playerNames];
@@ -176,10 +204,12 @@ function GetToKnowSetup({ registerNavbarActions, unregisterNavbarActions }) {
     const gameConfig = {
       players: activePlayers,
       selectedCategory,
+      playerSelectionOrder,
+      numberOfQuestions,
     };
     navigate('/get-to-know/play', { state: { gameConfig } });
 
-  }, [validateForm, selectedCategory, rRatedModalConfirmed, showRRatedModal, playerNames, numPlayersUI, navigate]);
+  }, [validateForm, selectedCategory, rRatedModalConfirmed, showRRatedModal, playerNames, numPlayersUI, playerSelectionOrder, numberOfQuestions, navigate]);
 
   const handleResetSettings = useCallback(() => {
     sessionStorage.removeItem(SESSION_STORAGE_KEY);
@@ -187,6 +217,8 @@ function GetToKnowSetup({ registerNavbarActions, unregisterNavbarActions }) {
     setPlayerNames(defaultState.playerNames);
     setSelectedCategory(defaultState.selectedCategory);
     setRRatedModalConfirmed(defaultState.rRatedModalConfirmed);
+    setPlayerSelectionOrder(defaultState.playerSelectionOrder);
+    setNumberOfQuestions(defaultState.numberOfQuestions);
     setShowRRatedModal(false);
     setErrors({});
     toast.info("Settings have been reset to default.");
@@ -199,8 +231,11 @@ function GetToKnowSetup({ registerNavbarActions, unregisterNavbarActions }) {
     if (selectedCategory === 'Couple' && !rRatedModalConfirmed) {
       rRatedCheckPassed = false;
     }
-    return Object.keys(currentErrors).length === 0 && allPlayerNamesFilled && rRatedCheckPassed;
-  }, [validateForm, playerNames, numPlayersUI, selectedCategory, rRatedModalConfirmed]);
+    const playerOrderValid = !!playerSelectionOrder;
+    const numQuestionsValid = numberOfQuestions >= MIN_QUESTIONS && numberOfQuestions <= MAX_QUESTIONS_SETUP && Number.isInteger(numberOfQuestions);
+
+    return Object.keys(currentErrors).length === 0 && allPlayerNamesFilled && rRatedCheckPassed && playerOrderValid && numQuestionsValid;
+  }, [validateForm, playerNames, numPlayersUI, selectedCategory, rRatedModalConfirmed, playerSelectionOrder, numberOfQuestions]);
 
   const isValidToStartValue = useMemo(() => checkValidity(), [checkValidity]);
 
@@ -262,6 +297,59 @@ function GetToKnowSetup({ registerNavbarActions, unregisterNavbarActions }) {
           error={errors.category}
           layoutClass="flex flex-wrap gap-3 justify-center p-2 rounded"
           containerClass="bg-transparent border-none p-0"
+        />
+      </div>
+
+      {/* Player Selection Order */}
+      <div className="mb-6 p-4 bg-gray-700 rounded-md shadow">
+        <h3 className="text-xl font-semibold mb-4 text-gray-200 border-b border-gray-600 pb-2">3. Player Turn Order</h3>
+        <GameOptionSelector
+          options={PLAYER_SELECTION_ORDER_OPTIONS}
+          selectedOption={playerSelectionOrder}
+          onOptionChange={(value) => {
+            setPlayerSelectionOrder(value);
+            if (errors.playerSelectionOrder) setErrors(prev => ({ ...prev, playerSelectionOrder: null }));
+          }}
+          type="radio"
+          groupName="getToKnowPlayerOrder"
+          isLoading={isLoading}
+          error={errors.playerSelectionOrder}
+          layoutClass="flex flex-col space-y-2"
+          itemLayoutClass = "flex items-center space-x-3 px-4 py-2.5 rounded-lg cursor-pointer transition duration-200 border" // Adjusted for better spacing
+          baseItemClass = "bg-gray-600 hover:bg-gray-550 text-textPrimary border-gray-500 hover:border-gray-400"
+          selectedItemClass = "bg-primary-dark text-white border-primary-light ring-2 ring-primary-light"
+          containerClass="bg-transparent border-none p-0" // To match other selectors
+        />
+      </div>
+
+      {/* Number of Questions */}
+      <div className="mb-6 p-4 bg-gray-700 rounded-md shadow">
+        <h3 className="text-xl font-semibold mb-4 text-gray-200 border-b border-gray-600 pb-2">4. Number of Questions</h3>
+        <StyledNumberInput
+          id="number-of-questions"
+          label={`Select how many questions for the game (Min: ${MIN_QUESTIONS}, Max: ${MAX_QUESTIONS_SETUP}):`}
+          value={numberOfQuestions}
+          onChange={(e) => {
+            const val = parseInt(e.target.value, 10);
+            if (isNaN(val)) {
+               setNumberOfQuestions(MIN_QUESTIONS); // Or keep current value, or set to empty string if input allows
+            } else if (val < MIN_QUESTIONS) {
+               setNumberOfQuestions(MIN_QUESTIONS);
+            } else if (val > MAX_QUESTIONS_SETUP) {
+               setNumberOfQuestions(MAX_QUESTIONS_SETUP);
+            } else {
+               setNumberOfQuestions(val);
+            }
+            if (errors.numberOfQuestions) setErrors(prev => ({ ...prev, numberOfQuestions: null }));
+          }}
+          min={MIN_QUESTIONS}
+          max={MAX_QUESTIONS_SETUP}
+          step="1"
+          disabled={isLoading}
+          error={errors.numberOfQuestions}
+          containerClassName="flex flex-col items-start w-full sm:w-1/2" // Example to control width
+          labelClassName="mb-2 text-sm font-medium text-gray-200"
+          inputClassName="text-center"
         />
       </div>
 

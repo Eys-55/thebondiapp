@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import usePlayerRoulette from '../../Utils/utils_hooks/usePlayerRoulette';
+import useItemSelector from '../../Utils/utils_hooks/useItemSelector';
 import PlayerRouletteDisplay from '../../Utils/utils_gameplay/PlayerRouletteDisplay';
 import useGameTimer, { formatTime } from '../../Utils/utils_hooks/useGameTimer';
 import GameTimerDisplay from '../../Utils/utils_gameplay/GameTimerDisplay';
@@ -33,10 +34,7 @@ function CharadesGame() {
   // round_over,
   // game_over
 
-  const [currentWord, setCurrentWord] = useState('');
   const [isWordVisible, setIsWordVisible] = useState(false);
-  const [selectedDifficulty, setSelectedDifficulty] = useState(null); // 'easy', 'medium', 'hard', or null for 'own_word'
-  const [currentDifficultyBaseScore, setCurrentDifficultyBaseScore] = useState(0);
 
   const isMountedRef = useRef(true);
   const playerRoulette = usePlayerRoulette(players);
@@ -50,6 +48,17 @@ function CharadesGame() {
       }
     },
     countUp: true,
+  });
+
+  const itemSelectorOptions = useMemo(() => ({
+    allowPlayerChoice: gameConfig?.gameMode === 'own_word',
+    playerChoiceDefaultData: { baseScore: OWN_WORD_BASE_SCORE },
+    itemKey: 'words',
+  }), [gameConfig?.gameMode]);
+
+  const itemSelector = useItemSelector({
+    itemsData: allWords,
+    options: itemSelectorOptions,
   });
 
   useEffect(() => {
@@ -83,7 +92,6 @@ function CharadesGame() {
       return;
     }
 
-    // This part updates players and numRounds if gameConfig changes or other relevant dependencies trigger a re-run.
     if (isMountedRef.current) {
       setPlayers(gameConfig.players);
       if (gameConfig.numRounds) {
@@ -91,16 +99,14 @@ function CharadesGame() {
       }
     }
     
-    // This block handles the initial setup when gamePhase is 'loading' with a valid gameConfig.
-    // It initializes scores, total turns, resets roulette selection, and moves to the first game phase.
-    if (gamePhase === 'loading' && isMountedRef.current) { // gameConfig is confirmed present by the check above
+    if (gamePhase === 'loading' && isMountedRef.current) { 
       const initialScores = {};
       gameConfig.players.forEach(p => {
         initialScores[p.id] = { name: p.name, totalScore: 0, roundsPlayed: 0 };
       });
       setPlayerScores(initialScores);
       setTotalTurnsCompleted(0);
-      playerRoulette.setSelectedPlayer(null); // Reset roulette selection at the start of game logic
+      playerRoulette.setSelectedPlayer(null); 
       setGamePhase('actor_selection_start');
     }
   }, [gameConfig, navigate, gamePhase, playerRoulette.setSelectedPlayer]);
@@ -109,16 +115,12 @@ function CharadesGame() {
     if (!isMountedRef.current || players.length === 0) return;
     setGamePhase('actor_selection_roulette');
     setActor(null);
-    setCurrentWord('');
+    itemSelector.resetSelection(); 
     setIsWordVisible(false);
-    setSelectedDifficulty(null);
-    setCurrentDifficultyBaseScore(0);
     gameTimer.resetTimer();
 
-    // Determine eligible players for the roulette
     let eligiblePlayers = [];
     if (players.length > 0 && Object.keys(playerScores).length === players.length) {
-      // Main path: playerScores and players are in sync.
       const minTurnsActedByAnyPlayer = Math.min(
         ...Object.values(playerScores).map(ps => ps.roundsPlayed)
       );
@@ -127,9 +129,6 @@ function CharadesGame() {
         playerScores[p.id] && playerScores[p.id].roundsPlayed === minTurnsActedByAnyPlayer
       );
 
-      // Nested fallback: This should ideally not be hit if the primary logic is sound and data is consistent.
-      // If eligiblePlayers is empty here, it implies a potential inconsistency in playerScores data
-      // (e.g., roundsPlayed values are not as expected, or minTurnsActedByAnyPlayer didn't match any player).
       if (eligiblePlayers.length === 0 && totalTurnsCompleted < players.length * numRounds) {
         console.warn(
           "CharadesGame: eligiblePlayers list was unexpectedly empty after filtering, despite game not being over. Defaulting to all players. This may indicate a data consistency issue with playerScores.",
@@ -138,26 +137,17 @@ function CharadesGame() {
         eligiblePlayers = [...players];
       }
     } else if (players.length > 0) {
-      // Fallback path: playerScores and players array lengths are out of sync.
-      // This might happen briefly during initial load if state updates are not fully settled,
-      // but if it occurs consistently or mid-game, it indicates a problem.
       console.warn(
         "CharadesGame: playerScores and players array potentially out of sync during actor selection (lengths differ). Defaulting to all players. This could lead to incorrect actor selection if it happens mid-round.",
         { numPlayerScores: Object.keys(playerScores).length, numPlayers: players.length, playerScores, players }
       );
       eligiblePlayers = [...players];
     } else {
-      // players.length is 0, function should have returned earlier, but as a safeguard:
       eligiblePlayers = [];
     }
     
-    // Ensure we have players to spin. If players.length > 0, eligiblePlayers should also not be empty
-    // due to the fallbacks ensuring it becomes [...players] if necessary.
     const playersToActuallySpin = eligiblePlayers.length > 0 ? eligiblePlayers : (players.length > 0 ? [...players] : []);
     
-    // If, after all fallbacks, playersToActuallySpin is still empty (e.g. initial players array was empty),
-    // the roulette hook itself will handle this by not spinning.
-    // We log here if we intend to spin with an empty list from this component's perspective.
     if (playersToActuallySpin.length === 0 && players.length > 0) {
         console.warn("CharadesGame: playersToActuallySpin is empty, but there are players in the game. This is unexpected.", { players, eligiblePlayers });
     }
@@ -168,45 +158,31 @@ function CharadesGame() {
         toast.success(`${selected.name} is the Actor!`);
         if (gameConfig.gameMode === 'system_word') {
           setGamePhase('difficulty_selection');
-        } else { // own_word mode
-          setSelectedDifficulty(null); // Explicitly null for own_word
-          setCurrentDifficultyBaseScore(OWN_WORD_BASE_SCORE);
-          toast.info(`Base score for this round: ${OWN_WORD_BASE_SCORE} (Player's Choice)`);
-          setGamePhase('word_assignment');
+        } else { 
+          itemSelector.setPlayerChosenItem({ baseScore: OWN_WORD_BASE_SCORE });
+          toast.info(`Base score for this round: ${itemSelector.selectedItem?.baseScore || OWN_WORD_BASE_SCORE} (Player's Choice)`);
+          setGamePhase('word_assignment'); 
         }
       }
     }, playersToActuallySpin);
-  }, [players, gameTimer, playerRoulette, gameConfig?.gameMode, playerScores, numRounds, totalTurnsCompleted]);
+  }, [players, gameTimer, playerRoulette, gameConfig?.gameMode, playerScores, numRounds, totalTurnsCompleted, itemSelector]);
 
   useEffect(() => {
     if (gamePhase === 'actor_selection_start') {
       startActorSelectionRoulette();
-    } else if (gamePhase === 'word_assignment' && actor) {
-      if (gameConfig.gameMode === 'system_word' && selectedDifficulty) {
-        const difficultyWords = allWords[selectedDifficulty]?.words || [];
-        if (difficultyWords.length > 0) {
-          const randomWord = difficultyWords[Math.floor(Math.random() * difficultyWords.length)];
-          setCurrentWord(randomWord);
-        } else {
-          toast.error(`No words loaded for ${selectedDifficulty} difficulty. Actor needs to choose a word.`);
-          setCurrentWord(''); // Or handle error more gracefully
-        }
-      } else if (gameConfig.gameMode === 'own_word') {
-        setCurrentWord(''); // Actor will think of one
-      }
     }
-  }, [gamePhase, actor, selectedDifficulty, gameConfig?.gameMode, allWords, startActorSelectionRoulette]);
+  }, [gamePhase, actor, gameConfig?.gameMode, startActorSelectionRoulette]); 
 
   const handleDifficultySelect = (difficulty) => {
     if (!isMountedRef.current || !allWords[difficulty] || gameConfig.gameMode !== 'system_word') return;
-    setSelectedDifficulty(difficulty);
-    setCurrentDifficultyBaseScore(allWords[difficulty].baseScore);
-    toast.info(`${actor.name} selected ${difficulty.toUpperCase()} difficulty (Base Score: ${allWords[difficulty].baseScore})`);
+    itemSelector.selectCategory(difficulty);
+    itemSelector.drawItem(); 
+    toast.info(`${actor.name} selected ${difficulty.toUpperCase()} difficulty (Base Score: ${itemSelector.selectedItem?.baseScore || allWords[difficulty].baseScore})`);
     setGamePhase('word_assignment');
   };
 
   const handleShowWord = () => {
-    if (gameConfig.gameMode === 'system_word' && currentWord) {
+    if (gameConfig.gameMode === 'system_word' && itemSelector.selectedItem?.rawItem) {
       setIsWordVisible(true);
       setGamePhase('ready_to_act');
     }
@@ -237,11 +213,10 @@ function CharadesGame() {
     const timeTaken = Math.max(1, gameTimer.currentTime);
     let roundScore = 0;
 
-    // currentDifficultyBaseScore is set during difficulty selection for system_word
-    // or set to OWN_WORD_BASE_SCORE for own_word mode during actor selection
-    if (guessedSuccessfully && currentDifficultyBaseScore > 0) {
+    const baseScoreForRound = itemSelector.selectedItem?.baseScore || 0; 
+    if (guessedSuccessfully && baseScoreForRound > 0) {
       const maxTime = gameConfig?.actingTimeSeconds || actingTime;
-      roundScore = Math.round(currentDifficultyBaseScore * (maxTime / timeTaken));
+      roundScore = Math.round(baseScoreForRound * (maxTime / timeTaken));
       toast.success(`Guessed! ${actor.name} scored ${roundScore} points! (Time: ${formatTime(timeTaken)})`);
       
       setPlayerScores(prevScores => {
@@ -256,7 +231,7 @@ function CharadesGame() {
         };
       });
     } else {
-      const wordDisplay = currentWord || (gameConfig.gameMode === 'own_word' ? "(chosen by player)" : "(word not set)");
+      const wordDisplay = itemSelector.selectedItem?.rawItem || (itemSelector.selectedItem?.isPlayerChoice ? "(chosen by player)" : "(word not set)");
       toast.warn(`Time's up for ${actor.name}! Word was: ${wordDisplay}. No points this round.`);
        setPlayerScores(prevScores => {
         const currentActorScoreData = prevScores[actor.id] || { name: actor.name, totalScore: 0, roundsPlayed: 0 };
@@ -264,7 +239,7 @@ function CharadesGame() {
           ...prevScores,
           [actor.id]: {
             ...currentActorScoreData,
-            totalScore: currentActorScoreData.totalScore || 0, // Ensure totalScore remains a number
+            totalScore: currentActorScoreData.totalScore || 0, 
             roundsPlayed: (currentActorScoreData.roundsPlayed || 0) + 1,
           }
         };
@@ -340,12 +315,18 @@ function CharadesGame() {
       {gamePhase !== 'game_over' && actor && (gamePhase !== 'actor_selection_roulette' && gamePhase !== 'loading') && (
         <div className="p-3 bg-gray-700 rounded-lg text-center shadow-md mb-4">
           <p className="text-lg text-gray-100">Current Actor: <span className="font-bold text-blue-300">{actor.name}</span></p>
-          {gameConfig.gameMode === 'system_word' && selectedDifficulty &&
-            <p className="text-sm text-gray-300">Difficulty: <span className="font-semibold text-yellow-300">{selectedDifficulty.toUpperCase()}</span> (Base: {currentDifficultyBaseScore} pts)</p>
-          }
-          {gameConfig.gameMode === 'own_word' &&
-            <p className="text-sm text-gray-300">Mode: <span className="font-semibold text-yellow-300">Player's Choice</span> (Base: {currentDifficultyBaseScore} pts)</p>
-          }
+          {gameConfig.gameMode === 'system_word' && itemSelector.currentCategory && ( // Use itemSelector.currentCategory
+            <>
+              <p className="text-sm text-gray-300">Difficulty: <span className="font-semibold text-yellow-300">{itemSelector.currentCategory.toUpperCase()}</span> (Base: {itemSelector.selectedItem?.baseScore || 'N/A'} pts)</p>
+              {/* Use itemSelector.selectedItem.baseScore */}
+            </>
+          )}
+          {gameConfig.gameMode === 'own_word' && itemSelector.selectedItem?.isPlayerChoice && ( // Check if player choice item is set
+            <>
+              <p className="text-sm text-gray-300">Mode: <span className="font-semibold text-yellow-300">Player's Choice</span> (Base: {itemSelector.selectedItem?.baseScore || OWN_WORD_BASE_SCORE} pts)</p>
+              {/* Use itemSelector.selectedItem.baseScore */}
+            </>
+          )}
         </div>
       )}
 
@@ -380,14 +361,14 @@ function CharadesGame() {
 
       {gamePhase === 'word_assignment' && actor && (
         <div className="text-center my-6 p-6 bg-gray-800 rounded-lg shadow-lg">
-          {gameConfig.gameMode === 'system_word' && selectedDifficulty && (
-            <p className="text-xl text-gray-200 mb-4">{actor.name}, get ready for a <span className="font-bold text-yellow-300">{selectedDifficulty.toUpperCase()}</span> challenge!</p>
+          {gameConfig.gameMode === 'system_word' && itemSelector.currentCategory && ( 
+            <p className="text-xl text-gray-200 mb-4">{actor.name}, get ready for a <span className="font-bold text-yellow-300">{itemSelector.currentCategory.toUpperCase()}</span> challenge!</p>
           )}
           {gameConfig.gameMode === 'own_word' && (
              <p className="text-xl text-gray-200 mb-4">{actor.name}, time to think of a word/phrase!</p>
           )}
 
-          {gameConfig.gameMode === 'system_word' && currentWord && !isWordVisible && (
+          {gameConfig.gameMode === 'system_word' && itemSelector.selectedItem?.rawItem && !isWordVisible && ( 
             <>
               <p className="text-gray-300 mb-4">A word/phrase has been chosen for you.</p>
               <button onClick={handleShowWord} className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg text-lg">
@@ -395,9 +376,9 @@ function CharadesGame() {
               </button>
             </>
           )}
-          {gameConfig.gameMode === 'system_word' && !currentWord && selectedDifficulty && (allWords[selectedDifficulty]?.words.length === 0 || !allWords[selectedDifficulty]) && (
+          {gameConfig.gameMode === 'system_word' && !itemSelector.selectedItem && itemSelector.currentCategory && ( 
             <>
-             <p className="text-red-400 mb-4">Error: No words available for {selectedDifficulty}. Please try another difficulty or go back.</p>
+             <p className="text-red-400 mb-4">Error: No words available for {itemSelector.currentCategory}. Please try another difficulty or go back.</p>
             </>
           )}
           {gameConfig.gameMode === 'own_word' && (
@@ -413,10 +394,10 @@ function CharadesGame() {
       
       {gamePhase === 'ready_to_act' && actor && (
         <div className="text-center my-6 p-6 bg-gray-800 rounded-lg shadow-lg">
-          {gameConfig.gameMode === 'system_word' && isWordVisible && currentWord && selectedDifficulty && (
+          {gameConfig.gameMode === 'system_word' && isWordVisible && itemSelector.selectedItem?.rawItem && itemSelector.currentCategory && ( 
             <div className="mb-6">
-              <p className="text-gray-300 mb-1">Your word/phrase ({selectedDifficulty.toUpperCase()}):</p>
-              <p className="text-3xl font-bold text-yellow-400 bg-gray-700 p-3 rounded-md">{currentWord}</p>
+              <p className="text-gray-300 mb-1">Your word/phrase ({itemSelector.currentCategory.toUpperCase()}):</p>
+              <p className="text-3xl font-bold text-yellow-400 bg-gray-700 p-3 rounded-md">{itemSelector.selectedItem.rawItem}</p>
             </div>
           )}
            {gameConfig.gameMode === 'own_word' && (
@@ -431,15 +412,15 @@ function CharadesGame() {
       {gamePhase === 'acting_in_progress' && actor && (
         <div className="text-center my-6 p-6 bg-gray-800 rounded-lg shadow-lg">
           <p className="text-2xl text-yellow-400 mb-2 animate-pulse">ACTING!</p>
-          {gameConfig.gameMode === 'system_word' && currentWord && (
-             <p className="text-sm text-gray-500 mb-1">(Word: {isWordVisible ? currentWord : "Hidden"})</p>
+          {gameConfig.gameMode === 'system_word' && itemSelector.selectedItem?.rawItem && ( 
+             <p className="text-sm text-gray-500 mb-1">(Word: {isWordVisible ? itemSelector.selectedItem.rawItem : "Hidden"})</p>
           )}
-          {gameConfig.gameMode === 'system_word' && selectedDifficulty &&
-            <p className="text-sm text-gray-400 mb-2">Difficulty: {selectedDifficulty.toUpperCase()} | Base Score: {currentDifficultyBaseScore}</p>
-          }
-          {gameConfig.gameMode === 'own_word' &&
-             <p className="text-sm text-gray-400 mb-2">Player's Choice | Base Score for timing: {currentDifficultyBaseScore}</p>
-          }
+          {gameConfig.gameMode === 'system_word' && itemSelector.currentCategory && (
+            <p className="text-sm text-gray-400 mb-2">Difficulty: {itemSelector.currentCategory.toUpperCase()} | Base Score: {itemSelector.selectedItem?.baseScore || 'N/A'} pts)</p>
+          )}
+          {gameConfig.gameMode === 'own_word' && itemSelector.selectedItem?.isPlayerChoice && (
+             <p className="text-sm text-gray-400 mb-2">Player's Choice | Base Score for timing: {itemSelector.selectedItem?.baseScore || OWN_WORD_BASE_SCORE} pts)</p>
+          )}
           <GameTimerDisplay formattedTime={gameTimer.formattedTime} />
           <p className="text-sm text-gray-400 mb-6">Max Time: {formatTime(actingTime)}</p>
           <button onClick={handleWordGuessed} className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg text-lg">
