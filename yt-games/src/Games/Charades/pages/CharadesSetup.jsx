@@ -4,10 +4,10 @@ import { toast } from 'react-toastify';
 import SetupPageLayout from '../../Utils/utils_setup/SetupPageLayout';
 import PlayerSetup from '../../Utils/utils_setup/PlayerSetup';
 import GameOptionSelector from '../../Utils/utils_setup/GameOptionSelector';
+import GameStartTransition from '../../Utils/utils_components/GameStartTransition'; // Import transition component
 
 const MIN_PLAYERS = 2;
 const MAX_PLAYERS = 10;
-const SESSION_STORAGE_KEY = 'charadesSetup';
 
 const defaultState = {
   numPlayersUI: MIN_PLAYERS,
@@ -27,6 +27,9 @@ function CharadesSetup({ registerNavbarActions, unregisterNavbarActions }) {
   
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false); // New state for transition
+  const [transitionGameConfig, setTransitionGameConfig] = useState(null); // Store config for transition
+  const gameRoutePath = '/charades/play'; // Define game route path
 
   useEffect(() => {
     try {
@@ -128,8 +131,11 @@ function CharadesSetup({ registerNavbarActions, unregisterNavbarActions }) {
       actingTimeSeconds,
       turnProgression: 'random', // Charades typically has random actor selection or sequential turns
     };
-    navigate('/charades/play', { state: { gameConfig } });
-  }, [validateForm, playerNames, numPlayersUI, gameMode, numRounds, actingTimeSeconds, navigate]);
+    // Instead of navigating directly, set up for transition
+    setTransitionGameConfig(gameConfig);
+    setIsTransitioning(true);
+    // setIsLoading(true); // Keep form disabled
+  }, [validateForm, playerNames, numPlayersUI, gameMode, numRounds, actingTimeSeconds]);
 
   const handleResetSettings = useCallback(() => {
     sessionStorage.removeItem(SESSION_STORAGE_KEY);
@@ -153,9 +159,9 @@ function CharadesSetup({ registerNavbarActions, unregisterNavbarActions }) {
   const navbarConfig = useMemo(() => ({
     startHandler: handleStartGame,
     resetHandler: handleResetSettings,
-    isLoading: isLoading,
-    isValidToStart: isValidToStartValue,
-  }), [handleStartGame, handleResetSettings, isLoading, isValidToStartValue]);
+    isLoading: isLoading || isTransitioning, // Navbar loading during transition
+    isValidToStart: isTransitioning ? false : isValidToStartValue, // Not valid to start again during transition
+  }), [handleStartGame, handleResetSettings, isLoading, isTransitioning, isValidToStartValue]);
 
   const registerNavbarActionsRef = useRef(registerNavbarActions);
   const unregisterNavbarActionsRef = useRef(unregisterNavbarActions);
@@ -177,6 +183,26 @@ function CharadesSetup({ registerNavbarActions, unregisterNavbarActions }) {
       }
     };
   }, [navbarConfig]);
+
+  const handleTransitionComplete = useCallback(() => {
+    if (transitionGameConfig && gameRoutePath) {
+      navigate(gameRoutePath, { state: { gameConfig: transitionGameConfig } });
+    } else {
+      console.error("CharadesSetup: Transition complete but game config or path missing.");
+      toast.error("Failed to start game. Please try again.");
+      setIsTransitioning(false); // Revert to setup form
+      setIsLoading(false);
+    }
+  }, [navigate, transitionGameConfig, gameRoutePath]);
+
+  if (isTransitioning) {
+    return (
+      <GameStartTransition
+        gameName="Charades"
+        onComplete={handleTransitionComplete}
+      />
+    );
+  }
 
   return (
     <SetupPageLayout>

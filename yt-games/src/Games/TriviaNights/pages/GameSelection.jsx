@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import SetupPageLayout from '../../Utils/utils_setup/SetupPageLayout'; // Import the layout
 import PlayerSetup from '../../Utils/utils_setup/PlayerSetup';
 import GameOptionSelector from '../../Utils/utils_setup/GameOptionSelector';
+import GameStartTransition from '../../Utils/utils_components/GameStartTransition'; // Import transition component
 import StyledNumberInput from '../../Utils/utils_setup/StyledNumberInput';
 
 // Updated categories based on concepts.js
@@ -43,6 +44,9 @@ function GameSelection({ registerNavbarActions, unregisterNavbarActions }) {
 
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false); // New state for transition
+  const [transitionGameConfig, setTransitionGameConfig] = useState(null); // Store config and players for transition
+  const gameRoutePath = '/trivia-nights/play'; // Define game route path
 
   // Load settings from session storage on mount
   useEffect(() => {
@@ -175,9 +179,13 @@ function GameSelection({ registerNavbarActions, unregisterNavbarActions }) {
         score: 0
     }));
     
-    navigate('/trivia-nights/play', { state: { gameConfig, players: activePlayers } });
-  }, [validateForm, selectedCategories, numQuestions, timePerQuestion, includeChoices, scoringMode, playerNames, numPlayersUI, navigate]);
-
+    // Instead of navigating directly, set up for transition
+    setTransitionGameConfig({ gameSettings: gameConfig, players: activePlayers });
+    setIsTransitioning(true);
+    // setIsLoading(true); // Keep form disabled
+  }, [validateForm, selectedCategories, numQuestions, timePerQuestion, includeChoices, scoringMode, playerNames, numPlayersUI]);
+  
+  
   const handleResetSettings = useCallback(() => {
     sessionStorage.removeItem(SESSION_STORAGE_KEY);
     setSelectedCategories(defaultState.selectedCategories);
@@ -202,8 +210,8 @@ function GameSelection({ registerNavbarActions, unregisterNavbarActions }) {
       registerNavbarActions({
         startHandler: handleStartLocalMultiplayerGame,
         resetHandler: handleResetSettings,
-        isLoading: isLoading,
-        isValidToStart: checkValidity(),
+        isLoading: isLoading || isTransitioning, // Navbar loading during transition
+        isValidToStart: isTransitioning ? false : checkValidity(), // Not valid to start again during transition
       });
     }
     return () => {
@@ -215,9 +223,29 @@ function GameSelection({ registerNavbarActions, unregisterNavbarActions }) {
     registerNavbarActions, unregisterNavbarActions,
     handleStartLocalMultiplayerGame, handleResetSettings,
     isLoading, checkValidity,
-    playerNames, numPlayersUI, selectedCategories, numQuestions, timePerQuestion, errors
+    playerNames, numPlayersUI, selectedCategories, numQuestions, timePerQuestion, errors, isTransitioning
   ]);
 
+  const handleTransitionComplete = useCallback(() => {
+    if (transitionGameConfig && gameRoutePath) {
+      navigate(gameRoutePath, { state: { gameConfig: transitionGameConfig.gameSettings, players: transitionGameConfig.players } });
+    } else {
+      console.error("TriviaNights/GameSelection: Transition complete but game config or path missing.");
+      toast.error("Failed to start game. Please try again.");
+      setIsTransitioning(false); // Revert to setup form
+      setIsLoading(false);
+    }
+  }, [navigate, transitionGameConfig, gameRoutePath]);
+
+  if (isTransitioning) {
+    return (
+      <GameStartTransition
+        gameName="Trivia Nights"
+        onComplete={handleTransitionComplete}
+      />
+    );
+  }
+  
   return (
     <SetupPageLayout title="Multiplayer Quiz Setup">
       {/* Player Setup Section */}

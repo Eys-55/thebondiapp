@@ -5,6 +5,7 @@ import SetupPageLayout from '../../Utils/utils_setup/SetupPageLayout'; // Import
 import Modal from '../../Utils/utils_components/Modal'; // Import the new Modal component
 import PlayerSetup from '../../Utils/utils_setup/PlayerSetup';
 import GameOptionSelector from '../../Utils/utils_setup/GameOptionSelector';
+import GameStartTransition from '../../Utils/utils_components/GameStartTransition'; // Import transition component
 
 const MIN_PLAYERS = 2;
 const MAX_PLAYERS = 10;
@@ -42,6 +43,9 @@ function TruthOrDareSetup({ registerNavbarActions, unregisterNavbarActions }) {
 
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false); // New state for transition
+  const [transitionGameConfig, setTransitionGameConfig] = useState(null); // Store config for transition
+  const gameRoutePath = '/truth-or-dare/play'; // Define game route path
 
   useEffect(() => {
     try {
@@ -205,8 +209,11 @@ function TruthOrDareSetup({ registerNavbarActions, unregisterNavbarActions }) {
       selectedCategory: gameMode === 'classic' ? selectedCategory : null,
       numberOfTurns,
     };
-    navigate('/truth-or-dare/play', { state: { gameConfig } });
-  }, [validateForm, gameMode, selectedCategory, rRatedModalConfirmed, showRRatedModal, playerNames, numPlayersUI, turnProgression, navigate, numberOfTurns]);
+    // Instead of navigating directly, set up for transition
+    setTransitionGameConfig(gameConfig);
+    setIsTransitioning(true);
+    // setIsLoading(true); // Keep form disabled
+  }, [validateForm, gameMode, selectedCategory, rRatedModalConfirmed, showRRatedModal, playerNames, numPlayersUI, turnProgression, numberOfTurns]);
 
   const handleResetSettings = useCallback(() => {
     sessionStorage.removeItem(SESSION_STORAGE_KEY);
@@ -241,10 +248,10 @@ function TruthOrDareSetup({ registerNavbarActions, unregisterNavbarActions }) {
   const navbarConfig = useMemo(() => ({
     startHandler: handleStartGame,
     resetHandler: handleResetSettings,
-    isLoading: isLoading,
-    isValidToStart: isValidToStartValue,
-  }), [handleStartGame, handleResetSettings, isLoading, isValidToStartValue]);
-
+    isLoading: isLoading || isTransitioning, // Navbar loading during transition
+    isValidToStart: isTransitioning ? false : isValidToStartValue, // Not valid to start again during transition
+  }), [handleStartGame, handleResetSettings, isLoading, isTransitioning, isValidToStartValue]);
+  
   // Ref pattern for prop callbacks
   const registerNavbarActionsRef = useRef(registerNavbarActions);
   const unregisterNavbarActionsRef = useRef(unregisterNavbarActions);
@@ -269,6 +276,25 @@ function TruthOrDareSetup({ registerNavbarActions, unregisterNavbarActions }) {
     };
   }, [navbarConfig]);
 
+  const handleTransitionComplete = useCallback(() => {
+    if (transitionGameConfig && gameRoutePath) {
+      navigate(gameRoutePath, { state: { gameConfig: transitionGameConfig } });
+    } else {
+      console.error("TruthOrDareSetup: Transition complete but game config or path missing.");
+      toast.error("Failed to start game. Please try again.");
+      setIsTransitioning(false); // Revert to setup form
+      setIsLoading(false);
+    }
+  }, [navigate, transitionGameConfig, gameRoutePath]);
+
+  if (isTransitioning) {
+    return (
+      <GameStartTransition
+        gameName="Truth or Dare"
+        onComplete={handleTransitionComplete}
+      />
+    );
+  }
 
   return (
     <SetupPageLayout>
