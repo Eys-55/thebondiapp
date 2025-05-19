@@ -9,6 +9,8 @@ import GameStartTransition from '../../Utils/utils_components/GameStartTransitio
 const MIN_PLAYERS = 2;
 const MAX_PLAYERS = 10;
 
+const SESSION_STORAGE_KEY = 'charadesGameSettings'; // Define session storage key
+
 const defaultState = {
   numPlayersUI: MIN_PLAYERS,
   playerNames: Array(MIN_PLAYERS).fill(''),
