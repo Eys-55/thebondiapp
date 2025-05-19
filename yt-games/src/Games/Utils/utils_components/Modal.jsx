@@ -17,11 +17,11 @@ function Modal({ isOpen, onClose, title, children, footerContent, titleColor = '
     <div
       className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4 animate-fade-in"
       onClick={onClose} // Optional: close modal on overlay click
-    >
-      <div
-        className="bg-gray-800 p-6 rounded-lg shadow-xl max-w-md w-full"
+        >
+        <div
+        className="bg-gray-700 p-6 rounded-lg shadow-xl max-w-md w-full" // Changed bg-gray-800 to bg-gray-700
         onClick={(e) => e.stopPropagation()} // Prevent click inside modal from closing it
-      >
+        >
         {title && (
           <h4 className={`text-2xl font-bold ${titleColor} mb-4`}>{title}</h4>
         )}

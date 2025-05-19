@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Modal from '../Games/Utils/utils_components/Modal'; // Import Modal component
+// FeedbackModal is no longer imported or used here
+
+// FeedbackIcon is no longer defined or used here
 
 const ResetIcon = ({ className = "w-5 h-5" }) => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
@@ -20,6 +23,8 @@ function Navbar({ navbarActions }) {
   const navigate = useNavigate();
   const [showNavigationConfirmModal, setShowNavigationConfirmModal] = useState(false);
   const [navigationTargetUrl, setNavigationTargetUrl] = useState('/'); // To store where to go after modal confirmation
+  const [showAboutModal, setShowAboutModal] = useState(false); // State for About modal
+  // showFeedbackModal state is removed
 
   let pageContextTitle = "";
   let actionButtons = null;
@@ -172,6 +177,16 @@ function Navbar({ navbarActions }) {
           
           {/* Right Section: Action Buttons */}
           <div className="flex items-center justify-end space-x-2 sm:space-x-3">
+            {/* Feedback button removed from here */}
+            {isHomePage && (
+              <button
+                onClick={() => setShowAboutModal(true)}
+                className="text-gray-300 hover:text-white font-medium py-2 px-3 rounded-md text-sm transition duration-150 ease-in-out"
+                title="About YT Games"
+              >
+                About
+              </button>
+            )}
             {actionButtons}
           </div>
         </div>
@@ -203,6 +218,39 @@ function Navbar({ navbarActions }) {
           Are you sure you want to leave the current game? Your progress may be lost.
         </p>
       </Modal>
+
+      {/* About Modal */}
+      <Modal
+        isOpen={showAboutModal}
+        onClose={() => setShowAboutModal(false)}
+        title="About YT Games"
+        titleColor="text-primary-light"
+        footerContent={
+          <button
+            onClick={() => setShowAboutModal(false)}
+            className="px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded-md transition-colors"
+          >
+            Close
+          </button>
+        }
+      >
+        <div className="space-y-3 text-gray-300">
+          <p>
+            <strong>YT Games</strong> is a collection of fun and engaging party games designed to be played with friends and family.
+          </p>
+          <p>
+            This application is built with React, Tailwind CSS, and Firebase, aiming to provide a seamless and enjoyable gaming experience directly in your browser.
+          </p>
+          <p>
+            Explore games like Trivia, Truth or Dare, Charades, and Get to Know You questions!
+          </p>
+          <p className="text-sm text-gray-400 mt-4">
+            Version: 1.0.0 (Placeholder)
+          </p>
+        </div>
+      </Modal>
+
+      {/* FeedbackModal instance removed from here */}
     </>
   );
 }

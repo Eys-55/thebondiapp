@@ -293,7 +293,7 @@ useEffect(() => {
   
   if (gamePhase === 'game_over') {
     return (
-        <div className="max-w-xl mx-auto p-6 bg-gray-800 rounded-lg shadow-xl text-white text-center">
+        <div className="max-w-xl mx-auto p-6 bg-gray-700 rounded-lg shadow-xl text-white text-center">
             <h2 className="text-3xl font-bold text-yellow-400 mb-6">Game Over!</h2>
             <p className="text-gray-200 mb-6">
               {gameConfig.numberOfTurns > 0 ? `All ${gameConfig.numberOfTurns} turns have been played.` : "Hope you had fun!"}
@@ -329,14 +329,14 @@ useEffect(() => {
 
   // This render function is specifically for the TASK selection roulette
   const renderTaskRouletteScreen = (title, currentSelectionText) => (
-    <div className="text-center my-6 p-8 bg-gray-800 rounded-lg shadow-lg">
+    <div className="text-center my-6 p-8 bg-gray-700 rounded-lg shadow-lg">
       <p className="text-2xl text-gray-200 mb-2">{title}</p>
       <p className="text-4xl font-bold text-blue-400 h-12 animate-pulse">{currentSelectionText || '...'}</p>
     </div>
   );
 
   const renderClassicChoiceScreen = () => doer && (
-    <div className="text-center my-6 p-8 bg-gray-800 rounded-lg shadow-lg">
+    <div className="text-center my-6 p-8 bg-gray-700 rounded-lg shadow-lg">
       <p className="text-3xl font-semibold text-blue-400 mb-6">{doer.name}, it's your turn!</p>
       <p className="text-xl text-gray-200 mb-6">Choose your fate:</p>
       <div className="flex justify-center gap-4">
@@ -350,7 +350,7 @@ useEffect(() => {
   );
 
   const renderPairDoerChoosesTypeScreen = () => commander && doer && (
-    <div className="text-center my-6 p-8 bg-gray-800 rounded-lg shadow-lg">
+    <div className="text-center my-6 p-8 bg-gray-700 rounded-lg shadow-lg">
       <p className="text-2xl font-semibold text-gray-100 mb-4">
         {doer.name}, what will it be? <span className="text-blue-400">{commander.name}</span> will give you a task.
       </p>
@@ -362,14 +362,14 @@ useEffect(() => {
   );
   
   const renderTaskRevealedScreen = () => doer && currentTask.text && (
-    <div className="text-center my-6 p-6 bg-gray-800 rounded-lg shadow-lg">
+    <div className="text-center my-6 p-6 bg-gray-700 rounded-lg shadow-lg">
       <p className="text-2xl font-semibold text-blue-400 mb-1">
         {gameConfig.gameMode === 'pair' && commander
           ? `${commander.name}, your turn to assign!`
           : `${doer.name}, your ${currentTask.type} is:`}
       </p>
       
-      <div className="bg-gray-700 p-4 rounded-md my-4 min-h-[100px] flex items-center justify-center">
+      <div className="bg-gray-600 p-4 rounded-md my-4 min-h-[100px] flex items-center justify-center">
           <p className="text-lg text-white text-center">
             {currentTask.text}
           </p>
@@ -383,7 +383,7 @@ useEffect(() => {
   );
   
   const renderTurnEndedScreen = () => doer && (
-    <div className="text-center my-6 p-8 bg-gray-800 rounded-lg shadow-lg">
+    <div className="text-center my-6 p-8 bg-gray-700 rounded-lg shadow-lg">
       <p className="text-2xl text-gray-200 mb-4">
         Turn for <span className="font-bold text-blue-400">{doer.name}</span> is over.
       </p>
@@ -396,7 +396,7 @@ useEffect(() => {
       {responseAnimation && (
         <div
           className={`fixed inset-0 flex flex-col items-center justify-center z-[1000] animate-fade-in text-white text-center px-4
-                      ${responseAnimation.type === 'accepted' ? 'bg-green-600' : 'bg-red-600'}`}
+                      ${responseAnimation.type === 'accepted' ? 'bg-green-700' : 'bg-red-700'}`}
         >
           <h2 className="text-6xl font-extrabold mb-6">
             {responseAnimation.type === 'accepted' ? 'Accepted!' : 'Wussed Out!'}
@@ -409,7 +409,7 @@ useEffect(() => {
           </p>
         </div>
       )}
-      <div className={`max-w-2xl mx-auto p-6 bg-gray-900 text-white rounded-lg shadow-2xl min-h-[calc(100vh-150px)] flex flex-col space-y-4 ${responseAnimation ? 'filter blur-sm pointer-events-none' : ''}`}>
+      <div className={`max-w-2xl mx-auto p-6 bg-gray-800 text-white rounded-lg shadow-2xl min-h-[calc(100vh-150px)] flex flex-col space-y-4 ${responseAnimation ? 'filter blur-sm pointer-events-none' : ''}`}>
         <div>
           <h2 className="text-3xl font-bold text-center text-blue-400 mb-2">Truth or Dare!</h2>
           <div className="text-xs text-center text-gray-400 mb-1">
@@ -451,7 +451,7 @@ useEffect(() => {
         )}
         
         {gameConfig.gameMode === 'pair' && doer && gamePhase === 'doer_selected_pending_commander_selection' && (
-          <div className="text-center p-6 bg-gray-800 rounded-lg shadow-lg">
+          <div className="text-center p-6 bg-gray-700 rounded-lg shadow-lg">
             <p className="text-xl text-gray-300 animate-pulse">Now selecting Commander...</p>
           </div>
         )}

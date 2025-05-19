@@ -6,10 +6,10 @@ import React from 'react';
 // isSpinning: boolean - If true, applies an animation (e.g., pulse)
 
 function PlayerRouletteDisplay({ title, displayText, isSpinning }) {
-  return (
-    <div className="text-center my-6 p-8 bg-gray-800 rounded-lg shadow-lg">
-      <p className="text-2xl text-gray-200 mb-2">{title}</p>
-      <p className={`text-4xl font-bold text-blue-400 h-12 ${isSpinning ? 'animate-pulse' : ''}`}>
+return (
+<div className="text-center my-6 p-8 bg-gray-700 rounded-lg shadow-lg"> {/* Changed bg-gray-800 to bg-gray-700 */}
+<p className="text-2xl text-gray-200 mb-2">{title}</p>
+<p className={`text-4xl font-bold text-blue-400 h-12 ${isSpinning ? 'animate-pulse' : ''}`}>
         {displayText || '---'}
       </p>
     </div>

@@ -299,7 +299,7 @@ function CharadesGame() {
   );
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-gray-900 text-white rounded-lg shadow-2xl min-h-[calc(100vh-150px)] flex flex-col space-y-4">
+    <div className="max-w-2xl mx-auto p-6 bg-gray-800 text-white rounded-lg shadow-2xl min-h-[calc(100vh-150px)] flex flex-col space-y-4">
       <h2 className="text-3xl font-bold text-center text-blue-400 mb-2">Charades!</h2>
       <div className="text-xs text-center text-gray-400 mb-1">
           Mode: {gameConfig.gameMode === 'system_word' ? 'System Word' : 'Player Choice'} | Max Time: {formatTime(actingTime)}
@@ -312,7 +312,7 @@ function CharadesGame() {
       )}
 
       {gamePhase === 'game_over' && (
-        <div className="text-center my-6 p-8 bg-gray-800 rounded-lg shadow-lg">
+        <div className="text-center my-6 p-8 bg-gray-700 rounded-lg shadow-lg">
           <h3 className="text-4xl font-bold text-green-400 mb-6">Game Over!</h3>
           <Leaderboard
             title="Final Scores"
@@ -367,7 +367,7 @@ function CharadesGame() {
       )}
 
       {gamePhase === 'difficulty_selection' && actor && gameConfig.gameMode === 'system_word' && (
-        <div className="text-center my-6 p-6 bg-gray-800 rounded-lg shadow-lg">
+        <div className="text-center my-6 p-6 bg-gray-700 rounded-lg shadow-lg">
           <p className="text-xl text-gray-200 mb-4">{actor.name}, choose your difficulty:</p>
           <div className="flex flex-col sm:flex-row justify-center gap-3">
             {['easy', 'medium', 'hard'].map(diff => (
@@ -388,7 +388,7 @@ function CharadesGame() {
       )}
 
       {gamePhase === 'word_assignment' && actor && (
-        <div className="text-center my-6 p-6 bg-gray-800 rounded-lg shadow-lg">
+        <div className="text-center my-6 p-6 bg-gray-700 rounded-lg shadow-lg">
           {gameConfig.gameMode === 'system_word' && itemSelector.currentCategory && ( 
             <p className="text-xl text-gray-200 mb-4">{actor.name}, get ready for a <span className="font-bold text-yellow-300">{itemSelector.currentCategory.toUpperCase()}</span> challenge!</p>
           )}
@@ -421,7 +421,7 @@ function CharadesGame() {
       )}
       
       {gamePhase === 'ready_to_act' && actor && (
-        <div className="text-center my-6 p-6 bg-gray-800 rounded-lg shadow-lg">
+        <div className="text-center my-6 p-6 bg-gray-700 rounded-lg shadow-lg">
           {gameConfig.gameMode === 'system_word' && isWordVisible && itemSelector.selectedItem?.rawItem && itemSelector.currentCategory && ( 
             <div className="mb-6">
               <p className="text-gray-300 mb-1">Your word/phrase ({itemSelector.currentCategory.toUpperCase()}):</p>
@@ -438,7 +438,7 @@ function CharadesGame() {
       )}
 
       {gamePhase === 'acting_in_progress' && actor && (
-        <div className="text-center my-6 p-6 bg-gray-800 rounded-lg shadow-lg">
+        <div className="text-center my-6 p-6 bg-gray-700 rounded-lg shadow-lg">
           <p className="text-2xl text-yellow-400 mb-2 animate-pulse">ACTING!</p>
           {gameConfig.gameMode === 'system_word' && itemSelector.selectedItem?.rawItem && ( 
              <p className="text-sm text-gray-500 mb-1">(Word: {isWordVisible ? itemSelector.selectedItem.rawItem : "Hidden"})</p>
@@ -458,7 +458,7 @@ function CharadesGame() {
       )}
 
       {gamePhase === 'round_over' && actor && (
-        <div className="text-center my-6 p-8 bg-gray-800 rounded-lg shadow-lg">
+        <div className="text-center my-6 p-8 bg-gray-700 rounded-lg shadow-lg">
           <p className="text-2xl text-gray-200 mb-4">
             Round over for <span className="font-bold text-blue-400">{actor.name}</span>!
           </p>

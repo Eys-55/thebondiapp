@@ -1,7 +1,8 @@
 import React, { useState, useCallback } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import GameSelection from '../Games/TriviaNights/pages/GameSelection';
 import HomePage from './HomePage';
+import FeedbackModal from '../Games/Utils/utils_components/FeedbackModal'; // Import FeedbackModal
 import QuizPage from '../Games/TriviaNights/pages/QuizPage'; // Renamed from LocalMultiplayerQuiz
 import NotFound from '../Games/Utils/utils_components/NotFound'; // Import the NotFound component
 import Navbar from './Navbar'; // Import the Navbar
@@ -20,6 +21,8 @@ import GetToKnowGame from '../Games/GetToKnow/pages/GetToKnowGame';
 
 function App() {
   const [navbarActions, setNavbarActions] = useState(null);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const location = useLocation();
 
   const registerNavbarActions = useCallback((actions) => {
     setNavbarActions(actions);
@@ -89,9 +92,27 @@ function App() {
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
-        <footer className="bg-gray-800 text-center text-sm text-textSecondary p-4">
-          © {new Date().getFullYear()} YT Games - Quiz App
-        </footer>
+        {/* Footer removed */}
+
+        {/* Fixed Feedback Button */}
+        <button
+          onClick={() => setShowFeedbackModal(true)}
+          className="fixed bottom-8 left-0
+                     bg-primary hover:bg-primary-dark text-white text-sm font-medium
+                     py-3 px-2 rounded-r-md shadow-lg z-50
+                     focus:outline-none focus:ring-2 focus:ring-primary-light focus:ring-opacity-75"
+          style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}
+          aria-label="Provide Feedback"
+          title="Provide Feedback"
+        >
+          Feedback
+        </button>
+
+        <FeedbackModal
+          isOpen={showFeedbackModal}
+          onClose={() => setShowFeedbackModal(false)}
+          currentPage={location.pathname}
+        />
       </div>
   );
 }
