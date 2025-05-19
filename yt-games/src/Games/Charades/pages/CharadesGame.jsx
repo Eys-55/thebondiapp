@@ -10,6 +10,16 @@ import Leaderboard from '../../Utils/utils_gameplay/Leaderboard';
 import GameProgressDisplay from '../../Utils/utils_gameplay/GameProgressDisplay';
 import wordsData from '../data/words.json'; // Import wordsData directly
 
+// Import new phase components
+import CharadesGameOver from '../components/CharadesGameOver';
+import CharadesActorSelection from '../components/CharadesActorSelection';
+import CharadesDifficultySelection from '../components/CharadesDifficultySelection';
+import CharadesWordAssignment from '../components/CharadesWordAssignment';
+import CharadesReadyToAct from '../components/CharadesReadyToAct';
+import CharadesActing from '../components/CharadesActing';
+import CharadesRoundOver from '../components/CharadesRoundOver';
+
+
 const PLAYER_ROULETTE_DURATION = 2500;
 const OWN_WORD_BASE_SCORE = 25; // Default base score for 'own_word' mode
 
@@ -485,39 +495,19 @@ function CharadesGame() {
       )}
 
       {gamePhase === 'game_over' && (
-        <div className="text-center my-6 p-8 bg-gray-700 rounded-lg shadow-lg">
-          {console.log("CharadesGame: Rendering GAME OVER section. playerScores:", JSON.stringify(playerScores))}
-          <h3 className="text-4xl font-bold text-green-400 mb-6">Game Over!</h3>
-          <Leaderboard
-            title="Final Scores"
-            players={players}
-            playerScores={playerScores}
-            primarySortField="totalScore"
-            secondarySortField="roundsPlayed"
-            secondarySortOrder="asc"
-            displayFormatter={charadesLeaderboardFormatter}
-          />
-          <div className="mt-8 flex justify-center gap-4">
-            <button
-              onClick={() => {
-                console.log("CharadesGame: Play Again button clicked.");
-                navigate('/charades/setup');
-              }}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg text-lg"
-            >
-              Play Again
-            </button>
-            <button
-              onClick={() => {
-                console.log("CharadesGame: Back to Home button clicked.");
-                navigate('/');
-              }}
-              className="bg-gray-600 hover:bg-gray-500 text-white font-semibold py-3 px-6 rounded-lg text-lg"
-            >
-              Back to Home
-            </button>
-          </div>
-        </div>
+        <CharadesGameOver
+          players={players}
+          playerScores={playerScores}
+          onPlayAgain={() => {
+            console.log("CharadesGame: Play Again button clicked.");
+            navigate('/charades/setup');
+          }}
+          onGoHome={() => {
+            console.log("CharadesGame: Back to Home button clicked.");
+            navigate('/');
+          }}
+          leaderboardFormatter={charadesLeaderboardFormatter}
+        />
       )}
 
       {gamePhase !== 'game_over' && actor && (gamePhase !== 'actor_selection_roulette' && gamePhase !== 'loading') && (
@@ -537,132 +527,67 @@ function CharadesGame() {
       )}
 
       {gamePhase === 'actor_selection_roulette' && (
-        <>
-          {console.log("CharadesGame: Rendering PlayerRouletteDisplay. isSpinning:", playerRoulette.isRouletteSpinning, "displayText:", playerRoulette.rouletteDisplayText)}
-          <PlayerRouletteDisplay
-            title="Selecting Actor..."
-            displayText={playerRoulette.rouletteDisplayText}
-            isSpinning={playerRoulette.isRouletteSpinning}
-          />
-        </>
+        <CharadesActorSelection
+          displayText={playerRoulette.rouletteDisplayText}
+          isSpinning={playerRoulette.isRouletteSpinning}
+        />
       )}
 
       {gamePhase === 'difficulty_selection' && actor && gameConfig.gameMode === 'system_word' && (
-        <div className="text-center my-6 p-6 bg-gray-700 rounded-lg shadow-lg">
-          {console.log("CharadesGame: Rendering difficulty_selection UI for actor:", actor.name)}
-          <p className="text-xl text-gray-200 mb-4">{actor.name}, choose your difficulty:</p>
-          <div className="flex flex-col sm:flex-row justify-center gap-3">
-            {['easy', 'medium', 'hard'].map(diff => (
-              <button
-                key={diff}
-                onClick={() => handleDifficultySelect(diff)}
-                className={`flex-1 font-bold py-3 px-5 rounded-lg text-lg transition-transform hover:scale-105
-                            ${diff === 'easy' ? 'bg-green-600 hover:bg-green-700' : ''}
-                            ${diff === 'medium' ? 'bg-yellow-500 hover:bg-yellow-600 text-gray-800' : ''}
-                            ${diff === 'hard' ? 'bg-red-600 hover:bg-red-700' : ''}
-                          `}
-              >
-                {diff.toUpperCase()} (Base: {wordsData[diff]?.baseScore || 'N/A'} pts)
-              </button>
-            ))}
-          </div>
-        </div>
+        <CharadesDifficultySelection
+          actorName={actor.name}
+          onDifficultySelect={handleDifficultySelect}
+          // wordsData is imported in CharadesDifficultySelection directly
+        />
       )}
 
       {gamePhase === 'word_assignment' && actor && (
-        <div className="text-center my-6 p-6 bg-gray-700 rounded-lg shadow-lg">
-          {console.log("CharadesGame: Rendering word_assignment UI for actor:", actor.name, "Mode:", gameConfig.gameMode, "Selected Item:", JSON.stringify(itemSelector.selectedItem))}
-          {gameConfig.gameMode === 'system_word' && itemSelector.currentCategory && ( 
-            <p className="text-xl text-gray-200 mb-4">{actor.name}, get ready for a <span className="font-bold text-yellow-300">{itemSelector.currentCategory.toUpperCase()}</span> challenge!</p>
-          )}
-          {gameConfig.gameMode === 'own_word' && (
-             <p className="text-xl text-gray-200 mb-4">{actor.name}, time to think of a word/phrase!</p>
-          )}
-
-          {gameConfig.gameMode === 'system_word' && itemSelector.selectedItem?.rawItem && !isWordVisible && ( 
-            <>
-              <p className="text-gray-300 mb-4">A word/phrase has been chosen for you.</p>
-              <button onClick={handleShowWord} className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg text-lg">
-                Show Word/Phrase (Actor Only!)
-              </button>
-            </>
-          )}
-          {gameConfig.gameMode === 'system_word' && !itemSelector.selectedItem && itemSelector.currentCategory && ( 
-             <p className="text-red-400 mb-4">Error: No words available for {itemSelector.currentCategory}. Please try another difficulty or check data.</p>
-          )}
-           {gameConfig.gameMode === 'system_word' && !itemSelector.currentCategory && ( 
-             <p className="text-yellow-400 mb-4">Awaiting word assignment... this usually means itemSelector is still processing or category was not set properly.</p>
-          )}
-          {gameConfig.gameMode === 'own_word' && (
-            <>
-              <p className="text-gray-300 mb-4">Please think of a word or phrase to act out.</p>
-              <button onClick={handleActorReadyWithOwnWord} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg text-lg">
-                I Have My Word/Phrase!
-              </button>
-            </>
-          )}
-        </div>
+        <CharadesWordAssignment
+          actorName={actor.name}
+          gameMode={gameConfig.gameMode}
+          currentCategory={itemSelector.currentCategory}
+          selectedItem={itemSelector.selectedItem}
+          isWordVisible={isWordVisible}
+          onShowWord={handleShowWord}
+          onActorReadyWithOwnWord={handleActorReadyWithOwnWord}
+        />
       )}
       
       {gamePhase === 'ready_to_act' && actor && (
-        <div className="text-center my-6 p-6 bg-gray-700 rounded-lg shadow-lg">
-          {console.log("CharadesGame: Rendering ready_to_act UI for actor:", actor.name, "Mode:", gameConfig.gameMode, "WordVisible:", isWordVisible, "Item:", JSON.stringify(itemSelector.selectedItem))}
-          {gameConfig.gameMode === 'system_word' && isWordVisible && itemSelector.selectedItem?.rawItem && itemSelector.currentCategory && ( 
-            <div className="mb-6">
-              <p className="text-gray-300 mb-1">Your word/phrase ({itemSelector.currentCategory.toUpperCase()}):</p>
-              <p className="text-3xl font-bold text-yellow-400 bg-gray-700 p-3 rounded-md">{itemSelector.selectedItem.rawItem}</p>
-            </div>
-          )}
-           {gameConfig.gameMode === 'own_word' && (
-            <p className="text-xl text-gray-200 mb-6">{actor.name}, get ready to act out your chosen word/phrase!</p>
-           )}
-          <button onClick={handleStartActing} className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-6 rounded-lg text-xl">
-            Start Acting!
-          </button>
-        </div>
+        <CharadesReadyToAct
+          actorName={actor.name}
+          gameMode={gameConfig.gameMode}
+          isWordVisible={isWordVisible}
+          selectedItem={itemSelector.selectedItem}
+          currentCategory={itemSelector.currentCategory}
+          onStartActing={handleStartActing}
+        />
       )}
 
       {gamePhase === 'acting_in_progress' && actor && (
-        <div className="text-center my-6 p-6 bg-gray-700 rounded-lg shadow-lg">
-          {console.log("CharadesGame: Rendering acting_in_progress UI. Actor:", actor.name, "Timer:", gameTimer.formattedTime)}
-          <p className="text-2xl text-yellow-400 mb-2 animate-pulse">ACTING!</p>
-          {gameConfig.gameMode === 'system_word' && itemSelector.selectedItem?.rawItem && ( 
-             <p className="text-sm text-gray-500 mb-1">(Word: {isWordVisible ? itemSelector.selectedItem.rawItem : "Hidden from guessers"})</p>
-          )}
-          {gameConfig.gameMode === 'system_word' && itemSelector.currentCategory && (
-            <p className="text-sm text-gray-400 mb-2">Difficulty: {itemSelector.currentCategory.toUpperCase()} | Base Score: {itemSelector.selectedItem?.baseScore || 'N/A'} pts</p>
-          )}
-          {gameConfig.gameMode === 'own_word' && itemSelector.selectedItem?.isPlayerChoice && (
-             <p className="text-sm text-gray-400 mb-2">Player's Choice | Base Score for timing: {itemSelector.selectedItem?.baseScore || OWN_WORD_BASE_SCORE} pts</p>
-          )}
-          <GameTimerDisplay formattedTime={gameTimer.formattedTime} />
-          <p className="text-sm text-gray-400 mb-6">Max Time: {formatTime(actingTime)}</p>
-          <button onClick={handleWordGuessed} className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg text-lg">
-            Word Guessed!
-          </button>
-        </div>
+        <CharadesActing
+          gameMode={gameConfig.gameMode}
+          isWordVisible={isWordVisible}
+          selectedItem={itemSelector.selectedItem}
+          currentCategory={itemSelector.currentCategory}
+          ownWordBaseScore={OWN_WORD_BASE_SCORE}
+          formattedTimerTime={gameTimer.formattedTime}
+          actingTime={actingTime}
+          onWordGuessed={handleWordGuessed}
+          // formatTime is imported in CharadesActing directly
+        />
       )}
 
       {gamePhase === 'round_over' && actor && (
-        <div className="text-center my-6 p-8 bg-gray-700 rounded-lg shadow-lg">
-          {console.log("CharadesGame: Rendering round_over UI. Actor:", actor.name, "TotalTurnsCompleted:", totalTurnsCompleted, "MaxTurns:", players.length * numRounds)}
-          <p className="text-2xl text-gray-200 mb-4">
-            Round over for <span className="font-bold text-blue-400">{actor.name}</span>!
-          </p>
-          <button onClick={handleNextRound} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-lg text-xl mb-4">
-            {totalTurnsCompleted >= players.length * numRounds ? 'Show Final Scores' : 'Next Round'}
-          </button>
-          {console.log("CharadesGame: Rendering ROUND OVER Leaderboard. playerScores:", JSON.stringify(playerScores))}
-          <Leaderboard
-            title="Current Scores"
-            players={players}
-            playerScores={playerScores}
-            primarySortField="totalScore"
-            secondarySortField="roundsPlayed"
-            secondarySortOrder="asc"
-            displayFormatter={charadesLeaderboardFormatter}
-          />
-        </div>
+        <CharadesRoundOver
+          actorName={actor.name}
+          totalTurnsCompleted={totalTurnsCompleted}
+          maxTurns={players.length * numRounds}
+          onNextRound={handleNextRound}
+          players={players}
+          playerScores={playerScores}
+          leaderboardFormatter={charadesLeaderboardFormatter}
+        />
       )}
       
       {(gamePhase !== 'game_over' && gamePhase !== 'round_over' && gamePhase !== 'loading' && gamePhase !== 'actor_selection_roulette' && gamePhase !== 'difficulty_selection' && players.length > 0) && (

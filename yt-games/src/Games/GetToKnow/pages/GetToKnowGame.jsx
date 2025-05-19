@@ -2,7 +2,12 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import questionsData from '../data/questions.json'; // Direct import for simplicity
-import GameProgressDisplay from '../../Utils/utils_gameplay/GameProgressDisplay';
+// Import new components
+import GetToKnowHeader from '../components/GetToKnowHeader';
+import GetToKnowLoading from '../components/GetToKnowLoading';
+import GetToKnowPlayerTurn from '../components/GetToKnowPlayerTurn';
+import GetToKnowQuestionDisplay from '../components/GetToKnowQuestionDisplay';
+import GetToKnowGameOver from '../components/GetToKnowGameOver';
 
 function GetToKnowGame() {
   const location = useLocation();
@@ -171,96 +176,41 @@ function GetToKnowGame() {
 
   const renderGameContent = () => {
     if (gamePhase === 'loading') {
-      return <p className="text-center text-xl">Loading game...</p>;
+      return <GetToKnowLoading />;
     }
     
-    // revealedCount, currentProgTurn, totalProgTurns moved outside this function
-    // to be in scope for the main return statement's GameProgressDisplay
-
     if (gamePhase === 'player_turn') {
       const player = getCurrentPlayer();
-      if (!player) return <p className="text-center text-xl">Setting up player turn...</p>;
-    
-      const gridCols = gameQuestions.length <= 2 ? gameQuestions.length : (gameQuestions.length === 4 ? 2 : 3);
-      const smGridCols = gameQuestions.length <= 3 ? gameQuestions.length : (gameQuestions.length <= 6 ? 3 : (gameQuestions.length <=8 ? 4 : 5));
-
-
       return (
-        <div className="text-center p-4 md:p-6 bg-gray-700 rounded-lg shadow-xl">
-          <p className="text-2xl text-gray-200 mb-2">
-            <span className="font-bold text-yellow-400">{player.name}</span>, it's your turn!
-          </p>
-          <p className="text-lg text-gray-300 mb-6">Pick a question card:</p>
-          <div className={`grid gap-3 sm:gap-4 grid-cols-${gridCols} sm:grid-cols-${smGridCols} max-w-xl mx-auto`}>
-            {gameQuestions.map((q, index) => (
-              <button
-                key={q.id}
-                onClick={() => handleCardClick(q.id)}
-                disabled={q.revealed}
-                className={`p-4 aspect-[3/2] sm:aspect-square flex items-center justify-center rounded-lg text-white font-semibold text-lg sm:text-xl transition-all duration-200 ease-in-out transform focus:outline-none focus:ring-2 focus:ring-opacity-75
-                            ${q.revealed
-                              ? 'bg-gray-500 text-gray-400 cursor-not-allowed opacity-60'
-                              : 'bg-indigo-500 hover:bg-indigo-600 hover:scale-105 focus:ring-indigo-400'}`}
-              >
-                {q.revealed ? 'Answered' : `Card ${index + 1}`}
-              </button>
-            ))}
-          </div>
-          {gameQuestions.length === 0 && <p className="text-gray-400 mt-4">No questions loaded.</p>}
-          {(gameQuestions.length > 0 && gameQuestions.every(q => q.revealed)) && (
-               <p className="mt-6 text-green-400 font-semibold">All questions answered! You can finish the game.</p>
-          )}
-          <button
-            onClick={handleFinishGame}
-            className="mt-8 px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-lg text-lg transition duration-200"
-          >
-            End Game
-          </button>
-        </div>
+        <GetToKnowPlayerTurn
+          player={player}
+          gameQuestions={gameQuestions}
+          onCardClick={handleCardClick}
+          onFinishGame={handleFinishGame}
+        />
       );
     }
 
     if (gamePhase === 'question_display' && currentQuestion) {
       const player = getCurrentPlayer();
       return (
-        <div className="text-center p-6 bg-gray-700 rounded-lg shadow-xl">
-          <p className="text-xl text-gray-300 mb-3">
-            For <span className="font-semibold text-yellow-400">{player?.name || 'Player'}</span>:
-          </p>
-          <div className="text-2xl md:text-3xl text-white my-6 p-6 border-2 border-gray-600 rounded-lg bg-gray-800 min-h-[120px] flex items-center justify-center shadow-inner">
-            {currentQuestion}
-          </div>
-          <button
-            onClick={handleNextOrEndTurn}
-            className="px-8 py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-lg text-lg transition duration-200"
-          >
-            {gameQuestions.every(q => q.revealed) ? 'Show Results' : 'Done - Next Player'}
-          </button>
-        </div>
+        <GetToKnowQuestionDisplay
+          player={player}
+          currentQuestion={currentQuestion}
+          gameQuestions={gameQuestions}
+          onNextOrEndTurn={handleNextOrEndTurn}
+        />
       );
     }
 
     if (gamePhase === 'game_ended') {
       return (
-        <div className="text-center p-6 bg-gray-700 rounded-lg shadow-xl">
-          <h2 className="text-3xl font-bold text-yellow-400 mb-6">Game Over!</h2>
-          {gameQuestions.length === 0 && gameConfig && <p className="text-red-400 mb-4">No questions were available to play for the selected category: {gameConfig.selectedCategory}.</p>}
-          <p className="text-gray-200 mb-6">Thanks for playing Get to Know!</p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <button
-              onClick={() => navigate('/get-to-know/setup')}
-              className="px-6 py-3 bg-primary hover:bg-primary-dark text-white font-semibold rounded-lg text-lg transition duration-200"
-            >
-              Play Again
-            </button>
-            <button
-              onClick={() => navigate('/')}
-              className="px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-lg text-lg transition duration-200"
-            >
-              Back to Home
-            </button>
-          </div>
-        </div>
+        <GetToKnowGameOver
+          gameConfig={gameConfig}
+          gameQuestions={gameQuestions}
+          onPlayAgain={() => navigate('/get-to-know/setup')}
+          onGoHome={() => navigate('/')}
+        />
       );
     }
     return null; // Default case or unrecognized phase
@@ -286,20 +236,13 @@ function GetToKnowGame() {
 
   return (
     <div className="max-w-2xl mx-auto py-8 px-4">
-      {gameConfig && (
-        <div className="mb-6 p-3 bg-gray-800 rounded-lg shadow text-center">
-          <h1 className="text-2xl font-bold text-primary-light">Get to Know</h1>
-          <p className="text-gray-300">Category: <span className="font-semibold">{gameConfig.selectedCategory}</span> | Questions: {gameConfig.numberOfQuestions} | Order: {gameConfig.playerSelectionOrder}</p>
-          {gamePhase !== 'loading' && gamePhase !== 'game_ended' && gameQuestions.length > 0 && totalProgTurns > 0 && (
-            <GameProgressDisplay
-              currentTurn={currentProgTurn}
-              totalTurns={totalProgTurns}
-              turnLabel="Card"
-              className="text-sm text-center text-gray-300 mt-2"
-            />
-          )}
-        </div>
-      )}
+      <GetToKnowHeader
+        gameConfig={gameConfig}
+        gamePhase={gamePhase}
+        gameQuestions={gameQuestions}
+        currentProgTurn={currentProgTurn}
+        totalProgTurns={totalProgTurns}
+      />
       {renderGameContent()}
     </div>
   );

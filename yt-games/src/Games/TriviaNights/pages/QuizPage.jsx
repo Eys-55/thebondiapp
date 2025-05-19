@@ -3,10 +3,17 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import concepts from '../data/concepts.json';
 import { generateQuestions as generateQuestionsForGame } from '../services/questionGenerator';
-import Leaderboard from '../../Utils/utils_gameplay/Leaderboard'; // Import Leaderboard
-import CheckIcon from '../../Utils/icons/CheckIcon';
-import TimerIcon from '../../Utils/icons/TimerIcon';
-import GameProgressDisplay from '../../Utils/utils_gameplay/GameProgressDisplay';
+
+// Import new UI components
+import TriviaHeader from '../components/TriviaHeader';
+import TriviaQuestionArea from '../components/TriviaQuestionArea';
+import TriviaOptions from '../components/TriviaOptions';
+import TriviaAnswerReveal from '../components/TriviaAnswerReveal';
+import TriviaPlayerGrid from '../components/TriviaPlayerGrid';
+import TriviaActionButtons from '../components/TriviaActionButtons';
+import TriviaLoading from '../components/TriviaLoading';
+import TriviaErrorState from '../components/TriviaErrorState';
+import TriviaGameOver from '../components/TriviaGameOver';
 
 function QuizPage() {
   const navigate = useNavigate();
@@ -20,8 +27,8 @@ function QuizPage() {
   const [timeLeft, setTimeLeft] = useState(0);
   const [gamePhase, setGamePhase] = useState('loading'); // 'loading', 'answering', 'answer_revealed', 'finished'
   
-  const [pendingAwardedPlayerIds, setPendingAwardedPlayerIds] = useState([]); // IDs of players selected, not yet confirmed
-  const [awardedPlayerIdsThisRound, setAwardedPlayerIdsThisRound] = useState([]); // IDs of players confirmed for points this round
+  const [pendingAwardedPlayerIds, setPendingAwardedPlayerIds] = useState([]);
+  const [awardedPlayerIdsThisRound, setAwardedPlayerIdsThisRound] = useState([]);
 
   const timerRef = useRef(null);
   const isMountedRef = useRef(true);
@@ -37,7 +44,7 @@ function QuizPage() {
     isMountedRef.current = true;
     if (!initialGameConfig || !initialPlayersSetup || initialPlayersSetup.length === 0) {
       toast.error("Game configuration or player data missing. Returning to selection.");
-      setGamePhase('finished');
+      setGamePhase('finished'); // This will trigger the error state render
       return;
     }
     const fullGameConfig = { scoringMode: 'fastest', ...initialGameConfig };
@@ -48,7 +55,7 @@ function QuizPage() {
       const generatedQuestions = generateQuestionsForGame(fullGameConfig, concepts);
       if (generatedQuestions.length === 0) {
         toast.error("No questions could be generated. Please try different options.");
-        setGamePhase('finished');
+        setGamePhase('finished'); // This will trigger the error state render
         return;
       }
       setQuestions(generatedQuestions);
@@ -57,14 +64,14 @@ function QuizPage() {
     } catch (e) {
       console.error("Error generating questions:", e);
       toast.error(`Error setting up game: ${e.message}`);
-      setGamePhase('finished');
+      setGamePhase('finished'); // This will trigger the error state render
     }
     
     return () => {
       isMountedRef.current = false;
       clearInterval(timerRef.current);
     };
-  }, [initialGameConfig, initialPlayersSetup, navigate]);
+  }, [initialGameConfig, initialPlayersSetup]); // navigate removed as it's stable
 
   useEffect(() => {
     clearInterval(timerRef.current);
@@ -92,20 +99,18 @@ function QuizPage() {
     if (gamePhase !== 'answering' && gamePhase !== 'answer_revealed') return;
     if (awardedPlayerIdsThisRound.includes(selectedPlayerId)) {
         toast.info("Points already confirmed for this player.");
-        return; // Cannot change selection if points already confirmed for this player
+        return;
     }
 
     setPendingAwardedPlayerIds(prevPending => {
         if (gameConfig.scoringMode === 'fastest') {
-            if (prevPending.includes(selectedPlayerId)) {
-                return []; // Deselect if already pending
-            }
-            return [selectedPlayerId]; // Select, replacing any other pending
+            if (prevPending.includes(selectedPlayerId)) return [];
+            return [selectedPlayerId];
         } else { // 'multiple' mode
             if (prevPending.includes(selectedPlayerId)) {
-                return prevPending.filter(id => id !== selectedPlayerId); // Deselect
+                return prevPending.filter(id => id !== selectedPlayerId);
             }
-            return [...prevPending, selectedPlayerId]; // Select
+            return [...prevPending, selectedPlayerId];
         }
     });
   };
@@ -122,26 +127,26 @@ function QuizPage() {
         setTimeLeft(0);
     }
 
-    let newPointsAwarded = 0;
+    let newPointsAwardedCount = 0;
     const playerNamesAwarded = [];
 
     const updatedPlayers = players.map(player => {
         if (pendingAwardedPlayerIds.includes(player.id) && !awardedPlayerIdsThisRound.includes(player.id)) {
-            newPointsAwarded++;
+            newPointsAwardedCount++;
             playerNamesAwarded.push(player.name);
             return { ...player, score: player.score + 10 };
         }
         return player;
     });
 
-    if (newPointsAwarded > 0) {
+    if (newPointsAwardedCount > 0) {
         setPlayers(updatedPlayers);
         setAwardedPlayerIdsThisRound(prevConfirmed => [...new Set([...prevConfirmed, ...pendingAwardedPlayerIds])]);
         toast.success(`${playerNamesAwarded.join(', ')} awarded 10 points!`);
     } else {
         toast.info("Selected players already had points confirmed or no new selections.");
     }
-    setPendingAwardedPlayerIds([]); // Clear pending selections after confirmation
+    setPendingAwardedPlayerIds([]);
   };
   
   const handleShowAnswer = () => {
@@ -186,141 +191,62 @@ function QuizPage() {
     return q.question;
   };
 
-  if (gamePhase === 'loading') return <div className="flex items-center justify-center h-64 text-xl text-textSecondary">Setting up your multiplayer game...</div>;
+  if (gamePhase === 'loading') return <TriviaLoading />;
   
-  if ((!initialGameConfig || !initialPlayersSetup || initialPlayersSetup.length === 0 || (questions.length === 0 && gamePhase !== 'loading')) && gamePhase === 'finished') {
-     return (
-       <div className="max-w-lg mx-auto p-8 bg-gray-800 rounded-lg shadow-xl text-center border border-danger">
-         <h2 className="text-2xl font-bold mb-4 text-danger-light">Game Setup Error</h2>
-         <p className="text-lg mb-6 text-textPrimary">There was an issue setting up the game. Please return to the setup page and try again.</p>
-         <button onClick={() => navigate('/trivia-nights/setup')} className="bg-primary hover:bg-primary-dark text-white font-semibold py-2 px-6 rounded">Back to Setup</button>
-       </div>
-     );
+  // Condition for error state or game over before questions are even loaded
+  if (gamePhase === 'finished' && (!initialGameConfig || !initialPlayersSetup || initialPlayersSetup.length === 0 || questions.length === 0)) {
+     return <TriviaErrorState onGoToSetup={() => navigate('/trivia-nights/setup')} />;
   }
   
   if (gamePhase === 'finished') {
-    // Prepare playerScores for the Leaderboard component
-    const playerScoresForLeaderboard = players.reduce((acc, player) => {
-      acc[player.id] = { score: player.score, name: player.name }; // Leaderboard expects score data under player.id
-      return acc;
-    }, {});
-
-    const triviaLeaderboardFormatter = (player, scoreData, rank) => (
-      <li key={player.id} className={`flex justify-between items-center px-4 py-2 rounded border ${ rank === 1 ? 'bg-success-dark border-success-light ring-2 ring-success-light shadow-lg' : 'bg-gray-700 border-gray-600' }`}>
-        <span className={`font-medium ${rank === 1 ? 'text-white' : 'text-textPrimary'}`}>{rank}. {player.name} {rank === 1 ? '🏆' : ''}</span>
-        <span className={`${rank === 1 ? 'text-white' : 'text-textPrimary'} font-medium`}>Score: {scoreData.score}</span>
-      </li>
-    );
-
-    return (
-      <div className="max-w-lg mx-auto p-8 bg-gray-800 rounded-lg shadow-xl text-center">
-        <h2 className="text-4xl font-bold mb-4 text-warning-light">🏁 Game Over! 🏁</h2>
-        <Leaderboard
-          title="Final Scores"
-          players={players} // The players array already contains names and IDs
-          playerScores={playerScoresForLeaderboard}
-          primarySortField="score"
-          displayFormatter={triviaLeaderboardFormatter}
-        />
-        <button onClick={() => navigate('/trivia-nights/setup')} className="mt-8 bg-primary hover:bg-primary-dark text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-200 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50 shadow-lg"> Play Again? </button>
-      </div>
-    );
+    return <TriviaGameOver players={players} onPlayAgain={() => navigate('/trivia-nights/setup')} />;
   }
 
-  if (!currentQuestion || !gameConfig) return <div className="flex items-center justify-center h-64 text-xl text-textSecondary">Loading question or game configuration...</div>;
+  if (!currentQuestion || !gameConfig) return <TriviaLoading message="Loading question or game configuration..." />;
 
   return (
     <div className="max-w-4xl mx-auto p-5 md:p-8 bg-gray-800 rounded-lg shadow-xl flex flex-col min-h-[calc(100vh-120px)]">
-      <div className="mb-1 px-2 pb-2 border-b border-gray-700 flex-shrink-0">
-        <div className="flex justify-between items-center">
-          <h2 className="text-xl md:text-2xl font-bold text-primary-light">Trivia Quiz</h2>
-          <div className={`text-lg md:text-xl font-semibold ${gamePhase === 'answering' && timeLeft > 0 ? 'text-warning-light' : 'text-gray-500'}`}>
-              <TimerIcon className="inline-block mr-1"/> {timeLeft > 0 ? `${timeLeft}s` : (gamePhase === 'answer_revealed' ? 'Revealed' : "Time's Up")}
-          </div>
-        </div>
-        {questions.length > 0 && gamePhase !== 'loading' && gamePhase !== 'finished' && (
-          <GameProgressDisplay
-            currentTurn={currentQuestionIndex + 1}
-            totalTurns={questions.length}
-            turnLabel="Question"
-            className="text-sm text-center text-gray-400 mt-1"
-          />
-        )}
-      </div>
+      <TriviaHeader
+        timeLeft={timeLeft}
+        gamePhase={gamePhase}
+        currentQuestionIndex={currentQuestionIndex}
+        totalQuestions={questions.length}
+      />
       
-      <div key={`question-area-${currentQuestionIndex}`} className="flex-grow flex flex-col justify-center items-center text-center bg-gray-700 p-6 rounded my-4 shadow">
-        <p className="text-xl md:text-2xl font-medium text-textPrimary">{renderQuestionText(currentQuestion)}</p>
-      </div>
+      <TriviaQuestionArea questionText={renderQuestionText(currentQuestion)} />
 
-      {gameConfig.includeChoices && currentQuestion.options && currentQuestion.options.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-          {currentQuestion.options.map((option, index) => (
-            <div key={index} className={`p-3 rounded-lg text-left text-md border-2 ${gamePhase === 'answer_revealed' ? (option === currentQuestion.correctAnswer ? 'bg-success-dark border-success text-white' : 'bg-gray-600 border-gray-500 text-gray-300') : 'bg-gray-600 border-gray-500 text-textPrimary'}`}>
-              {option}
-              {gamePhase === 'answer_revealed' && option === currentQuestion.correctAnswer && <CheckIcon className="h-5 w-5 float-right text-white" />}
-            </div>
-          ))}
-        </div>
+      {gameConfig.includeChoices && (
+        <TriviaOptions
+          options={currentQuestion.options}
+          correctAnswer={currentQuestion.correctAnswer}
+          gamePhase={gamePhase}
+        />
       )}
 
       {gamePhase === 'answer_revealed' && (
-        <div className={`mb-4 p-3 rounded text-center bg-info-dark border border-info`}>
-            <p className="font-semibold text-lg text-white">The correct answer is: <span className="font-bold">{currentQuestion.correctAnswer}</span></p>
-            {awardedPlayerIdsThisRound.length > 0 && <p className="text-sm text-success-light mt-1">{players.filter(p => awardedPlayerIdsThisRound.includes(p.id)).map(p => p.name).join(', ')} scored this round!</p>}
-        </div>
+        <TriviaAnswerReveal
+          correctAnswer={currentQuestion.correctAnswer}
+          awardedPlayers={awardedPlayerIdsThisRound}
+          allPlayers={players}
+        />
       )}
       
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 mb-4">
-          {players.map(p => {
-              const isConfirmedAward = awardedPlayerIdsThisRound.includes(p.id);
-              const isPendingAward = pendingAwardedPlayerIds.includes(p.id) && !isConfirmedAward;
-              
-              let buttonClass = 'bg-gray-600 hover:bg-gray-500 border-gray-500 hover:border-gray-400 cursor-pointer'; // Default
-              if (isConfirmedAward) {
-                buttonClass = '!bg-success border-success-light ring-2 ring-white cursor-not-allowed';
-              } else if (isPendingAward) {
-                buttonClass = 'bg-yellow-600 hover:bg-yellow-500 border-yellow-400 ring-2 ring-yellow-200 cursor-pointer';
-              }
+      <TriviaPlayerGrid
+        players={players}
+        awardedPlayerIdsThisRound={awardedPlayerIdsThisRound}
+        pendingAwardedPlayerIds={pendingAwardedPlayerIds}
+        onPlayerSelect={handlePlayerSelectionToggle}
+        gamePhase={gamePhase}
+      />
 
-              return (
-                <button
-                    key={p.id}
-                    onClick={() => handlePlayerSelectionToggle(p.id)}
-                    disabled={isConfirmedAward || (gamePhase !== 'answering' && gamePhase !== 'answer_revealed')}
-                    className={`p-3 rounded-lg text-center transition duration-200 ease-in-out border-2 ${buttonClass}`}
-                >
-                    <p className="text-md font-semibold truncate text-white">{p.name}</p>
-                    <p className="text-xl font-bold text-success-light">{p.score}</p>
-                </button>
-              );
-          })}
-      </div>
-
-      <div className="flex-shrink-0 flex flex-col sm:flex-row gap-3 mt-auto">
-          {gamePhase === 'answering' && (
-              <button
-                  onClick={handleShowAnswer}
-                  className="flex-1 bg-info hover:bg-info-dark text-white font-bold py-3 px-6 rounded-lg text-lg"
-              >
-                  Show Answer
-              </button>
-          )}
-          {(gamePhase === 'answering' || gamePhase === 'answer_revealed') && pendingAwardedPlayerIds.length > 0 && (
-              <button
-                  onClick={handleConfirmAwards}
-                  className="flex-1 bg-success hover:bg-success-dark text-white font-bold py-3 px-6 rounded-lg text-lg"
-              >
-                  Confirm Awards ({pendingAwardedPlayerIds.length})
-              </button>
-          )}
-          <button
-              onClick={handleNextQuestion}
-              className={`flex-1 bg-primary hover:bg-primary-dark text-white font-bold py-3 px-6 rounded-lg text-lg ${(gamePhase === 'loading' || gamePhase === 'finished') ? 'opacity-50 cursor-not-allowed' : ''}`}
-              disabled={gamePhase === 'loading' || gamePhase === 'finished'}
-          >
-              {gamePhase === 'answering' && awardedPlayerIdsThisRound.length === 0 && pendingAwardedPlayerIds.length === 0 ? 'Skip Question' : 'Next Question'}
-          </button>
-      </div>
+      <TriviaActionButtons
+        gamePhase={gamePhase}
+        pendingAwardedPlayerIdsCount={pendingAwardedPlayerIds.length}
+        awardedPlayerIdsThisRoundCount={awardedPlayerIdsThisRound.length}
+        onShowAnswer={handleShowAnswer}
+        onConfirmAwards={handleConfirmAwards}
+        onNextQuestion={handleNextQuestion}
+      />
     </div>
   );
 }
