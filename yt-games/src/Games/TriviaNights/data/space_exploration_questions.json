@@ -1,0 +1,142 @@
+[
+  {
+    "id": "space_exploration-01",
+    "category": "space_exploration",
+    "subject": "Who was the first human to travel into space?",
+    "correctAnswer": "Yuri Gagarin",
+    "tags": ["astronaut", "cosmonaut", "soviet union", "first"]
+  },
+  {
+    "id": "space_exploration-02",
+    "category": "space_exploration",
+    "subject": "What was the name of the NASA mission that first landed humans on the Moon?",
+    "correctAnswer": "Apollo 11",
+    "tags": ["nasa", "moon landing", "apollo program", "usa"]
+  },
+  {
+    "id": "space_exploration-03",
+    "category": "space_exploration",
+    "subject": "Who was the first person to walk on the Moon?",
+    "correctAnswer": "Neil Armstrong",
+    "tags": ["astronaut", "moon landing", "apollo 11", "nasa"]
+  },
+  {
+    "id": "space_exploration-04",
+    "category": "space_exploration",
+    "subject": "What is the name of the space telescope launched in 1990, known for its stunning images of the universe?",
+    "correctAnswer": "Hubble Space Telescope",
+    "tags": ["telescope", "nasa", "esa", "astronomy"]
+  },
+  {
+    "id": "space_exploration-05",
+    "category": "space_exploration",
+    "subject": "Which planet is known as the 'Red Planet' and has been a major target for robotic exploration missions?",
+    "correctAnswer": "Mars",
+    "tags": ["planet", "solar system", "exploration", "nasa"]
+  },
+  {
+    "id": "space_exploration-06",
+    "category": "space_exploration",
+    "subject": "What was the name of the first artificial satellite launched into Earth orbit, by the Soviet Union in 1957?",
+    "correctAnswer": "Sputnik 1",
+    "tags": ["satellite", "soviet union", "space race", "first"]
+  },
+  {
+    "id": "space_exploration-07",
+    "category": "space_exploration",
+    "subject": "The International Space Station (ISS) is a collaborative project involving how many primary space agencies (e.g., NASA, Roscosmos, JAXA, ESA, CSA)?",
+    "correctAnswer": "Five (5)",
+    "tags": ["iss", "collaboration", "orbit", "research"]
+  },
+  {
+    "id": "space_exploration-08",
+    "category": "space_exploration",
+    "subject": "What is the name of the private aerospace manufacturer founded by Elon Musk, known for its reusable rockets?",
+    "correctAnswer": "SpaceX",
+    "tags": ["private spaceflight", "elon musk", "rockets", "innovation"]
+  },
+  {
+    "id": "space_exploration-09",
+    "category": "space_exploration",
+    "subject": "Which spacecraft were the first to visit Jupiter and Saturn, respectively, providing the first close-up images of these gas giants?",
+    "correctAnswer": "Pioneer 10 (Jupiter) and Pioneer 11 (Saturn)",
+    "tags": ["nasa", "probes", "jupiter", "saturn", "flyby"]
+  },
+  {
+    "id": "space_exploration-10",
+    "category": "space_exploration",
+    "subject": "What does 'NASA' stand for?",
+    "correctAnswer": "National Aeronautics and Space Administration",
+    "tags": ["acronym", "usa", "space agency"]
+  },
+  {
+    "id": "space_exploration-11",
+    "category": "space_exploration",
+    "subject": "Which celestial body is the primary target of NASA's Artemis program?",
+    "correctAnswer": "The Moon",
+    "tags": ["nasa", "artemis program", "moon", "future mission"]
+  },
+  {
+    "id": "space_exploration-12",
+    "category": "space_exploration",
+    "subject": "What was the name of the first animal to orbit the Earth?",
+    "correctAnswer": "Laika (a dog)",
+    "tags": ["animal in space", "soviet union", "sputnik 2", "first"]
+  },
+  {
+    "id": "space_exploration-13",
+    "category": "space_exploration",
+    "subject": "The Voyager 1 and Voyager 2 probes carry what kind of record, intended as a message to extraterrestrial life?",
+    "correctAnswer": "Golden Record (Phonograph record)",
+    "tags": ["nasa", "probes", "interstellar", "communication", "artifact"]
+  },
+  {
+    "id": "space_exploration-14",
+    "category": "space_exploration",
+    "subject": "What is the term for a region of spacetime where gravity is so strong that nothing, not even light, can escape?",
+    "correctAnswer": "Black Hole",
+    "tags": ["astrophysics", "gravity", "phenomenon"]
+  },
+  {
+    "id": "space_exploration-15",
+    "category": "space_exploration",
+    "subject": "Which NASA Mars rover, launched in 2020, is searching for signs of ancient microbial life?",
+    "correctAnswer": "Perseverance",
+    "tags": ["nasa", "mars rover", "astrobiology", "robotic"]
+  },
+  {
+    "id": "space_exploration-16",
+    "category": "space_exploration",
+    "subject": "The 'Space Race' was a 20th-century competition between which two Cold War rivals?",
+    "correctAnswer": "United States and Soviet Union",
+    "tags": ["history", "cold war", "competition", "technology"]
+  },
+  {
+    "id": "space_exploration-17",
+    "category": "space_exploration",
+    "subject": "What is the name of Saturn's largest moon, which has a thick atmosphere and liquid methane lakes?",
+    "correctAnswer": "Titan",
+    "tags": ["moon", "saturn", "atmosphere", "exploration target"]
+  },
+  {
+    "id": "space_exploration-18",
+    "category": "space_exploration",
+    "subject": "The James Webb Space Telescope, successor to Hubble, primarily observes the universe in what type of light?",
+    "correctAnswer": "Infrared",
+    "tags": ["telescope", "nasa", "infrared", "astronomy", "jwst"]
+  },
+  {
+    "id": "space_exploration-19",
+    "category": "space_exploration",
+    "subject": "What is the term for a small, rocky body orbiting the Sun, mostly found in a belt between Mars and Jupiter?",
+    "correctAnswer": "Asteroid",
+    "tags": ["solar system", "celestial body", "rock"]
+  },
+  {
+    "id": "space_exploration-20",
+    "category": "space_exploration",
+    "subject": "Which space shuttle tragically broke apart 73 seconds after liftoff in 1986?",
+    "correctAnswer": "Challenger",
+    "tags": ["nasa", "space shuttle", "disaster", "history"]
+  }
+]

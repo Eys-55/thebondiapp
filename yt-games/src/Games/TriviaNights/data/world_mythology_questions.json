@@ -1,0 +1,142 @@
+[
+  {
+    "id": "world_mythology-01",
+    "category": "world_mythology",
+    "subject": "In Greek mythology, who is the king of the gods?",
+    "correctAnswer": "Zeus",
+    "tags": ["greek", "gods", "pantheon"]
+  },
+  {
+    "id": "world_mythology-02",
+    "category": "world_mythology",
+    "subject": "In Norse mythology, what is the name of Odin's eight-legged horse?",
+    "correctAnswer": "Sleipnir",
+    "tags": ["norse", "odin", "animal", "mythical creature"]
+  },
+  {
+    "id": "world_mythology-03",
+    "category": "world_mythology",
+    "subject": "In Egyptian mythology, who is the god of the afterlife, often depicted with a jackal head?",
+    "correctAnswer": "Anubis",
+    "tags": ["egyptian", "gods", "afterlife"]
+  },
+  {
+    "id": "world_mythology-04",
+    "category": "world_mythology",
+    "subject": "What creature in Greek mythology is half-man and half-bull, and lived in the Labyrinth?",
+    "correctAnswer": "Minotaur",
+    "tags": ["greek", "creature", "labyrinth"]
+  },
+  {
+    "id": "world_mythology-05",
+    "category": "world_mythology",
+    "subject": "In Roman mythology, who is the goddess of love and beauty, equivalent to the Greek Aphrodite?",
+    "correctAnswer": "Venus",
+    "tags": ["roman", "goddess", "love"]
+  },
+  {
+    "id": "world_mythology-06",
+    "category": "world_mythology",
+    "subject": "What is the name of the primordial giant in Norse mythology from whose body the world was created?",
+    "correctAnswer": "Ymir",
+    "tags": ["norse", "creation", "giant"]
+  },
+  {
+    "id": "world_mythology-07",
+    "category": "world_mythology",
+    "subject": "In Japanese mythology, who is the sun goddess from whom the imperial family is said to descend?",
+    "correctAnswer": "Amaterasu",
+    "tags": ["japanese", "shinto", "goddess", "sun"]
+  },
+  {
+    "id": "world_mythology-08",
+    "category": "world_mythology",
+    "subject": "Which hero in Greek mythology slayed Medusa?",
+    "correctAnswer": "Perseus",
+    "tags": ["greek", "hero", "monster"]
+  },
+  {
+    "id": "world_mythology-09",
+    "category": "world_mythology",
+    "subject": "In Hindu mythology, who is the preserver god, part of the Trimurti?",
+    "correctAnswer": "Vishnu",
+    "tags": ["hindu", "gods", "trimurti"]
+  },
+  {
+    "id": "world_mythology-10",
+    "category": "world_mythology",
+    "subject": "What is the name of the underworld in Greek mythology, ruled by Hades?",
+    "correctAnswer": "The Underworld (or Hades)",
+    "tags": ["greek", "afterlife", "realm"]
+  },
+  {
+    "id": "world_mythology-11",
+    "category": "world_mythology",
+    "subject": "In Celtic mythology, who is the Irish god of the sea?",
+    "correctAnswer": "Manannán mac Lir",
+    "tags": ["celtic", "irish", "gods", "sea"]
+  },
+  {
+    "id": "world_mythology-12",
+    "category": "world_mythology",
+    "subject": "Thor, the Norse god of thunder, wields what famous weapon?",
+    "correctAnswer": "Mjolnir",
+    "tags": ["norse", "gods", "weapon", "thunder"]
+  },
+  {
+    "id": "world_mythology-13",
+    "category": "world_mythology",
+    "subject": "In Aztec mythology, who is the feathered serpent god of wisdom and wind?",
+    "correctAnswer": "Quetzalcoatl",
+    "tags": ["aztec", "gods", "mesoamerica"]
+  },
+  {
+    "id": "world_mythology-14",
+    "category": "world_mythology",
+    "subject": "The Phoenix is a mythical bird known for regenerating from what?",
+    "correctAnswer": "Ashes (after dying in flames)",
+    "tags": ["mythical creature", "bird", "rebirth"]
+  },
+  {
+    "id": "world_mythology-15",
+    "category": "world_mythology",
+    "subject": "In Greek mythology, who stole fire from the gods and gave it to humans?",
+    "correctAnswer": "Prometheus",
+    "tags": ["greek", "titan", "fire", "humanity"]
+  },
+  {
+    "id": "world_mythology-16",
+    "category": "world_mythology",
+    "subject": "What is the name of the ferryman who carries souls across the River Styx in Greek mythology?",
+    "correctAnswer": "Charon",
+    "tags": ["greek", "underworld", "death"]
+  },
+  {
+    "id": "world_mythology-17",
+    "category": "world_mythology",
+    "subject": "In Egyptian mythology, Isis is the goddess of magic and motherhood, and wife of whom?",
+    "correctAnswer": "Osiris",
+    "tags": ["egyptian", "goddess", "family"]
+  },
+  {
+    "id": "world_mythology-18",
+    "category": "world_mythology",
+    "subject": "Loki is a prominent trickster god in which mythology?",
+    "correctAnswer": "Norse",
+    "tags": ["norse", "gods", "trickster"]
+  },
+  {
+    "id": "world_mythology-19",
+    "category": "world_mythology",
+    "subject": "The Chimera in Greek mythology was a monstrous fire-breathing hybrid creature, usually depicted as a lion, with the head of a goat arising from its back, and a tail that might end with a ___ head?",
+    "correctAnswer": "Snake (or serpent)",
+    "tags": ["greek", "creature", "monster", "hybrid"]
+  },
+  {
+    "id": "world_mythology-20",
+    "category": "world_mythology",
+    "subject": "In Mesopotamian mythology, who is the hero of an epic poem who searches for immortality?",
+    "correctAnswer": "Gilgamesh",
+    "tags": ["mesopotamian", "epic", "hero", "immortality"]
+  }
+]

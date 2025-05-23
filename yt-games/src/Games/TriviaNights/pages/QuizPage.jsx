@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import concepts from '../data/concepts.json';
+// concepts.json is removed, questions will be loaded dynamically
 import { generateQuestions as generateQuestionsForGame } from '../services/questionGenerator';
 
 // Import new UI components
@@ -47,31 +47,66 @@ function QuizPage() {
       setGamePhase('finished'); // This will trigger the error state render
       return;
     }
-    const fullGameConfig = { scoringMode: 'fastest', ...initialGameConfig };
+    // Ensure scoringRule has a default if not provided by initialGameConfig
+    const fullGameConfig = { scoringRule: 'fastest_finger', ...initialGameConfig };
     setGameConfig(fullGameConfig);
     setPlayers(initialPlayersSetup.map(p => ({...p, score: p.score || 0})));
 
-    try {
-      const generatedQuestions = generateQuestionsForGame(fullGameConfig, concepts);
-      if (generatedQuestions.length === 0) {
-        toast.error("No questions could be generated. Please try different options.");
-        setGamePhase('finished'); // This will trigger the error state render
-        return;
+    const loadQuestionsAndSetupGame = async () => {
+      try {
+        if (!fullGameConfig.selectedCategories || fullGameConfig.selectedCategories.length === 0) {
+          toast.error("No categories selected. Please go back to setup.");
+          setGamePhase('finished');
+          return;
+        }
+
+        const questionPromises = fullGameConfig.selectedCategories.map(categoryID =>
+          import(`../data/${categoryID}_questions.json`)
+            .then(module => module.default)
+            .catch(err => {
+              console.error(`Failed to load questions for category: ${categoryID}`, err);
+              toast.error(`Could not load questions for ${categoryID}.`);
+              return []; // Return empty array for this category if loading fails
+            })
+        );
+        
+        const questionsPerCategoryArray = await Promise.all(questionPromises);
+        const allQuestionsFromSelectedCategories = [].concat(...questionsPerCategoryArray);
+
+        if (allQuestionsFromSelectedCategories.length === 0) {
+          toast.error("No questions found for the selected categories. Please try different options or check category files.");
+          setGamePhase('finished');
+          return;
+        }
+        
+        const generatedQuestions = generateQuestionsForGame(fullGameConfig, allQuestionsFromSelectedCategories);
+        if (generatedQuestions.length === 0) {
+          toast.error("No questions could be generated from the selected pool. Please try different options.");
+          setGamePhase('finished'); // This will trigger the error state render
+          return;
+        }
+
+        if (isMountedRef.current) {
+          setQuestions(generatedQuestions);
+          setTimeLeft(fullGameConfig.timePerQuestion);
+          setGamePhase('answering');
+        }
+      } catch (e) {
+        console.error("Error setting up game or loading questions:", e);
+        toast.error(`Error setting up game: ${e.message}`);
+        if (isMountedRef.current) {
+          setGamePhase('finished'); // This will trigger the error state render
+        }
       }
-      setQuestions(generatedQuestions);
-      setTimeLeft(fullGameConfig.timePerQuestion);
-      setGamePhase('answering');
-    } catch (e) {
-      console.error("Error generating questions:", e);
-      toast.error(`Error setting up game: ${e.message}`);
-      setGamePhase('finished'); // This will trigger the error state render
-    }
+    };
+
+    loadQuestionsAndSetupGame();
     
     return () => {
       isMountedRef.current = false;
       clearInterval(timerRef.current);
     };
-  }, [initialGameConfig, initialPlayersSetup]); // navigate removed as it's stable
+  }, [initialGameConfig, initialPlayersSetup]);
 
   useEffect(() => {
     clearInterval(timerRef.current);
@@ -103,10 +138,10 @@ function QuizPage() {
     }
 
     setPendingAwardedPlayerIds(prevPending => {
-        if (gameConfig.scoringMode === 'fastest') {
+        if (gameConfig.scoringRule === 'fastest_finger') {
             if (prevPending.includes(selectedPlayerId)) return [];
             return [selectedPlayerId];
-        } else { // 'multiple' mode
+        } else { // 'any_correct' mode
             if (prevPending.includes(selectedPlayerId)) {
                 return prevPending.filter(id => id !== selectedPlayerId);
             }
@@ -193,16 +228,23 @@ function QuizPage() {
 
   if (gamePhase === 'loading') return <TriviaLoading />;
   
-  // Condition for error state or game over before questions are even loaded
-  if (gamePhase === 'finished' && (!initialGameConfig || !initialPlayersSetup || initialPlayersSetup.length === 0 || questions.length === 0)) {
+  // Error state if game finished due to setup issues (e.g., no questions loaded)
+  if (gamePhase === 'finished' && questions.length === 0) {
+     // This covers missing initialConfig, players, or failure to load/generate any questions
      return <TriviaErrorState onGoToSetup={() => navigate('/trivia-nights/setup')} />;
   }
   
-  if (gamePhase === 'finished') {
+  // Game over after playing through questions
+  if (gamePhase === 'finished' && questions.length > 0) {
     return <TriviaGameOver players={players} onPlayAgain={() => navigate('/trivia-nights/setup')} />;
   }
 
-  if (!currentQuestion || !gameConfig) return <TriviaLoading message="Loading question or game configuration..." />;
+  // Still loading questions or critical data missing before 'finished' state with no questions
+  if (!currentQuestion || !gameConfig) {
+    // If it's not 'finished' yet, but these are null, show loading.
+    // If it *is* finished and these are null, the above error state should catch it.
+    return <TriviaLoading message="Loading question or game configuration..." />;
+  }
 
   return (
     <div className="max-w-4xl mx-auto p-5 md:p-8 bg-gray-800 rounded-lg shadow-xl flex flex-col min-h-[calc(100vh-120px)]">
@@ -215,7 +257,7 @@ function QuizPage() {
       
       <TriviaQuestionArea questionText={renderQuestionText(currentQuestion)} />
 
-      {gameConfig.includeChoices && (
+      {gameConfig.questionFormat === 'multiple_choice' && (
         <TriviaOptions
           options={currentQuestion.options}
           correctAnswer={currentQuestion.correctAnswer}

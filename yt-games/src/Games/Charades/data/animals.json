@@ -1,0 +1,32 @@
+{
+"easy": {
+"baseScore": 10,
+"words": [
+"Cat",
+"Dog",
+"Bird",
+"Fish",
+"Cow"
+]
+},
+"medium": {
+"baseScore": 25,
+"words": [
+"Elephant",
+"Dolphin",
+"Kangaroo",
+"Giraffe",
+"Penguin"
+]
+},
+"hard": {
+"baseScore": 50,
+"words": [
+"Chimpanzee riding a bicycle",
+"A group of meerkats standing guard",
+"A chameleon trying to blend into a rainbow",
+"A platypus laying an egg",
+"A sloth trying to win a race"
+]
+}
+}

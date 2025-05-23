@@ -1,0 +1,32 @@
+{
+"easy": {
+"baseScore": 10,
+"words": [
+"Run",
+"Walk",
+"Read",
+"Sing",
+"Dance"
+]
+},
+"medium": {
+"baseScore": 25,
+"words": [
+"Swimming",
+"Cooking",
+"Painting",
+"Playing soccer",
+"Writing a letter"
+]
+},
+"hard": {
+"baseScore": 50,
+"words": [
+"Performing a magic trick",
+"Building a sandcastle in a hurricane",
+"Teaching a dog to play chess",
+"Escaping from a locked room",
+"Directing a movie scene"
+]
+}
+}

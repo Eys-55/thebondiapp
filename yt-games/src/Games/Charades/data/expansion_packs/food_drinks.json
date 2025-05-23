@@ -1,0 +1,33 @@
+{
+"easy": {
+"baseScore": 10,
+"words": [
+"Apple",
+"Banana",
+"Pizza",
+"Water",
+"Milk"
+// Add 10 more easy entries
+]
+},
+"medium": {
+"baseScore": 25,
+"words": [
+"Sushi",
+"Spaghetti",
+"Ice cream sundae",
+"Making a sandwich",
+"Baking a cake"
+// Add 5 more medium entries
+]
+},
+"hard": {
+"baseScore": 50,
+"words": [
+"A chef in a Michelin star restaurant",
+"Competitive eating contest",
+"Trying to eat noodles with chopsticks for the first time"
+// Add 2 more hard entries
+]
+}
+}

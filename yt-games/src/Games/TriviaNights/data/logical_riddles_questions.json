@@ -1,0 +1,142 @@
+[
+  {
+    "id": "logical_riddles-01",
+    "category": "logical_riddles",
+    "subject": "What has an eye, but cannot see?",
+    "correctAnswer": "A needle (or a storm, a potato)",
+    "tags": ["wordplay", "object", "classic"]
+  },
+  {
+    "id": "logical_riddles-02",
+    "category": "logical_riddles",
+    "subject": "What is full of holes but still holds water?",
+    "correctAnswer": "A sponge",
+    "tags": ["object", "paradox", "common item"]
+  },
+  {
+    "id": "logical_riddles-03",
+    "category": "logical_riddles",
+    "subject": "What is always in front of you but can’t be seen?",
+    "correctAnswer": "The future",
+    "tags": ["abstract", "concept", "time"]
+  },
+  {
+    "id": "logical_riddles-04",
+    "category": "logical_riddles",
+    "subject": "What has to be broken before you can use it?",
+    "correctAnswer": "An egg",
+    "tags": ["object", "food", "action"]
+  },
+  {
+    "id": "logical_riddles-05",
+    "category": "logical_riddles",
+    "subject": "What is tall when it’s young, and short when it’s old?",
+    "correctAnswer": "A candle",
+    "tags": ["object", "lifecycle", "change"]
+  },
+  {
+    "id": "logical_riddles-06",
+    "category": "logical_riddles",
+    "subject": "What month of the year has 28 days?",
+    "correctAnswer": "All of them",
+    "tags": ["calendar", "trick question", "wordplay"]
+  },
+  {
+    "id": "logical_riddles-07",
+    "category": "logical_riddles",
+    "subject": "What is full of cities, but has no houses; full of mountains, but no trees; and full of water, but no fish?",
+    "correctAnswer": "A map",
+    "tags": ["representation", "object", "description"]
+  },
+  {
+    "id": "logical_riddles-08",
+    "category": "logical_riddles",
+    "subject": "What can you hold in your left hand but not in your right?",
+    "correctAnswer": "Your right elbow (or right hand)",
+    "tags": ["body", "physical", "wordplay"]
+  },
+  {
+    "id": "logical_riddles-09",
+    "category": "logical_riddles",
+    "subject": "What has one head, one foot, and four legs?",
+    "correctAnswer": "A bed",
+    "tags": ["object", "furniture", "description"]
+  },
+  {
+    "id": "logical_riddles-10",
+    "category": "logical_riddles",
+    "subject": "What comes once in a minute, twice in a moment, but never in a thousand years?",
+    "correctAnswer": "The letter 'M'",
+    "tags": ["wordplay", "letters", "time"]
+  },
+  {
+    "id": "logical_riddles-11",
+    "category": "logical_riddles",
+    "subject": "A man is looking at a portrait. Someone asks him whose portrait he is looking at. He replies, 'Brothers and sisters I have none, but that man's father is my father's son.' Whose portrait is the man looking at?",
+    "correctAnswer": "His son's portrait",
+    "tags": ["family", "logic puzzle", "relationship"]
+  },
+  {
+    "id": "logical_riddles-12",
+    "category": "logical_riddles",
+    "subject": "What has keys but opens no locks?",
+    "correctAnswer": "A piano (or a keyboard)",
+    "tags": ["object", "music", "wordplay"]
+  },
+  {
+    "id": "logical_riddles-13",
+    "category": "logical_riddles",
+    "subject": "What can travel around the world while staying in a corner?",
+    "correctAnswer": "A stamp",
+    "tags": ["object", "mail", "travel", "wordplay"]
+  },
+  {
+    "id": "logical_riddles-14",
+    "category": "logical_riddles",
+    "subject": "What has a neck without a head, and a body without legs?",
+    "correctAnswer": "A shirt (or a bottle)",
+    "tags": ["object", "clothing", "description"]
+  },
+  {
+    "id": "logical_riddles-15",
+    "category": "logical_riddles",
+    "subject": "What invention lets you look right through a wall?",
+    "correctAnswer": "A window",
+    "tags": ["object", "architecture", "invention", "vision"]
+  },
+  {
+    "id": "logical_riddles-16",
+    "category": "logical_riddles",
+    "subject": "If you drop a yellow hat in the Red Sea, what does it become?",
+    "correctAnswer": "Wet",
+    "tags": ["trick question", "common sense", "color"]
+  },
+  {
+    "id": "logical_riddles-17",
+    "category": "logical_riddles",
+    "subject": "What goes up but never comes down?",
+    "correctAnswer": "Your age",
+    "tags": ["abstract", "concept", "time", "growth"]
+  },
+  {
+    "id": "logical_riddles-18",
+    "category": "logical_riddles",
+    "subject": "I am an odd number. Take away a letter and I become even. What number am I?",
+    "correctAnswer": "Seven (S-even)",
+    "tags": ["wordplay", "numbers", "letters", "math"]
+  },
+  {
+    "id": "logical_riddles-19",
+    "category": "logical_riddles",
+    "subject": "What is taken before you get it?",
+    "correctAnswer": "Your picture",
+    "tags": ["action", "object", "phrase"]
+  },
+  {
+    "id": "logical_riddles-20",
+    "category": "logical_riddles",
+    "subject": "David's father has three sons: Snap, Crackle, and...?",
+    "correctAnswer": "David",
+    "tags": ["logic puzzle", "name", "reading comprehension"]
+  }
+]

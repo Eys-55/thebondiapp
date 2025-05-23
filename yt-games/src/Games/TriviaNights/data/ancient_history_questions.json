@@ -1,0 +1,142 @@
+[
+  {
+    "id": "ancient_history-01",
+    "category": "ancient_history",
+    "subject": "Which ancient civilization built the pyramids of Giza?",
+    "correctAnswer": "Egyptians",
+    "tags": ["egypt", "civilization", "architecture"]
+  },
+  {
+    "id": "ancient_history-02",
+    "category": "ancient_history",
+    "subject": "Who was the first Roman Emperor?",
+    "correctAnswer": "Augustus (Octavian)",
+    "tags": ["rome", "emperor", "leader"]
+  },
+  {
+    "id": "ancient_history-03",
+    "category": "ancient_history",
+    "subject": "In which city-state was democracy first conceived?",
+    "correctAnswer": "Athens",
+    "tags": ["greece", "democracy", "politics"]
+  },
+  {
+    "id": "ancient_history-04",
+    "category": "ancient_history",
+    "subject": "What was the name of the ancient supercontinent that comprised most of the world's landmass?",
+    "correctAnswer": "Pangaea",
+    "tags": ["geology", "prehistory", "earth"]
+  },
+  {
+    "id": "ancient_history-05",
+    "category": "ancient_history",
+    "subject": "Which famous Carthaginian general crossed the Alps with elephants to invade Italy?",
+    "correctAnswer": "Hannibal Barca",
+    "tags": ["carthage", "rome", "warfare", "military"]
+  },
+  {
+    "id": "ancient_history-06",
+    "category": "ancient_history",
+    "subject": "The Code of Hammurabi originated from which ancient civilization?",
+    "correctAnswer": "Babylonian",
+    "tags": ["mesopotamia", "law", "babylon"]
+  },
+  {
+    "id": "ancient_history-07",
+    "category": "ancient_history",
+    "subject": "What is the name of the ancient Greek epic poem attributed to Homer, detailing the Trojan War?",
+    "correctAnswer": "The Iliad",
+    "tags": ["greece", "literature", "epic", "mythology"]
+  },
+  {
+    "id": "ancient_history-08",
+    "category": "ancient_history",
+    "subject": "Which philosopher was the teacher of Alexander the Great?",
+    "correctAnswer": "Aristotle",
+    "tags": ["greece", "philosophy", "education"]
+  },
+  {
+    "id": "ancient_history-09",
+    "category": "ancient_history",
+    "subject": "The Terracotta Army was discovered in which country?",
+    "correctAnswer": "China",
+    "tags": ["china", "archaeology", "emperor"]
+  },
+  {
+    "id": "ancient_history-10",
+    "category": "ancient_history",
+    "subject": "What title was given to the rulers of ancient Egypt?",
+    "correctAnswer": "Pharaoh",
+    "tags": ["egypt", "ruler", "title"]
+  },
+  {
+    "id": "ancient_history-11",
+    "category": "ancient_history",
+    "subject": "Which ancient wonder was located in Alexandria, Egypt, and guided ships into the harbor?",
+    "correctAnswer": "Lighthouse of Alexandria (Pharos)",
+    "tags": ["egypt", "wonder", "architecture", "navigation"]
+  },
+  {
+    "id": "ancient_history-12",
+    "category": "ancient_history",
+    "subject": "The city of Rome was famously founded by which twin brothers, according to legend?",
+    "correctAnswer": "Romulus and Remus",
+    "tags": ["rome", "mythology", "founding"]
+  },
+  {
+    "id": "ancient_history-13",
+    "category": "ancient_history",
+    "subject": "What was the primary writing material used in ancient Egypt, made from a plant?",
+    "correctAnswer": "Papyrus",
+    "tags": ["egypt", "writing", "material"]
+  },
+  {
+    "id": "ancient_history-14",
+    "category": "ancient_history",
+    "subject": "Which civilization is credited with inventing the wheel?",
+    "correctAnswer": "Sumerians (Mesopotamia)",
+    "tags": ["mesopotamia", "invention", "technology"]
+  },
+  {
+    "id": "ancient_history-15",
+    "category": "ancient_history",
+    "subject": "The ancient city of Troy, site of the Trojan War, is located in modern-day what country?",
+    "correctAnswer": "Turkey",
+    "tags": ["greece", "archaeology", "war", "location"]
+  },
+  {
+    "id": "ancient_history-16",
+    "category": "ancient_history",
+    "subject": "What system of writing, using wedge-shaped marks, was developed in ancient Mesopotamia?",
+    "correctAnswer": "Cuneiform",
+    "tags": ["mesopotamia", "writing", "language"]
+  },
+  {
+    "id": "ancient_history-17",
+    "category": "ancient_history",
+    "subject": "Who was the last pharaoh of Ptolemaic Egypt?",
+    "correctAnswer": "Cleopatra VII",
+    "tags": ["egypt", "pharaoh", "ruler", "rome"]
+  },
+  {
+    "id": "ancient_history-18",
+    "category": "ancient_history",
+    "subject": "The Parthenon is a famous temple dedicated to which Greek goddess?",
+    "correctAnswer": "Athena",
+    "tags": ["greece", "architecture", "religion", "mythology"]
+  },
+  {
+    "id": "ancient_history-19",
+    "category": "ancient_history",
+    "subject": "Which group of nomadic warriors, led by Attila, threatened the Roman Empire in the 5th century AD?",
+    "correctAnswer": "The Huns",
+    "tags": ["rome", "warfare", "migration", "barbarians"]
+  },
+  {
+    "id": "ancient_history-20",
+    "category": "ancient_history",
+    "subject": "What is the name of the ancient trade route that connected the East and West?",
+    "correctAnswer": "The Silk Road",
+    "tags": ["trade", "asia", "europe", "economy"]
+  }
+]

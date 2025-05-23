@@ -1,0 +1,142 @@
+[
+  {
+    "id": "famous_landmarks-01",
+    "category": "famous_landmarks",
+    "subject": "In which city would you find the Eiffel Tower?",
+    "correctAnswer": "Paris, France",
+    "tags": ["france", "europe", "tower", "architecture"]
+  },
+  {
+    "id": "famous_landmarks-02",
+    "category": "famous_landmarks",
+    "subject": "The Great Wall of China was primarily built to protect against invasions from which group of people?",
+    "correctAnswer": "Mongols (and other northern nomadic groups)",
+    "tags": ["china", "asia", "fortification", "history"]
+  },
+  {
+    "id": "famous_landmarks-03",
+    "category": "famous_landmarks",
+    "subject": "Which famous amphitheater in Rome hosted gladiator contests?",
+    "correctAnswer": "The Colosseum",
+    "tags": ["italy", "rome", "ancient", "architecture"]
+  },
+  {
+    "id": "famous_landmarks-04",
+    "category": "famous_landmarks",
+    "subject": "The Statue of Liberty was a gift to the United States from which country?",
+    "correctAnswer": "France",
+    "tags": ["usa", "new york", "statue", "gift"]
+  },
+  {
+    "id": "famous_landmarks-05",
+    "category": "famous_landmarks",
+    "subject": "In which country is the Taj Mahal located?",
+    "correctAnswer": "India",
+    "tags": ["india", "asia", "mausoleum", "architecture"]
+  },
+  {
+    "id": "famous_landmarks-06",
+    "category": "famous_landmarks",
+    "subject": "Machu Picchu is an ancient Incan citadel located in which South American country?",
+    "correctAnswer": "Peru",
+    "tags": ["peru", "south america", "inca", "ruins"]
+  },
+  {
+    "id": "famous_landmarks-07",
+    "category": "famous_landmarks",
+    "subject": "What is the name of the famous clock tower attached to the Houses of Parliament in London (officially Elizabeth Tower)?",
+    "correctAnswer": "Big Ben",
+    "tags": ["uk", "london", "clock", "parliament"]
+  },
+  {
+    "id": "famous_landmarks-08",
+    "category": "famous_landmarks",
+    "subject": "The Sydney Opera House is a distinctive performing arts center located in which country?",
+    "correctAnswer": "Australia",
+    "tags": ["australia", "sydney", "architecture", "performing arts"]
+  },
+  {
+    "id": "famous_landmarks-09",
+    "category": "famous_landmarks",
+    "subject": "Mount Rushmore National Memorial features the carved faces of four U.S. presidents. Name one of them.",
+    "correctAnswer": "George Washington / Thomas Jefferson / Theodore Roosevelt / Abraham Lincoln (any one)",
+    "tags": ["usa", "sculpture", "presidents", "monument"]
+  },
+  {
+    "id": "famous_landmarks-10",
+    "category": "famous_landmarks",
+    "subject": "The ancient city of Petra, known for its rock-cut architecture, is located in which Middle Eastern country?",
+    "correctAnswer": "Jordan",
+    "tags": ["jordan", "middle east", "archaeology", "ancient city"]
+  },
+  {
+    "id": "famous_landmarks-11",
+    "category": "famous_landmarks",
+    "subject": "Which iconic bridge connects San Francisco to Marin County, California?",
+    "correctAnswer": "Golden Gate Bridge",
+    "tags": ["usa", "california", "bridge", "engineering"]
+  },
+  {
+    "id": "famous_landmarks-12",
+    "category": "famous_landmarks",
+    "subject": "The Hagia Sophia, famous for its massive dome, is located in which city?",
+    "correctAnswer": "Istanbul, Turkey",
+    "tags": ["turkey", "istanbul", "architecture", "history", "religion"]
+  },
+  {
+    "id": "famous_landmarks-13",
+    "category": "famous_landmarks",
+    "subject": "Christ the Redeemer statue overlooks which Brazilian city?",
+    "correctAnswer": "Rio de Janeiro",
+    "tags": ["brazil", "statue", "religion", "view"]
+  },
+  {
+    "id": "famous_landmarks-14",
+    "category": "famous_landmarks",
+    "subject": "The Kremlin, a historic fortified complex, is located in the heart of which Russian city?",
+    "correctAnswer": "Moscow",
+    "tags": ["russia", "moscow", "fortress", "government"]
+  },
+  {
+    "id": "famous_landmarks-15",
+    "category": "famous_landmarks",
+    "subject": "What is the name of the prehistoric monument in Wiltshire, England, consisting of a ring of standing stones?",
+    "correctAnswer": "Stonehenge",
+    "tags": ["uk", "england", "prehistoric", "archaeology", "mystery"]
+  },
+  {
+    "id": "famous_landmarks-16",
+    "category": "famous_landmarks",
+    "subject": "The Acropolis, an ancient citadel, is located on a rocky outcrop above which Greek city?",
+    "correctAnswer": "Athens",
+    "tags": ["greece", "athens", "ancient", "architecture", "history"]
+  },
+  {
+    "id": "famous_landmarks-17",
+    "category": "famous_landmarks",
+    "subject": "Neuschwanstein Castle, a 19th-century Romanesque Revival palace, is located in which European country?",
+    "correctAnswer": "Germany",
+    "tags": ["germany", "castle", "bavaria", "architecture", "fairytale"]
+  },
+  {
+    "id": "famous_landmarks-18",
+    "category": "famous_landmarks",
+    "subject": "The Burj Khalifa, the world's tallest building, is located in which city?",
+    "correctAnswer": "Dubai, UAE",
+    "tags": ["uae", "dubai", "skyscraper", "architecture", "modern"]
+  },
+  {
+    "id": "famous_landmarks-19",
+    "category": "famous_landmarks",
+    "subject": "Angkor Wat, a massive temple complex, is the national symbol of which Southeast Asian country?",
+    "correctAnswer": "Cambodia",
+    "tags": ["cambodia", "temple", "hinduism", "buddhism", "archaeology"]
+  },
+  {
+    "id": "famous_landmarks-20",
+    "category": "famous_landmarks",
+    "subject": "The Leaning Tower of Pisa is the campanile, or freestanding bell tower, of the cathedral of which Italian city?",
+    "correctAnswer": "Pisa",
+    "tags": ["italy", "tower", "architecture", "engineering_fail"]
+  }
+]

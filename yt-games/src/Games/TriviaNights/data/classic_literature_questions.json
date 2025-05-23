@@ -1,0 +1,142 @@
+[
+  {
+    "id": "classic_literature-01",
+    "category": "classic_literature",
+    "subject": "Who wrote 'Pride and Prejudice'?",
+    "correctAnswer": "Jane Austen",
+    "tags": ["english", "novel", "19th century", "romance"]
+  },
+  {
+    "id": "classic_literature-02",
+    "category": "classic_literature",
+    "subject": "What is the name of the protagonist in Herman Melville's 'Moby Dick' who narrates the story?",
+    "correctAnswer": "Ishmael",
+    "tags": ["american", "novel", "adventure", "sea"]
+  },
+  {
+    "id": "classic_literature-03",
+    "category": "classic_literature",
+    "subject": "In Shakespeare's 'Hamlet', what is the famous question Hamlet poses while holding a skull?",
+    "correctAnswer": "\"Alas, poor Yorick! I knew him, Horatio...\" (The question is more implied contemplation than direct query, but often associated with \"To be or not to be\")",
+    "tags": ["shakespeare", "play", "tragedy", "quote"]
+  },
+  {
+    "id": "classic_literature-04",
+    "category": "classic_literature",
+    "subject": "Which Russian author wrote 'War and Peace' and 'Anna Karenina'?",
+    "correctAnswer": "Leo Tolstoy",
+    "tags": ["russian", "novel", "epic", "realism"]
+  },
+  {
+    "id": "classic_literature-05",
+    "category": "classic_literature",
+    "subject": "What is the name of the fictional detective created by Sir Arthur Conan Doyle?",
+    "correctAnswer": "Sherlock Holmes",
+    "tags": ["british", "detective", "mystery", "series"]
+  },
+  {
+    "id": "classic_literature-06",
+    "category": "classic_literature",
+    "subject": "George Orwell's 'Nineteen Eighty-Four' introduces what omnipresent監視 (surveillance) figure?",
+    "correctAnswer": "Big Brother",
+    "tags": ["dystopian", "novel", "totalitarianism", "surveillance"]
+  },
+  {
+    "id": "classic_literature-07",
+    "category": "classic_literature",
+    "subject": "Who is the author of 'The Great Gatsby'?",
+    "correctAnswer": "F. Scott Fitzgerald",
+    "tags": ["american", "novel", "jazz age", "tragedy"]
+  },
+  {
+    "id": "classic_literature-08",
+    "category": "classic_literature",
+    "subject": "In 'The Odyssey', what is the name of Odysseus's wife who faithfully waits for his return?",
+    "correctAnswer": "Penelope",
+    "tags": ["greek", "epic", "mythology", "loyalty"]
+  },
+  {
+    "id": "classic_literature-09",
+    "category": "classic_literature",
+    "subject": "Which Charles Dickens novel begins with the line, 'It was the best of times, it was the worst of times'?",
+    "correctAnswer": "A Tale of Two Cities",
+    "tags": ["english", "novel", "historical fiction", "french revolution"]
+  },
+  {
+    "id": "classic_literature-10",
+    "category": "classic_literature",
+    "subject": "Who wrote the poem 'The Raven'?",
+    "correctAnswer": "Edgar Allan Poe",
+    "tags": ["american", "poem", "gothic", "supernatural"]
+  },
+  {
+    "id": "classic_literature-11",
+    "category": "classic_literature",
+    "subject": "What is the name of the young protagonist in J.D. Salinger's 'The Catcher in the Rye'?",
+    "correctAnswer": "Holden Caulfield",
+    "tags": ["american", "novel", "coming-of-age", "alienation"]
+  },
+  {
+    "id": "classic_literature-12",
+    "category": "classic_literature",
+    "subject": "In Mary Shelley's 'Frankenstein', what is the first name of Dr. Frankenstein?",
+    "correctAnswer": "Victor",
+    "tags": ["gothic", "novel", "science fiction", "monster"]
+  },
+  {
+    "id": "classic_literature-13",
+    "category": "classic_literature",
+    "subject": "Which epic poem by John Milton tells the story of the Fall of Man?",
+    "correctAnswer": "Paradise Lost",
+    "tags": ["english", "epic", "poem", "religion", "biblical"]
+  },
+  {
+    "id": "classic_literature-14",
+    "category": "classic_literature",
+    "subject": "Who wrote 'To Kill a Mockingbird'?",
+    "correctAnswer": "Harper Lee",
+    "tags": ["american", "novel", "southern gothic", "racism", "justice"]
+  },
+  {
+    "id": "classic_literature-15",
+    "category": "classic_literature",
+    "subject": "What is the profession of the protagonist, Jean Valjean, at the beginning of Victor Hugo's 'Les Misérables'?",
+    "correctAnswer": "Paroled convict (formerly a pruner, imprisoned for stealing bread)",
+    "tags": ["french", "novel", "historical fiction", "redemption"]
+  },
+  {
+    "id": "classic_literature-16",
+    "category": "classic_literature",
+    "subject": "Which Miguel de Cervantes novel features an idealistic nobleman who imagines himself a knight-errant?",
+    "correctAnswer": "Don Quixote",
+    "tags": ["spanish", "novel", "satire", "adventure"]
+  },
+  {
+    "id": "classic_literature-17",
+    "category": "classic_literature",
+    "subject": "In Geoffrey Chaucer's 'The Canterbury Tales', pilgrims are traveling to the shrine of which saint?",
+    "correctAnswer": "Saint Thomas Becket",
+    "tags": ["english", "medieval", "poem", "collection", "pilgrimage"]
+  },
+  {
+    "id": "classic_literature-18",
+    "category": "classic_literature",
+    "subject": "Who is the author of 'One Hundred Years of Solitude'?",
+    "correctAnswer": "Gabriel García Márquez",
+    "tags": ["colombian", "novel", "magical realism", "family saga"]
+  },
+  {
+    "id": "classic_literature-19",
+    "category": "classic_literature",
+    "subject": "The character of Captain Ahab is obsessed with hunting a white whale in which novel?",
+    "correctAnswer": "Moby Dick",
+    "tags": ["american", "novel", "obsession", "revenge"]
+  },
+  {
+    "id": "classic_literature-20",
+    "category": "classic_literature",
+    "subject": "What is the name of the island where Robinson Crusoe is shipwrecked in Daniel Defoe's novel?",
+    "correctAnswer": "Island of Despair (though often unnamed or given fictional names by Crusoe)",
+    "tags": ["english", "novel", "adventure", "survival"]
+  }
+]

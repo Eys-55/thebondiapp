@@ -1,0 +1,142 @@
+[
+  {
+    "id": "inventions_discoveries-01",
+    "category": "inventions_discoveries",
+    "subject": "Who is credited with inventing the telephone?",
+    "correctAnswer": "Alexander Graham Bell",
+    "tags": ["invention", "communication", "19th century", "patent"]
+  },
+  {
+    "id": "inventions_discoveries-02",
+    "category": "inventions_discoveries",
+    "subject": "What did Marie Curie discover, for which she won Nobel Prizes in two different scientific fields?",
+    "correctAnswer": "Radioactivity (and the elements Polonium and Radium)",
+    "tags": ["discovery", "science", "physics", "chemistry", "nobel prize"]
+  },
+  {
+    "id": "inventions_discoveries-03",
+    "category": "inventions_discoveries",
+    "subject": "The invention of the printing press with movable type in Europe is attributed to whom?",
+    "correctAnswer": "Johannes Gutenberg",
+    "tags": ["invention", "printing", "15th century", "communication", "revolution"]
+  },
+  {
+    "id": "inventions_discoveries-04",
+    "category": "inventions_discoveries",
+    "subject": "Who discovered penicillin, the first widely used antibiotic?",
+    "correctAnswer": "Alexander Fleming",
+    "tags": ["discovery", "medicine", "antibiotic", "20th century"]
+  },
+  {
+    "id": "inventions_discoveries-05",
+    "category": "inventions_discoveries",
+    "subject": "What did Thomas Edison famously invent that revolutionized indoor lighting?",
+    "correctAnswer": "The practical incandescent light bulb",
+    "tags": ["invention", "electricity", "lighting", "19th century"]
+  },
+  {
+    "id": "inventions_discoveries-06",
+    "category": "inventions_discoveries",
+    "subject": "The theory of general relativity, which redefined our understanding of gravity, was developed by which physicist?",
+    "correctAnswer": "Albert Einstein",
+    "tags": ["discovery", "physics", "theory", "20th century", "gravity"]
+  },
+  {
+    "id": "inventions_discoveries-07",
+    "category": "inventions_discoveries",
+    "subject": "Who invented the World Wide Web (WWW)?",
+    "correctAnswer": "Tim Berners-Lee",
+    "tags": ["invention", "internet", "computing", "20th century"]
+  },
+  {
+    "id": "inventions_discoveries-08",
+    "category": "inventions_discoveries",
+    "subject": "The discovery of the structure of DNA, the 'double helix,' is credited to which pair of scientists (along with contributions from others)?",
+    "correctAnswer": "James Watson and Francis Crick (with Rosalind Franklin and Maurice Wilkins)",
+    "tags": ["discovery", "biology", "genetics", "20th century", "dna"]
+  },
+  {
+    "id": "inventions_discoveries-09",
+    "category": "inventions_discoveries",
+    "subject": "What did the Wright brothers famously invent and successfully fly in 1903?",
+    "correctAnswer": "The first successful motor-operated airplane",
+    "tags": ["invention", "aviation", "transportation", "20th century"]
+  },
+  {
+    "id": "inventions_discoveries-10",
+    "category": "inventions_discoveries",
+    "subject": "Who is considered the 'father of modern astronomy' for his improvements to the telescope and subsequent astronomical observations?",
+    "correctAnswer": "Galileo Galilei",
+    "tags": ["discovery", "astronomy", "telescope", "17th century", "science"]
+  },
+  {
+    "id": "inventions_discoveries-11",
+    "category": "inventions_discoveries",
+    "subject": "The invention of dynamite, a safer and more manageable explosive, is attributed to whom?",
+    "correctAnswer": "Alfred Nobel",
+    "tags": ["invention", "chemistry", "explosive", "19th century", "nobel prize"]
+  },
+  {
+    "id": "inventions_discoveries-12",
+    "category": "inventions_discoveries",
+    "subject": "What did Charles Darwin propose in his book 'On the Origin of Species'?",
+    "correctAnswer": "The theory of evolution by natural selection",
+    "tags": ["discovery", "biology", "evolution", "19th century", "natural selection"]
+  },
+  {
+    "id": "inventions_discoveries-13",
+    "category": "inventions_discoveries",
+    "subject": "Who invented the first practical steamboat, the Clermont?",
+    "correctAnswer": "Robert Fulton",
+    "tags": ["invention", "transportation", "steam engine", "19th century"]
+  },
+  {
+    "id": "inventions_discoveries-14",
+    "category": "inventions_discoveries",
+    "subject": "The discovery of X-rays was made by which German physicist in 1895?",
+    "correctAnswer": "Wilhelm Conrad Roentgen",
+    "tags": ["discovery", "physics", "medicine", "imaging", "19th century"]
+  },
+  {
+    "id": "inventions_discoveries-15",
+    "category": "inventions_discoveries",
+    "subject": "What important agricultural invention is Eli Whitney known for, which significantly increased cotton production?",
+    "correctAnswer": "The cotton gin",
+    "tags": ["invention", "agriculture", "18th century", "usa", "industry"]
+  },
+  {
+    "id": "inventions_discoveries-16",
+    "category": "inventions_discoveries",
+    "subject": "Who developed the first polio vaccine?",
+    "correctAnswer": "Jonas Salk",
+    "tags": ["invention", "discovery", "medicine", "vaccine", "20th century", "polio"]
+  },
+  {
+    "id": "inventions_discoveries-17",
+    "category": "inventions_discoveries",
+    "subject": "The discovery of the law of universal gravitation is attributed to which English scientist?",
+    "correctAnswer": "Isaac Newton",
+    "tags": ["discovery", "physics", "gravity", "17th century", "mathematics"]
+  },
+  {
+    "id": "inventions_discoveries-18",
+    "category": "inventions_discoveries",
+    "subject": "Who invented the first commercially successful sewing machine?",
+    "correctAnswer": "Isaac Singer (though Elias Howe patented an earlier version)",
+    "tags": ["invention", "textiles", "industry", "19th century"]
+  },
+  {
+    "id": "inventions_discoveries-19",
+    "category": "inventions_discoveries",
+    "subject": "The first successful photograph was produced in the 1820s by which French inventor?",
+    "correctAnswer": "Nicéphore Niépce",
+    "tags": ["invention", "photography", "imaging", "19th century", "france"]
+  },
+  {
+    "id": "inventions_discoveries-20",
+    "category": "inventions_discoveries",
+    "subject": "What did Guglielmo Marconi pioneer, leading to the development of radio?",
+    "correctAnswer": "Long-distance radio transmission (wireless telegraphy)",
+    "tags": ["invention", "communication", "radio", "20th century", "wireless"]
+  }
+]

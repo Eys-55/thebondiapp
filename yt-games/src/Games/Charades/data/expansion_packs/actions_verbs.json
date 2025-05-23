@@ -1,0 +1,33 @@
+{
+"easy": {
+"baseScore": 10,
+"words": [
+"Jumping",
+"Eating",
+"Sleeping",
+"Laughing",
+"Crying"
+// Add 10 more easy entries
+]
+},
+"medium": {
+"baseScore": 25,
+"words": [
+"Whispering",
+"Shouting",
+"Thinking",
+"Searching",
+"Building"
+// Add 5 more medium entries
+]
+},
+"hard": {
+"baseScore": 50,
+"words": [
+"Evaporating",
+"Negotiating a peace treaty",
+"Time traveling"
+// Add 2 more hard entries
+]
+}
+}

@@ -1,0 +1,47 @@
+{
+"easy": {
+"baseScore": 10,
+"words": [
+"Titanic",
+"Frozen",
+"Spider-Man",
+"Batman",
+"Star Wars",
+"Lion King",
+"Avatar",
+"Popcorn",
+"Cinema",
+"Director",
+"Actor",
+"Actress",
+"3D Glasses",
+"Movie Ticket",
+"Camera"
+]
+},
+"medium": {
+"baseScore": 25,
+"words": [
+"Inception",
+"The Matrix",
+"Jurassic Park",
+"Pulp Fiction",
+"Fight Club",
+"A Space Odyssey",
+"Lightsaber duel",
+"Car chase scene",
+"Romantic comedy",
+"Movie premiere"
+]
+},
+"hard": {
+"baseScore": 50,
+"words": [
+"The Shawshank Redemption",
+"Riding a T-Rex while juggling flaming torches",
+"Explaining the plot of Interstellar backwards",
+"Winning an Oscar for Best Visual Effects",
+"A silent film character escaping a villain on a unicycle"
+]
+}
+}

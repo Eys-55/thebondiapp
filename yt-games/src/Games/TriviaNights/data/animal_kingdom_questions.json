@@ -1,0 +1,142 @@
+[
+  {
+    "id": "animal_kingdom-01",
+    "category": "animal_kingdom",
+    "subject": "What is the largest land animal on Earth?",
+    "correctAnswer": "African Elephant",
+    "tags": ["mammal", "herbivore", "africa", "size"]
+  },
+  {
+    "id": "animal_kingdom-02",
+    "category": "animal_kingdom",
+    "subject": "Which bird is known for its ability to mimic human speech?",
+    "correctAnswer": "Parrot (specifically African Grey, Amazon, etc.)",
+    "tags": ["bird", "mimicry", "intelligence", "pet"]
+  },
+  {
+    "id": "animal_kingdom-03",
+    "category": "animal_kingdom",
+    "subject": "What is the fastest land animal?",
+    "correctAnswer": "Cheetah",
+    "tags": ["mammal", "carnivore", "africa", "speed"]
+  },
+  {
+    "id": "animal_kingdom-04",
+    "category": "animal_kingdom",
+    "subject": "Which marine mammal is known as the 'king of the ocean' and has a distinctive black and white coloration?",
+    "correctAnswer": "Orca (Killer Whale)",
+    "tags": ["marine mammal", "cetacean", "predator", "ocean"]
+  },
+  {
+    "id": "animal_kingdom-05",
+    "category": "animal_kingdom",
+    "subject": "What is a group of lions called?",
+    "correctAnswer": "A pride",
+    "tags": ["mammal", "feline", "collective noun", "social"]
+  },
+  {
+    "id": "animal_kingdom-06",
+    "category": "animal_kingdom",
+    "subject": "Which insect undergoes complete metamorphosis, transforming from a larva (caterpillar) to a pupa, and then to an adult?",
+    "correctAnswer": "Butterfly (or Moth)",
+    "tags": ["insect", "metamorphosis", "life cycle"]
+  },
+  {
+    "id": "animal_kingdom-07",
+    "category": "animal_kingdom",
+    "subject": "What is the only mammal capable of sustained flight?",
+    "correctAnswer": "Bat",
+    "tags": ["mammal", "flight", "nocturnal", "unique"]
+  },
+  {
+    "id": "animal_kingdom-08",
+    "category": "animal_kingdom",
+    "subject": "The Great Barrier Reef, the world's largest coral reef system, is located off the coast of which country?",
+    "correctAnswer": "Australia",
+    "tags": ["marine life", "ecosystem", "coral", "ocean"]
+  },
+  {
+    "id": "animal_kingdom-09",
+    "category": "animal_kingdom",
+    "subject": "Which large, flightless bird is native to Australia and known for its powerful kick?",
+    "correctAnswer": "Emu (or Cassowary, though Emu is more common)",
+    "tags": ["bird", "flightless", "australia", "ratite"]
+  },
+  {
+    "id": "animal_kingdom-10",
+    "category": "animal_kingdom",
+    "subject": "What is the primary diet of a panda?",
+    "correctAnswer": "Bamboo",
+    "tags": ["mammal", "bear", "china", "herbivore", "specialized diet"]
+  },
+  {
+    "id": "animal_kingdom-11",
+    "category": "animal_kingdom",
+    "subject": "Which reptile is known for its ability to change color to blend in with its surroundings?",
+    "correctAnswer": "Chameleon",
+    "tags": ["reptile", "camouflage", "adaptation", "lizard"]
+  },
+  {
+    "id": "animal_kingdom-12",
+    "category": "animal_kingdom",
+    "subject": "What is the largest fish in the world?",
+    "correctAnswer": "Whale Shark",
+    "tags": ["fish", "ocean", "gentle giant", "filter feeder"]
+  },
+  {
+    "id": "animal_kingdom-13",
+    "category": "animal_kingdom",
+    "subject": "Which primate is considered humans' closest living relative, sharing about 98% of our DNA?",
+    "correctAnswer": "Chimpanzee (or Bonobo)",
+    "tags": ["primate", "ape", "evolution", "intelligence"]
+  },
+  {
+    "id": "animal_kingdom-14",
+    "category": "animal_kingdom",
+    "subject": "What is the term for an animal that primarily eats meat?",
+    "correctAnswer": "Carnivore",
+    "tags": ["diet", "classification", "predator"]
+  },
+  {
+    "id": "animal_kingdom-15",
+    "category": "animal_kingdom",
+    "subject": "Which type of venomous snake expands its neck ribs to form a 'hood' when threatened?",
+    "correctAnswer": "Cobra",
+    "tags": ["reptile", "snake", "venomous", "defense mechanism"]
+  },
+  {
+    "id": "animal_kingdom-16",
+    "category": "animal_kingdom",
+    "subject": "The monarch butterfly is famous for its long-distance seasonal what?",
+    "correctAnswer": "Migration",
+    "tags": ["insect", "butterfly", "behavior", "journey"]
+  },
+  {
+    "id": "animal_kingdom-17",
+    "category": "animal_kingdom",
+    "subject": "What is the name for a young kangaroo?",
+    "correctAnswer": "Joey",
+    "tags": ["mammal", "marsupial", "australia", "baby animal"]
+  },
+  {
+    "id": "animal_kingdom-18",
+    "category": "animal_kingdom",
+    "subject": "Which animal is known as the 'ship of the desert' for its ability to travel long distances in arid environments?",
+    "correctAnswer": "Camel",
+    "tags": ["mammal", "desert", "adaptation", "transportation"]
+  },
+  {
+    "id": "animal_kingdom-19",
+    "category": "animal_kingdom",
+    "subject": "What is the largest bird of prey in North America, also the national bird of the United States?",
+    "correctAnswer": "Bald Eagle",
+    "tags": ["bird", "raptor", "north america", "symbol"]
+  },
+  {
+    "id": "animal_kingdom-20",
+    "category": "animal_kingdom",
+    "subject": "Which small, armored mammal can roll itself into a tight ball for defense?",
+    "correctAnswer": "Armadillo (or Pangolin)",
+    "tags": ["mammal", "armor", "defense mechanism", "unique"]
+  }
+]

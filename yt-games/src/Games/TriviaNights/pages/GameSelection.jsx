@@ -6,14 +6,26 @@ import PlayerSetup from '../../Utils/utils_setup/PlayerSetup';
 import GameOptionSelector from '../../Utils/utils_setup/GameOptionSelector';
 import GameStartTransition from '../../Utils/utils_components/GameStartTransition'; // Import transition component
 import StyledNumberInput from '../../Utils/utils_setup/StyledNumberInput';
+import CategorySelectionModal from '../../Utils/utils_components/CategorySelectionModal';
+import SelectedCategoriesDisplay from '../../Utils/utils_setup/SelectedCategoriesDisplay';
 
-// Updated categories based on concepts.js
+// Updated categories based on new JSON files
 const CATEGORIES = [
-  { id: 'geography', name: '🌍 Geography' },
-  { id: 'science', name: '🔬 Science' },
-  { id: 'literature', name: '📚 Literature' },
-  { id: 'flags', name: '🚩 Flags' },
-  { id: 'languages', name: '🗣️ Languages' },
+  { id: 'ancient_history', name: '📜 Ancient History' },
+  { id: 'world_mythology', name: '🔱 World Mythology' },
+  { id: 'famous_landmarks', name: '🏛️ Famous Landmarks' },
+  { id: 'musical_instruments', name: '🎸 Musical Instruments' },
+  { id: 'classic_literature', name: '📚 Classic Literature' },
+  { id: 'space_exploration', name: '🚀 Space Exploration' },
+  { id: 'world_cuisine', name: '🍲 World Cuisine' },
+  { id: 'animal_kingdom', name: '🐾 Animal Kingdom' },
+  { id: 'art_history', name: '🎨 Art History' },
+  { id: 'inventions_discoveries', name: '💡 Inventions & Discoveries' },
+  { id: 'sports_general', name: '⚽ Sports Trivia' },
+  { id: 'movie_quotes', name: '🎬 Movie Quotes' },
+  { id: 'video_game_lore', name: '🎮 Video Game Lore' },
+  { id: 'computer_science_basics', name: '💻 CS Basics' },
+  { id: 'logical_riddles', name: '🧠 Logical Riddles' },
 ];
 
 const MAX_PLAYERS = 10; // Increased max players
@@ -25,8 +37,8 @@ const defaultState = {
   selectedCategories: [],
   numQuestions: 10,
   timePerQuestion: 10,
-  includeChoices: true,
-  scoringMode: 'fastest',
+  questionFormat: 'multiple_choice', // boolean true previously
+  scoringRule: 'fastest_finger', // formerly 'fastest'
   numPlayersUI: MIN_PLAYERS,
   playerNames: Array(MIN_PLAYERS).fill(''),
 };
@@ -36,11 +48,12 @@ function GameSelection({ registerNavbarActions, unregisterNavbarActions }) {
   const [selectedCategories, setSelectedCategories] = useState(defaultState.selectedCategories);
   const [numQuestions, setNumQuestions] = useState(defaultState.numQuestions);
   const [timePerQuestion, setTimePerQuestion] = useState(defaultState.timePerQuestion);
-  const [includeChoices, setIncludeChoices] = useState(defaultState.includeChoices);
-  const [scoringMode, setScoringMode] = useState(defaultState.scoringMode);
+  const [questionFormat, setQuestionFormat] = useState(defaultState.questionFormat);
+  const [scoringRule, setScoringRule] = useState(defaultState.scoringRule);
 
   const [numPlayersUI, setNumPlayersUI] = useState(defaultState.numPlayersUI);
   const [playerNames, setPlayerNames] = useState(defaultState.playerNames);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
 
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -57,8 +70,8 @@ function GameSelection({ registerNavbarActions, unregisterNavbarActions }) {
         setSelectedCategories(parsedSettings.selectedCategories || defaultState.selectedCategories);
         setNumQuestions(parsedSettings.numQuestions || defaultState.numQuestions);
         setTimePerQuestion(parsedSettings.timePerQuestion || defaultState.timePerQuestion);
-        setIncludeChoices(parsedSettings.includeChoices === undefined ? defaultState.includeChoices : parsedSettings.includeChoices);
-        setScoringMode(parsedSettings.scoringMode || defaultState.scoringMode);
+        setQuestionFormat(parsedSettings.questionFormat || defaultState.questionFormat);
+        setScoringRule(parsedSettings.scoringRule || defaultState.scoringRule);
         setNumPlayersUI(parsedSettings.numPlayersUI || defaultState.numPlayersUI);
         
         // Ensure playerNames array matches numPlayersUI
@@ -78,8 +91,8 @@ function GameSelection({ registerNavbarActions, unregisterNavbarActions }) {
       selectedCategories,
       numQuestions,
       timePerQuestion,
-      includeChoices,
-      scoringMode,
+      questionFormat,
+      scoringRule,
       numPlayersUI,
       playerNames,
     };
@@ -88,7 +101,7 @@ function GameSelection({ registerNavbarActions, unregisterNavbarActions }) {
     } catch (error) {
       console.error("Failed to save Trivia Nights settings to session storage:", error);
     }
-  }, [selectedCategories, numQuestions, timePerQuestion, includeChoices, scoringMode, numPlayersUI, playerNames]);
+  }, [selectedCategories, numQuestions, timePerQuestion, questionFormat, scoringRule, numPlayersUI, playerNames]);
 
 
   // --- Validation ---
@@ -144,16 +157,21 @@ function GameSelection({ registerNavbarActions, unregisterNavbarActions }) {
     if (errors[fieldName]) setErrors(prev => ({ ...prev, [fieldName]: null }));
   };
 
-  const handleCategoryChange = (event) => {
-    const { value, checked } = event.target;
-    setSelectedCategories((prev) =>
-      checked ? [...prev, value] : prev.filter((cat) => cat !== value)
-    );
-    if (errors.categories) setErrors(prev => ({ ...prev, categories: null }));
-  };
+  // const handleCategoryChange = (event) => { // Old handler
+  //   const { value, checked } = event.target;
+  //   setSelectedCategories((prev) =>
+  //     checked ? [...prev, value] : prev.filter((cat) => cat !== value)
+  //   );
+  //   if (errors.categories) setErrors(prev => ({ ...prev, categories: null }));
+  // };
 
-  const handleIncludeChoicesChange = (event) => {
-    setIncludeChoices(event.target.checked);
+  const handleOpenCategoryModal = () => setIsCategoryModalOpen(true);
+  const handleCloseCategoryModal = () => setIsCategoryModalOpen(false);
+
+  const handleConfirmCategorySelection = (newlySelectedIds) => {
+    setSelectedCategories(Array.isArray(newlySelectedIds) ? newlySelectedIds : []);
+    setIsCategoryModalOpen(false);
+    if (errors.categories) setErrors(prev => ({ ...prev, categories: null }));
   };
 
   const handleStartLocalMultiplayerGame = useCallback(() => {
@@ -169,8 +187,8 @@ function GameSelection({ registerNavbarActions, unregisterNavbarActions }) {
         selectedCategories,
         numQuestions: Math.min(50, Math.max(1, numQuestions)),
         timePerQuestion: Math.min(60, Math.max(2, timePerQuestion)),
-        includeChoices,
-        scoringMode,
+        questionFormat: questionFormat,
+        scoringRule: scoringRule,
     };
 
     const activePlayers = playerNames.slice(0, numPlayersUI).map(name => ({
@@ -183,7 +201,7 @@ function GameSelection({ registerNavbarActions, unregisterNavbarActions }) {
     setTransitionGameConfig({ gameSettings: gameConfig, players: activePlayers });
     setIsTransitioning(true);
     // setIsLoading(true); // Keep form disabled
-  }, [validateForm, selectedCategories, numQuestions, timePerQuestion, includeChoices, scoringMode, playerNames, numPlayersUI]);
+  }, [validateForm, selectedCategories, numQuestions, timePerQuestion, questionFormat, scoringRule, playerNames, numPlayersUI]);
   
   
   const handleResetSettings = useCallback(() => {
@@ -191,8 +209,8 @@ function GameSelection({ registerNavbarActions, unregisterNavbarActions }) {
     setSelectedCategories(defaultState.selectedCategories);
     setNumQuestions(defaultState.numQuestions);
     setTimePerQuestion(defaultState.timePerQuestion);
-    setIncludeChoices(defaultState.includeChoices);
-    setScoringMode(defaultState.scoringMode);
+    setQuestionFormat(defaultState.questionFormat);
+    setScoringRule(defaultState.scoringRule);
     setNumPlayersUI(defaultState.numPlayersUI);
     setPlayerNames(defaultState.playerNames);
     setErrors({}); // Clear errors
@@ -223,7 +241,7 @@ function GameSelection({ registerNavbarActions, unregisterNavbarActions }) {
     registerNavbarActions, unregisterNavbarActions,
     handleStartLocalMultiplayerGame, handleResetSettings,
     isLoading, checkValidity,
-    playerNames, numPlayersUI, selectedCategories, numQuestions, timePerQuestion, errors, isTransitioning
+    playerNames, numPlayersUI, selectedCategories, numQuestions, timePerQuestion, questionFormat, scoringRule, errors, isTransitioning
   ]);
 
   const handleTransitionComplete = useCallback(() => {
@@ -268,23 +286,27 @@ function GameSelection({ registerNavbarActions, unregisterNavbarActions }) {
         <h3 className="text-xl font-semibold mb-4 text-info-light border-b border-gray-600 pb-2">2. Customize Your Quiz</h3>
 
         <div className="mb-4">
-          <GameOptionSelector
-            label="Select Categories:"
-            options={CATEGORIES.map(cat => ({ id: cat.id, value: cat.id, name: cat.name }))}
-            selectedOption={selectedCategories}
-            onOptionChange={(value, isChecked) => {
-              const event = { target: { value, checked: isChecked } };
-              handleCategoryChange(event);
-            }}
-            type="checkbox"
-            groupName="triviaCategories"
-            isLoading={isLoading}
+          <SelectedCategoriesDisplay
+            label="Select Categories (At least one):"
+            selectedCategories={selectedCategories}
+            allCategoriesData={CATEGORIES}
+            onManageCategoriesClick={handleOpenCategoryModal}
             error={errors.categories}
-            layoutClass="flex flex-wrap gap-3 justify-center p-2 rounded"
-            containerClass="bg-transparent border-none p-0" // Override default container for categories
-            labelClass="block text-md font-medium text-gray-200 mb-2"
+            disabled={isLoading}
+            isLoading={isLoading}
+            containerClass="bg-gray-700 p-3 rounded-md border border-gray-600" // Keep card style
+            buttonText="Manage Categories"
           />
         </div>
+        <CategorySelectionModal
+          isOpen={isCategoryModalOpen}
+          onClose={handleCloseCategoryModal}
+          onConfirm={handleConfirmCategorySelection}
+          title="Select Quiz Categories"
+          allCategories={CATEGORIES}
+          initiallySelectedCategories={selectedCategories}
+          allowMultiple={true}
+        />
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <StyledNumberInput
@@ -307,33 +329,33 @@ function GameSelection({ registerNavbarActions, unregisterNavbarActions }) {
           />
         </div>
 
-        <div className="mb-4 flex items-center justify-start p-3 bg-gray-650 rounded-md border border-gray-600">
-            <input
-                type="checkbox"
-                id="include-choices"
-                checked={includeChoices}
-                onChange={handleIncludeChoicesChange}
-                disabled={isLoading}
-                className="form-checkbox h-5 w-5 text-success rounded border-gray-400 focus:ring-success-light disabled:opacity-50"
-            />
-            <label htmlFor="include-choices" className="ml-3 text-md font-medium text-gray-200 cursor-pointer">
-                Include Multiple Choices?
-            </label>
-            <p className="ml-auto text-xs text-gray-400">(If unchecked, questions are identification)</p>
-        </div>
-
-        {/* Scoring Mode Selection */}
         <div className="mb-4">
           <GameOptionSelector
-            label="Scoring Mode:"
+            label="Question Format:"
             options={[
-              { id: 'fastest', value: 'fastest', name: 'Fastest Finger (One winner per question)' },
-              { id: 'multiple', value: 'multiple', name: 'Anyone Correct (Multiple winners possible)' },
+              { id: 'multiple_choice', value: 'multiple_choice', name: 'Multiple Choice' },
+              { id: 'identification', value: 'identification', name: 'Identification (Type-in answer)' },
             ]}
-            selectedOption={scoringMode}
-            onOptionChange={(value) => setScoringMode(value)}
+            selectedOption={questionFormat}
+            onOptionChange={(value) => setQuestionFormat(value)}
             type="radio"
-            groupName="scoringMode"
+            groupName="triviaQuestionFormat"
+            isLoading={isLoading}
+          />
+        </div>
+
+        {/* Scoring Rule Selection */}
+        <div className="mb-4">
+          <GameOptionSelector
+            label="Scoring Rule:"
+            options={[
+              { id: 'fastest_finger', value: 'fastest_finger', name: 'Fastest Finger (One winner per question)' },
+              { id: 'any_correct', value: 'any_correct', name: 'Anyone Correct (Multiple winners possible)' },
+            ]}
+            selectedOption={scoringRule}
+            onOptionChange={(value) => setScoringRule(value)}
+            type="radio"
+            groupName="scoringRule"
             isLoading={isLoading}
           />
         </div>

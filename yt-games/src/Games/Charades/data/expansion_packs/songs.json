@@ -1,0 +1,33 @@
+{
+"easy": {
+"baseScore": 10,
+"words": [
+"Happy Birthday",
+"Twinkle Twinkle Little Star",
+"Singing",
+"Dancing",
+"Guitar"
+// Add 10 more easy entries
+]
+},
+"medium": {
+"baseScore": 25,
+"words": [
+"Bohemian Rhapsody",
+"Billie Jean",
+"Music festival",
+"Karaoke",
+"Writing a song"
+// Add 5 more medium entries
+]
+},
+"hard": {
+"baseScore": 50,
+"words": [
+"Conducting an orchestra",
+"Playing a guitar solo with your teeth",
+"A rapper in a rap battle"
+// Add 2 more hard entries
+]
+}
+}

@@ -1,0 +1,142 @@
+[
+  {
+    "id": "computer_science_basics-01",
+    "category": "computer_science_basics",
+    "subject": "What does 'CPU' stand for in computing?",
+    "correctAnswer": "Central Processing Unit",
+    "tags": ["hardware", "acronym", "core component"]
+  },
+  {
+    "id": "computer_science_basics-02",
+    "category": "computer_science_basics",
+    "subject": "What is the name for a program that translates code written in a high-level programming language into machine code?",
+    "correctAnswer": "Compiler (or Interpreter for line-by-line)",
+    "tags": ["software", "programming", "translation", "tools"]
+  },
+  {
+    "id": "computer_science_basics-03",
+    "category": "computer_science_basics",
+    "subject": "What does 'RAM' stand for, referring to a type of computer memory?",
+    "correctAnswer": "Random Access Memory",
+    "tags": ["hardware", "memory", "acronym", "volatile"]
+  },
+  {
+    "id": "computer_science_basics-04",
+    "category": "computer_science_basics",
+    "subject": "In programming, what is a 'bug'?",
+    "correctAnswer": "An error, flaw, or fault in a computer program or system",
+    "tags": ["programming", "debugging", "errors", "jargon"]
+  },
+  {
+    "id": "computer_science_basics-05",
+    "category": "computer_science_basics",
+    "subject": "What does 'URL' stand for?",
+    "correctAnswer": "Uniform Resource Locator",
+    "tags": ["internet", "web", "acronym", "address"]
+  },
+  {
+    "id": "computer_science_basics-06",
+    "category": "computer_science_basics",
+    "subject": "Which data structure uses a 'Last-In, First-Out' (LIFO) principle?",
+    "correctAnswer": "Stack",
+    "tags": ["data structures", "algorithms", "programming", "lifo"]
+  },
+  {
+    "id": "computer_science_basics-07",
+    "category": "computer_science_basics",
+    "subject": "What is the common term for malicious software designed to harm or exploit computer systems?",
+    "correctAnswer": "Malware",
+    "tags": ["security", "software", "threats", "cybersecurity"]
+  },
+  {
+    "id": "computer_science_basics-08",
+    "category": "computer_science_basics",
+    "subject": "What does 'HTML' stand for, the standard markup language for creating web pages?",
+    "correctAnswer": "HyperText Markup Language",
+    "tags": ["web development", "markup language", "acronym", "internet"]
+  },
+  {
+    "id": "computer_science_basics-09",
+    "category": "computer_science_basics",
+    "subject": "In object-oriented programming, what is the concept of bundling data (attributes) and methods (functions) that operate on the data into a single unit or 'object'?",
+    "correctAnswer": "Encapsulation",
+    "tags": ["oop", "programming paradigms", "concepts", "data hiding"]
+  },
+  {
+    "id": "computer_science_basics-10",
+    "category": "computer_science_basics",
+    "subject": "What is the base unit of digital information, representing a 0 or 1?",
+    "correctAnswer": "Bit",
+    "tags": ["data representation", "binary", "digital", "fundamental unit"]
+  },
+  {
+    "id": "computer_science_basics-11",
+    "category": "computer_science_basics",
+    "subject": "Which company developed the Python programming language?",
+    "correctAnswer": "Python Software Foundation (Guido van Rossum is the creator)",
+    "tags": ["programming languages", "python", "development", "history"]
+  },
+  {
+    "id": "computer_science_basics-12",
+    "category": "computer_science_basics",
+    "subject": "What is an 'algorithm' in computer science?",
+    "correctAnswer": "A set of rules or instructions for solving a problem or performing a task",
+    "tags": ["algorithms", "problem solving", "programming", "logic"]
+  },
+  {
+    "id": "computer_science_basics-13",
+    "category": "computer_science_basics",
+    "subject": "What does 'OS' stand for in the context of computer software (e.g., Windows OS, macOS)?",
+    "correctAnswer": "Operating System",
+    "tags": ["software", "system software", "acronym", "interface"]
+  },
+  {
+    "id": "computer_science_basics-14",
+    "category": "computer_science_basics",
+    "subject": "What is the term for a network that connects computers over a large geographical area, such as across cities or countries?",
+    "correctAnswer": "WAN (Wide Area Network)",
+    "tags": ["networking", "internet", "connectivity", "topology"]
+  },
+  {
+    "id": "computer_science_basics-15",
+    "category": "computer_science_basics",
+    "subject": "Which data structure uses a 'First-In, First-Out' (FIFO) principle?",
+    "correctAnswer": "Queue",
+    "tags": ["data structures", "algorithms", "programming", "fifo"]
+  },
+  {
+    "id": "computer_science_basics-16",
+    "category": "computer_science_basics",
+    "subject": "What does 'CSS' stand for in web development, used for styling web pages?",
+    "correctAnswer": "Cascading Style Sheets",
+    "tags": ["web development", "styling", "acronym", "design"]
+  },
+  {
+    "id": "computer_science_basics-17",
+    "category": "computer_science_basics",
+    "subject": "What is the name of the unique address assigned to every device connected to a computer network that uses the Internet Protocol for communication?",
+    "correctAnswer": "IP Address (Internet Protocol Address)",
+    "tags": ["networking", "internet", "addressing", "identification"]
+  },
+  {
+    "id": "computer_science_basics-18",
+    "category": "computer_science_basics",
+    "subject": "In programming, what is 'recursion'?",
+    "correctAnswer": "A technique where a function calls itself to solve a smaller instance of the same problem",
+    "tags": ["programming", "algorithms", "functions", "problem solving"]
+  },
+  {
+    "id": "computer_science_basics-19",
+    "category": "computer_science_basics",
+    "subject": "What is 'cloud computing'?",
+    "correctAnswer": "The delivery of computing services—including servers, storage, databases, networking, software—over the Internet ('the cloud')",
+    "tags": ["technology", "internet", "services", "data storage", "scalability"]
+  },
+  {
+    "id": "computer_science_basics-20",
+    "category": "computer_science_basics",
+    "subject": "What is the primary function of a 'firewall' in network security?",
+    "correctAnswer": "To monitor and control incoming and outgoing network traffic based on predetermined security rules",
+    "tags": ["security", "networking", "cybersecurity", "protection"]
+  }
+]

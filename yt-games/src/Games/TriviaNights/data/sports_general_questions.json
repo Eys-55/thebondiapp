@@ -1,0 +1,142 @@
+[
+  {
+    "id": "sports_general-01",
+    "category": "sports_general",
+    "subject": "In which sport would you perform a slam dunk?",
+    "correctAnswer": "Basketball",
+    "tags": ["basketball", "team sport", "action", "usa"]
+  },
+  {
+    "id": "sports_general-02",
+    "category": "sports_general",
+    "subject": "How many players are there on a standard soccer (football) team on the field at one time?",
+    "correctAnswer": "Eleven (11)",
+    "tags": ["soccer", "football", "team sport", "rules"]
+  },
+  {
+    "id": "sports_general-03",
+    "category": "sports_general",
+    "subject": "The Olympic Games are held every how many years?",
+    "correctAnswer": "Four (4) years (for Summer and Winter, offset)",
+    "tags": ["olympics", "multi-sport", "international", "frequency"]
+  },
+  {
+    "id": "sports_general-04",
+    "category": "sports_general",
+    "subject": "Which sport is played at Wimbledon?",
+    "correctAnswer": "Tennis",
+    "tags": ["tennis", "grand slam", "uk", "individual sport"]
+  },
+  {
+    "id": "sports_general-05",
+    "category": "sports_general",
+    "subject": "In American football, how many points is a touchdown worth (before the extra point attempt)?",
+    "correctAnswer": "Six (6)",
+    "tags": ["american football", "scoring", "rules", "usa"]
+  },
+  {
+    "id": "sports_general-06",
+    "category": "sports_general",
+    "subject": "What is the name of the trophy awarded to the winner of the National Hockey League (NHL) playoffs?",
+    "correctAnswer": "Stanley Cup",
+    "tags": ["ice hockey", "nhl", "championship", "trophy", "north america"]
+  },
+  {
+    "id": "sports_general-07",
+    "category": "sports_general",
+    "subject": "Which Jamaican sprinter holds the world record for the 100m and 200m dash?",
+    "correctAnswer": "Usain Bolt",
+    "tags": ["athletics", "track and field", "sprinting", "olympics", "jamaica"]
+  },
+  {
+    "id": "sports_general-08",
+    "category": "sports_general",
+    "subject": "In baseball, how many strikes does a batter get before they are out?",
+    "correctAnswer": "Three (3)",
+    "tags": ["baseball", "rules", "usa", "japan"]
+  },
+  {
+    "id": "sports_general-09",
+    "category": "sports_general",
+    "subject": "The Tour de France is a famous annual multi-stage race in which sport?",
+    "correctAnswer": "Cycling",
+    "tags": ["cycling", "endurance", "race", "france", "europe"]
+  },
+  {
+    "id": "sports_general-10",
+    "category": "sports_general",
+    "subject": "What is the term for a score of three strikes in a row in bowling?",
+    "correctAnswer": "A turkey",
+    "tags": ["bowling", "scoring", "jargon", "individual sport"]
+  },
+  {
+    "id": "sports_general-11",
+    "category": "sports_general",
+    "subject": "Which country won the FIFA World Cup in 2022?",
+    "correctAnswer": "Argentina",
+    "tags": ["soccer", "football", "world cup", "international", "championship"]
+  },
+  {
+    "id": "sports_general-12",
+    "category": "sports_general",
+    "subject": "In golf, what is the term for completing a hole in one stroke under par?",
+    "correctAnswer": "Birdie",
+    "tags": ["golf", "scoring", "jargon", "individual sport"]
+  },
+  {
+    "id": "sports_general-13",
+    "category": "sports_general",
+    "subject": "Michael Jordan is a legendary figure in which sport?",
+    "correctAnswer": "Basketball",
+    "tags": ["basketball", "nba", "legend", "usa", "icon"]
+  },
+  {
+    "id": "sports_general-14",
+    "category": "sports_general",
+    "subject": "How many rings are there on the Olympic flag?",
+    "correctAnswer": "Five (5)",
+    "tags": ["olympics", "symbol", "design", "international"]
+  },
+  {
+    "id": "sports_general-15",
+    "category": "sports_general",
+    "subject": "What sport uses terms like 'ace', 'deuce', and 'love'?",
+    "correctAnswer": "Tennis (or Volleyball for 'ace')",
+    "tags": ["tennis", "scoring", "jargon", "volleyball"]
+  },
+  {
+    "id": "sports_general-16",
+    "category": "sports_general",
+    "subject": "The Super Bowl is the annual championship game of which professional sports league?",
+    "correctAnswer": "National Football League (NFL)",
+    "tags": ["american football", "nfl", "championship", "usa", "event"]
+  },
+  {
+    "id": "sports_general-17",
+    "category": "sports_general",
+    "subject": "Which martial art, originating in Japan, involves throws and grappling, and its name means 'gentle way'?",
+    "correctAnswer": "Judo",
+    "tags": ["martial arts", "japan", "grappling", "olympic sport"]
+  },
+  {
+    "id": "sports_general-18",
+    "category": "sports_general",
+    "subject": "In swimming, which stroke involves a frog-like kick and simultaneous arm movements?",
+    "correctAnswer": "Breaststroke",
+    "tags": ["swimming", "stroke", "technique", "water sport"]
+  },
+  {
+    "id": "sports_general-19",
+    "category": "sports_general",
+    "subject": "What is the maximum number of clubs a golfer is allowed to carry in their bag during a round?",
+    "correctAnswer": "Fourteen (14)",
+    "tags": ["golf", "rules", "equipment", "individual sport"]
+  },
+  {
+    "id": "sports_general-20",
+    "category": "sports_general",
+    "subject": "Which Formula One driver has won the most World Championships (as of early 2024, tied record)?",
+    "correctAnswer": "Michael Schumacher / Lewis Hamilton (both with 7)",
+    "tags": ["motorsport", "formula one", "racing", "championship", "record"]
+  }
+]

@@ -1,0 +1,142 @@
+[
+  {
+    "id": "movie_quotes-01",
+    "category": "movie_quotes",
+    "subject": "Which movie features the line: 'May the Force be with you.'?",
+    "correctAnswer": "Star Wars (A New Hope and others)",
+    "tags": ["sci-fi", "classic", "franchise", "iconic"]
+  },
+  {
+    "id": "movie_quotes-02",
+    "category": "movie_quotes",
+    "subject": "'Here's looking at you, kid.' is a famous quote from which classic film?",
+    "correctAnswer": "Casablanca",
+    "tags": ["classic", "romance", "drama", "1940s"]
+  },
+  {
+    "id": "movie_quotes-03",
+    "category": "movie_quotes",
+    "subject": "What film includes the memorable line: 'I'll be back.'?",
+    "correctAnswer": "The Terminator (and sequels)",
+    "tags": ["action", "sci-fi", "arnold schwarzenegger", "catchphrase"]
+  },
+  {
+    "id": "movie_quotes-04",
+    "category": "movie_quotes",
+    "subject": "'Frankly, my dear, I don't give a damn.' is a famous parting line from which epic historical romance?",
+    "correctAnswer": "Gone with the Wind",
+    "tags": ["classic", "drama", "romance", "historical"]
+  },
+  {
+    "id": "movie_quotes-05",
+    "category": "movie_quotes",
+    "subject": "Which character says, 'My precious,' in 'The Lord of the Rings' film series?",
+    "correctAnswer": "Gollum (Smeagol)",
+    "tags": ["fantasy", "franchise", "character quote", "iconic"]
+  },
+  {
+    "id": "movie_quotes-06",
+    "category": "movie_quotes",
+    "subject": "'You can't handle the truth!' is a powerful line from which courtroom drama?",
+    "correctAnswer": "A Few Good Men",
+    "tags": ["drama", "courtroom", "jack nicholson", "1990s"]
+  },
+  {
+    "id": "movie_quotes-07",
+    "category": "movie_quotes",
+    "subject": "In which movie does the character Forrest Gump famously say, 'Life is like a box of chocolates... '?",
+    "correctAnswer": "Forrest Gump",
+    "tags": ["drama", "comedy", "tom hanks", "oscar winner"]
+  },
+  {
+    "id": "movie_quotes-08",
+    "category": "movie_quotes",
+    "subject": "'To infinity... and beyond!' is the catchphrase of which animated character?",
+    "correctAnswer": "Buzz Lightyear (Toy Story)",
+    "tags": ["animation", "pixar", "family", "catchphrase"]
+  },
+  {
+    "id": "movie_quotes-09",
+    "category": "movie_quotes",
+    "subject": "Which horror film features the line, 'Here's Johnny!'?",
+    "correctAnswer": "The Shining",
+    "tags": ["horror", "stephen king", "jack nicholson", "classic"]
+  },
+  {
+    "id": "movie_quotes-10",
+    "category": "movie_quotes",
+    "subject": "'Show me the money!' is a demand from which sports agent film?",
+    "correctAnswer": "Jerry Maguire",
+    "tags": ["drama", "sports", "tom cruise", "cuba gooding jr"]
+  },
+  {
+    "id": "movie_quotes-11",
+    "category": "movie_quotes",
+    "subject": "Which gangster film includes the line: 'Keep your friends close, but your enemies closer.'?",
+    "correctAnswer": "The Godfather Part II",
+    "tags": ["crime", "drama", "classic", "mafia", "al pacino"]
+  },
+  {
+    "id": "movie_quotes-12",
+    "category": "movie_quotes",
+    "subject": "'E.T. phone home.' is a plea from which beloved science fiction film?",
+    "correctAnswer": "E.T. the Extra-Terrestrial",
+    "tags": ["sci-fi", "family", "steven spielberg", "1980s"]
+  },
+  {
+    "id": "movie_quotes-13",
+    "category": "movie_quotes",
+    "subject": "What movie features the line: 'Why so serious?' delivered by a famous villain?",
+    "correctAnswer": "The Dark Knight (The Joker)",
+    "tags": ["superhero", "action", "batman", "villain", "heath ledger"]
+  },
+  {
+    "id": "movie_quotes-14",
+    "category": "movie_quotes",
+    "subject": "'There's no place like home.' is a sentiment expressed by Dorothy in which classic fantasy film?",
+    "correctAnswer": "The Wizard of Oz",
+    "tags": ["fantasy", "classic", "family", "musical"]
+  },
+  {
+    "id": "movie_quotes-15",
+    "category": "movie_quotes",
+    "subject": "Which character, known for his fedora and whip, often says, 'It belongs in a museum!'?",
+    "correctAnswer": "Indiana Jones",
+    "tags": ["adventure", "action", "harrison ford", "archaeology"]
+  },
+  {
+    "id": "movie_quotes-16",
+    "category": "movie_quotes",
+    "subject": "'Houston, we have a problem.' is a famous (though slightly misquoted) line from which space mission film?",
+    "correctAnswer": "Apollo 13",
+    "tags": ["drama", "historical", "space", "nasa", "tom hanks"]
+  },
+  {
+    "id": "movie_quotes-17",
+    "category": "movie_quotes",
+    "subject": "Which action film series features the line, 'Yippee-ki-yay, motherf***er'?",
+    "correctAnswer": "Die Hard",
+    "tags": ["action", "bruce willis", "christmas movie", "catchphrase"]
+  },
+  {
+    "id": "movie_quotes-18",
+    "category": "movie_quotes",
+    "subject": "'I see dead people.' is a chilling admission from a young boy in which supernatural thriller?",
+    "correctAnswer": "The Sixth Sense",
+    "tags": ["thriller", "supernatural", "horror", "m night shyamalan"]
+  },
+  {
+    "id": "movie_quotes-19",
+    "category": "movie_quotes",
+    "subject": "What movie features the line, 'You're gonna need a bigger boat.'?",
+    "correctAnswer": "Jaws",
+    "tags": ["thriller", "horror", "steven spielberg", "shark"]
+  },
+  {
+    "id": "movie_quotes-20",
+    "category": "movie_quotes",
+    "subject": "'Hasta la vista, baby.' is another iconic line from which Arnold Schwarzenegger character?",
+    "correctAnswer": "The Terminator (Terminator 2: Judgment Day)",
+    "tags": ["action", "sci-fi", "arnold schwarzenegger", "catchphrase"]
+  }
+]

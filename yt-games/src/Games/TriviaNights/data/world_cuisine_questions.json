@@ -1,0 +1,142 @@
+[
+  {
+    "id": "world_cuisine-01",
+    "category": "world_cuisine",
+    "subject": "Sushi is a traditional dish originating from which country?",
+    "correctAnswer": "Japan",
+    "tags": ["japanese", "seafood", "rice", "iconic"]
+  },
+  {
+    "id": "world_cuisine-02",
+    "category": "world_cuisine",
+    "subject": "What is the main ingredient in traditional Italian pesto sauce, besides basil and olive oil?",
+    "correctAnswer": "Pine nuts",
+    "tags": ["italian", "sauce", "pasta", "herbs"]
+  },
+  {
+    "id": "world_cuisine-03",
+    "category": "world_cuisine",
+    "subject": "Paella, a rice dish often cooked with saffron, seafood, and meats, is a specialty of which country?",
+    "correctAnswer": "Spain",
+    "tags": ["spanish", "rice", "seafood", "national dish"]
+  },
+  {
+    "id": "world_cuisine-04",
+    "category": "world_cuisine",
+    "subject": "Kimchi, a spicy fermented vegetable dish, is a staple in the cuisine of which Asian country?",
+    "correctAnswer": "Korea (South Korea / North Korea)",
+    "tags": ["korean", "fermented", "spicy", "side dish"]
+  },
+  {
+    "id": "world_cuisine-05",
+    "category": "world_cuisine",
+    "subject": "What type of bread is traditionally used to make a Croque Monsieur, a French grilled ham and cheese sandwich?",
+    "correctAnswer": "Pain de mie (similar to white sandwich bread)",
+    "tags": ["french", "sandwich", "cheese", "ham"]
+  },
+  {
+    "id": "world_cuisine-06",
+    "category": "world_cuisine",
+    "subject": "Hummus, a dip or spread made from cooked, mashed chickpeas, tahini, lemon juice, and garlic, is a popular dish in which region?",
+    "correctAnswer": "Middle East (Levant)",
+    "tags": ["middle eastern", "dip", "chickpeas", "vegetarian"]
+  },
+  {
+    "id": "world_cuisine-07",
+    "category": "world_cuisine",
+    "subject": "Which Southeast Asian country is famous for its Pho, a noodle soup typically made with beef or chicken broth?",
+    "correctAnswer": "Vietnam",
+    "tags": ["vietnamese", "soup", "noodles", "national dish"]
+  },
+  {
+    "id": "world_cuisine-08",
+    "category": "world_cuisine",
+    "subject": "What is the primary ingredient in guacamole?",
+    "correctAnswer": "Avocado",
+    "tags": ["mexican", "dip", "appetizer", "fruit"]
+  },
+  {
+    "id": "world_cuisine-09",
+    "category": "world_cuisine",
+    "subject": "Bratwurst, a type of sausage, is a culinary specialty of which European country?",
+    "correctAnswer": "Germany",
+    "tags": ["german", "sausage", "meat", "traditional"]
+  },
+  {
+    "id": "world_cuisine-10",
+    "category": "world_cuisine",
+    "subject": "Tandoori chicken gets its characteristic red color and flavor from being marinated in yogurt and spices and cooked in what type of oven?",
+    "correctAnswer": "Tandoor (cylindrical clay oven)",
+    "tags": ["indian", "chicken", "spices", "cooking method"]
+  },
+  {
+    "id": "world_cuisine-11",
+    "category": "world_cuisine",
+    "subject": "Moussaka is a layered dish, typically with eggplant or potato, minced meat, and a béchamel sauce, popular in Greece and which other region?",
+    "correctAnswer": "The Balkans (and Middle East)",
+    "tags": ["greek", "balkan", "casserole", "eggplant"]
+  },
+  {
+    "id": "world_cuisine-12",
+    "category": "world_cuisine",
+    "subject": "What is the name of the Brazilian national dish, a stew of black beans with pork and beef?",
+    "correctAnswer": "Feijoada",
+    "tags": ["brazilian", "stew", "beans", "meat", "national dish"]
+  },
+  {
+    "id": "world_cuisine-13",
+    "category": "world_cuisine",
+    "subject": "From which country does the dessert Tiramisu, made with ladyfingers, coffee, mascarpone cheese, and cocoa, originate?",
+    "correctAnswer": "Italy",
+    "tags": ["italian", "dessert", "coffee", "cheese"]
+  },
+  {
+    "id": "world_cuisine-14",
+    "category": "world_cuisine",
+    "subject": "Pad Thai, a stir-fried rice noodle dish, is a popular street food and national dish of which country?",
+    "correctAnswer": "Thailand",
+    "tags": ["thai", "noodles", "stir-fry", "street food"]
+  },
+  {
+    "id": "world_cuisine-15",
+    "category": "world_cuisine",
+    "subject": "What is the main grain used to make couscous?",
+    "correctAnswer": "Semolina (durum wheat)",
+    "tags": ["north african", "grain", "pasta-like", "staple"]
+  },
+  {
+    "id": "world_cuisine-16",
+    "category": "world_cuisine",
+    "subject": "Which pungent green paste, often served with sushi, is made from Japanese horseradish?",
+    "correctAnswer": "Wasabi",
+    "tags": ["japanese", "condiment", "spicy", "sushi"]
+  },
+  {
+    "id": "world_cuisine-17",
+    "category": "world_cuisine",
+    "subject": "Goulash, a rich stew seasoned with paprika, is a traditional dish from which Central European country?",
+    "correctAnswer": "Hungary",
+    "tags": ["hungarian", "stew", "paprika", "national dish"]
+  },
+  {
+    "id": "world_cuisine-18",
+    "category": "world_cuisine",
+    "subject": "What is the key ingredient in the Indian dish Saag Paneer, besides paneer (cheese)?",
+    "correctAnswer": "Spinach (or other leafy greens like mustard greens)",
+    "tags": ["indian", "vegetarian", "spinach", "cheese"]
+  },
+  {
+    "id": "world_cuisine-19",
+    "category": "world_cuisine",
+    "subject": "Ceviche is a seafood dish originating from Latin America, where raw fish is 'cooked' using what acidic ingredient?",
+    "correctAnswer": "Citrus juice (like lime or lemon)",
+    "tags": ["latin american", "seafood", "raw fish", "citrus"]
+  },
+  {
+    "id": "world_cuisine-20",
+    "category": "world_cuisine",
+    "subject": "Poutine, a dish of french fries topped with cheese curds and gravy, is a famous specialty from which country?",
+    "correctAnswer": "Canada",
+    "tags": ["canadian", "comfort food", "fries", "cheese curds", "gravy"]
+  }
+]

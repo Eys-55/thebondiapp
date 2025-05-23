@@ -1,0 +1,142 @@
+[
+  {
+    "id": "art_history-01",
+    "category": "art_history",
+    "subject": "Who painted the 'Mona Lisa'?",
+    "correctAnswer": "Leonardo da Vinci",
+    "tags": ["renaissance", "italian", "painting", "portrait"]
+  },
+  {
+    "id": "art_history-02",
+    "category": "art_history",
+    "subject": "Which Dutch post-impressionist painter is famous for works like 'Starry Night' and for cutting off part of his own ear?",
+    "correctAnswer": "Vincent van Gogh",
+    "tags": ["post-impressionism", "dutch", "painting", "expressionism"]
+  },
+  {
+    "id": "art_history-03",
+    "category": "art_history",
+    "subject": "The art movement characterized by dream-like scenes and illogical juxtapositions, exemplified by Salvador Dalí, is called?",
+    "correctAnswer": "Surrealism",
+    "tags": ["20th century", "movement", "dreams", "dali"]
+  },
+  {
+    "id": "art_history-04",
+    "category": "art_history",
+    "subject": "Michelangelo's famous sculpture 'David' is primarily made from what material?",
+    "correctAnswer": "Marble",
+    "tags": ["renaissance", "italian", "sculpture", "biblical"]
+  },
+  {
+    "id": "art_history-05",
+    "category": "art_history",
+    "subject": "Which artistic period, originating in Italy in the 14th century, marked a 'rebirth' of classical art and learning?",
+    "correctAnswer": "The Renaissance",
+    "tags": ["period", "movement", "italy", "classical"]
+  },
+  {
+    "id": "art_history-06",
+    "category": "art_history",
+    "subject": "Claude Monet is considered one of the founders of which art movement, known for its emphasis on light and visible brushstrokes?",
+    "correctAnswer": "Impressionism",
+    "tags": ["french", "movement", "painting", "light"]
+  },
+  {
+    "id": "art_history-07",
+    "category": "art_history",
+    "subject": "What is the name of Edvard Munch's iconic painting depicting a figure screaming on a bridge, with a blood-red sky?",
+    "correctAnswer": "The Scream",
+    "tags": ["expressionism", "norwegian", "painting", "anxiety"]
+  },
+  {
+    "id": "art_history-08",
+    "category": "art_history",
+    "subject": "Which Spanish artist co-founded Cubism and painted 'Guernica'?",
+    "correctAnswer": "Pablo Picasso",
+    "tags": ["spanish", "cubism", "20th century", "painting"]
+  },
+  {
+    "id": "art_history-09",
+    "category": "art_history",
+    "subject": "Pop Art, an art movement that emerged in the 1950s, often drew inspiration from what sources?",
+    "correctAnswer": "Popular culture (advertising, comic books, mass media)",
+    "tags": ["20th century", "movement", "usa", "uk", "andy warhol"]
+  },
+  {
+    "id": "art_history-10",
+    "category": "art_history",
+    "subject": "Who painted the ceiling of the Sistine Chapel?",
+    "correctAnswer": "Michelangelo",
+    "tags": ["renaissance", "italian", "fresco", "vatican"]
+  },
+  {
+    "id": "art_history-11",
+    "category": "art_history",
+    "subject": "The art of ancient Egypt is characterized by its stylized depiction of figures, often shown in what perspective?",
+    "correctAnswer": "Profile (head and legs) with a frontal torso",
+    "tags": ["ancient egypt", "style", "perspective", "hieroglyphs"]
+  },
+  {
+    "id": "art_history-12",
+    "category": "art_history",
+    "subject": "Which Japanese art form involves folding paper to create intricate designs and figures?",
+    "correctAnswer": "Origami",
+    "tags": ["japanese", "craft", "paper", "technique"]
+  },
+  {
+    "id": "art_history-13",
+    "category": "art_history",
+    "subject": "Frida Kahlo, known for her self-portraits exploring identity, pain, and the body, was an artist from which country?",
+    "correctAnswer": "Mexico",
+    "tags": ["mexican", "20th century", "surrealism", "self-portrait"]
+  },
+  {
+    "id": "art_history-14",
+    "category": "art_history",
+    "subject": "The 'Venus de Milo' is an ancient Greek statue famous for missing what body parts?",
+    "correctAnswer": "Her arms",
+    "tags": ["ancient greece", "sculpture", "marble", "classical"]
+  },
+  {
+    "id": "art_history-15",
+    "category": "art_history",
+    "subject": "Which art movement, flourishing in the 17th and early 18th centuries, is characterized by ornate detail, grandeur, and drama?",
+    "correctAnswer": "Baroque",
+    "tags": ["movement", "europe", "architecture", "painting", "sculpture"]
+  },
+  {
+    "id": "art_history-16",
+    "category": "art_history",
+    "subject": "Auguste Rodin is renowned for his work in which artistic medium, with famous pieces like 'The Thinker' and 'The Kiss'?",
+    "correctAnswer": "Sculpture",
+    "tags": ["french", "sculpture", "bronze", "impressionism_influence"]
+  },
+  {
+    "id": "art_history-17",
+    "category": "art_history",
+    "subject": "What is the term for art that does not attempt to represent an accurate depiction of visual reality, instead using shapes, colors, forms and gestural marks?",
+    "correctAnswer": "Abstract Art",
+    "tags": ["movement", "style", "non-representational", "20th century"]
+  },
+  {
+    "id": "art_history-18",
+    "category": "art_history",
+    "subject": "Johannes Vermeer, a Dutch Baroque painter, is famous for his masterful use of light, particularly in paintings like 'Girl with a Pearl Earring'. In which century did he primarily work?",
+    "correctAnswer": "17th century",
+    "tags": ["dutch", "baroque", "painting", "light", "genre scenes"]
+  },
+  {
+    "id": "art_history-19",
+    "category": "art_history",
+    "subject": "The Bayeux Tapestry depicts which famous historical event from 1066?",
+    "correctAnswer": "The Norman Conquest of England (Battle of Hastings)",
+    "tags": ["medieval", "textile art", "embroidery", "historical document"]
+  },
+  {
+    "id": "art_history-20",
+    "category": "art_history",
+    "subject": "Which American artist was a leading figure in the Pop Art movement, famous for his Campbell's Soup Cans and celebrity screen prints?",
+    "correctAnswer": "Andy Warhol",
+    "tags": ["american", "pop art", "20th century", "screen printing", "celebrity"]
+  }
+]

@@ -94,13 +94,13 @@ function TruthOrDareGame() {
       return;
     }
     setPlayers(gameConfig.players);
-    if (gameConfig.gameMode === 'classic' && gameConfig.selectedCategory) {
+    if (gameConfig.taskAssignmentMode === 'system_assigned' && gameConfig.selectedCategory) {
         const categoryTruths = allTruthsData[gameConfig.selectedCategory] || [];
         const categoryDares = allDaresData[gameConfig.selectedCategory] || [];
         setFilteredTruthTexts(categoryTruths.map(item => item.text));
         setFilteredDareTexts(categoryDares.map(item => item.text));
-    } else if (gameConfig.gameMode === 'pair') {
-        setFilteredTruthTexts([]);
+    } else if (gameConfig.taskAssignmentMode === 'player_assigned') {
+        setFilteredTruthTexts([]); // Player assigned mode doesn't use pre-filtered lists from categories
         setFilteredDareTexts([]);
     }
     if (gamePhase === 'loading') {
@@ -127,9 +127,9 @@ function TruthOrDareGame() {
       if (gameConfig.turnProgression === 'sequential') {
         setCurrentPlayerIndex((prevIndex) => (prevIndex + 1) % players.length);
       }
-      if (gameConfig.gameMode === 'classic') {
+      if (gameConfig.taskAssignmentMode === 'system_assigned') {
         setGamePhase('classic_choice_pending');
-      } else {
+      } else { // player_assigned
         setGamePhase('doer_selected_pending_commander_selection');
       }
     }, players);
@@ -254,7 +254,7 @@ function TruthOrDareGame() {
     setGamePhase('player_selection_start');
   };
 
-  const noTasksAvailableForClassic = gameConfig && gameConfig.gameMode === 'classic' &&
+  const noTasksAvailableForClassic = gameConfig && gameConfig.taskAssignmentMode === 'system_assigned' &&
                                    filteredTruthTexts.length === 0 && filteredDareTexts.length === 0 &&
                                    Object.keys(allTruthsData).length > 0 && Object.keys(allDaresData).length > 0;
 
@@ -300,14 +300,14 @@ function TruthOrDareGame() {
         )}
         
         {doer && (gamePhase !== 'doer_selection_roulette' && gamePhase !== 'player_selection_start' && gamePhase !== 'loading' && gamePhase !== 'turn_ended' && gamePhase !== 'doer_responds' && gamePhase !== 'commander_selection_roulette') && (
-          <TruthOrDarePlayerInfo doer={doer} commander={commander} gameMode={gameConfig.gameMode} />
+          <TruthOrDarePlayerInfo doer={doer} commander={commander} taskAssignmentMode={gameConfig.taskAssignmentMode} />
         )}
         
-        {gameConfig.gameMode === 'pair' && doer && gamePhase === 'doer_selected_pending_commander_selection' && (
+        {gameConfig.taskAssignmentMode === 'player_assigned' && doer && gamePhase === 'doer_selected_pending_commander_selection' && (
           <TruthOrDarePendingCommander />
         )}
 
-        {gameConfig.gameMode === 'classic' && gamePhase === 'classic_choice_pending' && doer && (
+        {gameConfig.taskAssignmentMode === 'system_assigned' && gamePhase === 'classic_choice_pending' && doer && (
           <TruthOrDareClassicChoice
             doerName={doer.name}
             onChoice={handleClassicChoice}
@@ -315,7 +315,7 @@ function TruthOrDareGame() {
             dareDisabled={filteredDareTexts.length === 0}
           />
         )}
-        {gameConfig.gameMode === 'classic' && gamePhase === 'task_selection_roulette' && (
+        {gameConfig.taskAssignmentMode === 'system_assigned' && gamePhase === 'task_selection_roulette' && (
           <TruthOrDareTaskSelection
             title={`Choosing a ${currentTask.type}...`}
             currentSelectionText={taskSelectionText}
@@ -323,7 +323,7 @@ function TruthOrDareGame() {
         )}
         {(gamePhase === 'task_revealed_system' || gamePhase === 'task_revealed_verbal') && doer && currentTask.text && (
           <TruthOrDareTaskReveal
-            gameMode={gameConfig.gameMode}
+            taskAssignmentMode={gameConfig.taskAssignmentMode}
             doerName={doer.name}
             commanderName={commander?.name}
             taskType={currentTask.type}
@@ -332,7 +332,7 @@ function TruthOrDareGame() {
           />
         )}
 
-        {gameConfig.gameMode === 'pair' && gamePhase === 'pair_doer_chooses_type' && commander && doer && (
+        {gameConfig.taskAssignmentMode === 'player_assigned' && gamePhase === 'pair_doer_chooses_type' && commander && doer && (
           <TruthOrDarePairChoice
             doerName={doer.name}
             commanderName={commander.name}

@@ -1,13 +1,50 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import questionsData from '../data/questions.json'; // Direct import for simplicity
-// Import new components
+
+// Import new question data directly
+import icebreakersQuestions from '../data/icebreakers_questions.json';
+import deepDiveQuestions from '../data/deep_dive_questions.json';
+import hypotheticalsQuestions from '../data/hypotheticals_questions.json';
+import favoritesPreferencesQuestions from '../data/favorites_preferences_questions.json';
+import childhoodMemoriesQuestions from '../data/childhood_memories_questions.json';
+import travelAdventureQuestions from '../data/travel_adventure_questions.json';
+import popCultureQuestions from '../data/pop_culture_questions.json';
+import workAmbitionsQuestions from '../data/work_ambitions_questions.json';
+import funnyQuirkyQuestions from '../data/funny_quirky_questions.json';
+import philosophicalMusingsQuestions from '../data/philosophical_musings_questions.json';
+import relationshipReflectionsGeneralQuestions from '../data/relationship_reflections_general_questions.json';
+import spicyDaringQuestions from '../data/spicy_daring_questions.json';
+import selfReflectionQuestions from '../data/self_reflection_questions.json';
+import creativeCornerQuestions from '../data/creative_corner_questions.json';
+import futureGazingQuestions from '../data/future_gazing_questions.json';
+
+// Import components
 import GetToKnowHeader from '../components/GetToKnowHeader';
 import GetToKnowLoading from '../components/GetToKnowLoading';
 import GetToKnowPlayerTurn from '../components/GetToKnowPlayerTurn';
 import GetToKnowQuestionDisplay from '../components/GetToKnowQuestionDisplay';
 import GetToKnowGameOver from '../components/GetToKnowGameOver';
+
+// Helper to map category IDs to their data
+const allQuestionDataSets = {
+  "Icebreakers": icebreakersQuestions,
+  "DeepDive": deepDiveQuestions,
+  "Hypotheticals": hypotheticalsQuestions,
+  "FavoritesPreferences": favoritesPreferencesQuestions,
+  "ChildhoodMemories": childhoodMemoriesQuestions,
+  "TravelAdventure": travelAdventureQuestions,
+  "PopCulture": popCultureQuestions,
+  "WorkAmbitions": workAmbitionsQuestions,
+  "FunnyQuirky": funnyQuirkyQuestions,
+  "PhilosophicalMusings": philosophicalMusingsQuestions,
+  "RelationshipReflections": relationshipReflectionsGeneralQuestions,
+  "SpicyDaring": spicyDaringQuestions,
+  "SelfReflection": selfReflectionQuestions,
+  "CreativeCorner": creativeCornerQuestions,
+  "FutureGazing": futureGazingQuestions,
+};
+
 
 function GetToKnowGame() {
   const location = useLocation();
@@ -15,15 +52,12 @@ function GetToKnowGame() {
 
   const [gameConfig, setGameConfig] = useState(location.state?.gameConfig || null);
   const [players, setPlayers] = useState([]);
-  const [allQuestionsData] = useState(questionsData);
   const [currentQuestion, setCurrentQuestion] = useState('');
-  
-  const [gameQuestions, setGameQuestions] = useState([]); // Array of { id: string, text: string, revealed: false }
+  const [gameQuestions, setGameQuestions] = useState([]);
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
   const [shuffledPlayersForRound, setShuffledPlayersForRound] = useState([]);
   const [turnsTakenInRandomRound, setTurnsTakenInRandomRound] = useState(0);
-
-  const [gamePhase, setGamePhase] = useState('loading'); // 'loading', 'player_turn', 'question_display', 'game_ended'
+  const [gamePhase, setGamePhase] = useState('loading');
 
   const isMountedRef = useRef(true);
 
@@ -34,7 +68,6 @@ function GetToKnowGame() {
     };
   }, []);
 
-  // Effect for Initial Game Setup
   useEffect(() => {
     if (!gameConfig) {
       toast.error("Game configuration is missing. Redirecting to setup.");
@@ -42,63 +75,74 @@ function GetToKnowGame() {
       setGamePhase('game_ended');
       return;
     }
-
-    if (!allQuestionsData) {
-      toast.error("Failed to load questions. Please try again.");
-      navigate('/get-to-know/setup');
-      setGamePhase('game_ended');
-      return;
-    }
     
     const configPlayers = gameConfig.players || [];
     setPlayers(configPlayers);
-    const categoryKey = gameConfig.selectedCategory;
-    const questionsForCategory = allQuestionsData[categoryKey] ? allQuestionsData[categoryKey].map(q => q.text) : [];
 
-    if (questionsForCategory.length === 0) {
-      toast.error(`No questions found for category: ${categoryKey}. Ending game.`);
+    const selectedCategoryIds = gameConfig.selectedCategories || [];
+    if (selectedCategoryIds.length === 0) {
+        toast.error("No categories selected for the game. Redirecting to setup.");
+        navigate('/get-to-know/setup');
+        setGamePhase('game_ended');
+        return;
+    }
+
+    let allCombinedRawQuestions = [];
+    selectedCategoryIds.forEach(categoryId => {
+      if (allQuestionDataSets[categoryId]) {
+        allCombinedRawQuestions = allCombinedRawQuestions.concat(
+          allQuestionDataSets[categoryId].map(q => ({ ...q, sourceCategory: categoryId })) // Optionally tag source
+        );
+      } else {
+        console.warn(`No question data found for category ID: ${categoryId}`);
+      }
+    });
+
+    if (allCombinedRawQuestions.length === 0) {
+      toast.error(`No questions found for the selected categories: ${gameConfig.selectedCategoryNames?.join(', ') || 'Unknown'}. Ending game.`);
       setGamePhase('game_ended');
       return;
     }
 
-    // Shuffle all available questions for the category
-    const shuffledCategoryQuestions = [...questionsForCategory].sort(() => Math.random() - 0.5);
+    const shuffledCombinedQuestions = [...allCombinedRawQuestions].sort(() => Math.random() - 0.5);
 
-    // Take the number of questions specified in setup
-    const numQs = Math.min(gameConfig.numberOfQuestions || 5, shuffledCategoryQuestions.length);
-    if (numQs < (gameConfig.numberOfQuestions || 5) && shuffledCategoryQuestions.length > 0) { // only warn if there were *some* questions but not enough
-        toast.warn(`Only ${numQs} questions available for category ${categoryKey}, less than ${gameConfig.numberOfQuestions} requested.`);
+    const numQs = Math.min(gameConfig.numberOfQuestions || 15, shuffledCombinedQuestions.length);
+    if (numQs < (gameConfig.numberOfQuestions || 15) && shuffledCombinedQuestions.length > 0) {
+        toast.warn(`Only ${numQs} questions available for the selected categories, less than ${gameConfig.numberOfQuestions} requested.`);
     }
     
-    const selectedGameQuestions = shuffledCategoryQuestions
+    const finalGameQuestions = shuffledCombinedQuestions
       .slice(0, numQs)
-      .map((text, index) => ({ id: `q-${index}`, text, revealed: false }));
+      .map((q, index) => ({
+          id: `q-${index}`,
+          text: q.text,
+          isRRated: q.isRRated,
+          revealed: false
+        }));
     
-    setGameQuestions(selectedGameQuestions);
+    setGameQuestions(finalGameQuestions);
 
-    if (selectedGameQuestions.length === 0) {
-       toast.error(`Not enough questions to start the game for category: ${categoryKey}. Please select more or try a different category.`);
+    if (finalGameQuestions.length === 0) {
+       toast.error(`Not enough questions to start the game for the selected categories. Please select more or try different categories.`);
        setGamePhase('game_ended');
        return;
     }
 
-    // Setup player order
     setCurrentPlayerIndex(0);
     setTurnsTakenInRandomRound(0);
-    if (gameConfig.playerSelectionOrder === 'random' && configPlayers.length > 0) {
+    if (gameConfig.turnProgression === 'random' && configPlayers.length > 0) {
       setShuffledPlayersForRound([...configPlayers].sort(() => Math.random() - 0.5));
     } else {
-      // For sequential, or if random but only 1 player (though setup should prevent this), or if players array is empty
       setShuffledPlayersForRound([...configPlayers]);
     }
 
     setGamePhase('player_turn');
 
-  }, [gameConfig, allQuestionsData, navigate]);
+  }, [gameConfig, navigate]);
 
 
   const getCurrentPlayer = useCallback(() => {
-    const playerList = gameConfig?.playerSelectionOrder === 'random' ? shuffledPlayersForRound : players;
+    const playerList = gameConfig?.turnProgression === 'random' ? shuffledPlayersForRound : players;
     if (!playerList || playerList.length === 0 || currentPlayerIndex < 0 || currentPlayerIndex >= playerList.length) return null;
     return playerList[currentPlayerIndex];
   }, [players, currentPlayerIndex, gameConfig, shuffledPlayersForRound]);
@@ -131,31 +175,24 @@ function GetToKnowGame() {
     }
 
     let nextPlayerIndex = currentPlayerIndex;
-    let currentTurnsTaken = turnsTakenInRandomRound; // Use a local var for modification
+    let currentTurnsTaken = turnsTakenInRandomRound;
     let currentShuffledPlayers = [...shuffledPlayersForRound];
 
-
     if (players.length > 0) {
-       if (gameConfig.playerSelectionOrder === 'random') {
+       if (gameConfig.turnProgression === 'random') {
            currentTurnsTaken++;
-           if (currentTurnsTaken >= players.length) { // All players in current random shuffle had a turn
+           if (currentTurnsTaken >= players.length) {
                currentShuffledPlayers = [...players].sort(() => Math.random() - 0.5);
                setShuffledPlayersForRound(currentShuffledPlayers);
-               nextPlayerIndex = 0; // Start from the first player of the new shuffle
-               currentTurnsTaken = 0; // Reset turns for the new shuffle
+               nextPlayerIndex = 0;
+               currentTurnsTaken = 0;
                toast.info("Next round! Player order re-shuffled.");
            } else {
-               // Simple advance, relies on shuffledPlayersForRound already being set
-               nextPlayerIndex = (players.indexOf(shuffledPlayersForRound[currentPlayerIndex]) + 1) % players.length;
-               // Find the actual index in the *original* players array for the current player in the shuffled list,
-               // then find the next player in the shuffled list. This needs careful thought if players can be duplicated or if shuffle is complex.
-               // A simpler way if shuffledPlayersForRound is the source of truth for the round:
                nextPlayerIndex = (currentPlayerIndex + 1) % currentShuffledPlayers.length;
-
            }
        } else { // Sequential
            nextPlayerIndex = (currentPlayerIndex + 1) % players.length;
-           if (nextPlayerIndex === 0) { // A full sequential round completed
+           if (nextPlayerIndex === 0) {
                 toast.info("Next round!");
            }
        }
@@ -213,10 +250,9 @@ function GetToKnowGame() {
         />
       );
     }
-    return null; // Default case or unrecognized phase
+    return null;
   };
 
-  // Calculate progress variables here to be in scope for GameProgressDisplay
   let revealedCount = 0;
   let currentProgTurn = 0;
   let totalProgTurns = 0;
@@ -232,7 +268,6 @@ function GetToKnowGame() {
     }
     totalProgTurns = gameQuestions.length;
   }
-
 
   return (
     <div className="max-w-2xl mx-auto py-8 px-4">

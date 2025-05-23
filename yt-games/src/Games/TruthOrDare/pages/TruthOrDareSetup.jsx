@@ -6,6 +6,8 @@ import Modal from '../../Utils/utils_components/Modal'; // Import the new Modal 
 import PlayerSetup from '../../Utils/utils_setup/PlayerSetup';
 import GameOptionSelector from '../../Utils/utils_setup/GameOptionSelector';
 import GameStartTransition from '../../Utils/utils_components/GameStartTransition'; // Import transition component
+import CategorySelectionModal from '../../Utils/utils_components/CategorySelectionModal';
+import SelectedCategoriesDisplay from '../../Utils/utils_setup/SelectedCategoriesDisplay';
 
 const MIN_PLAYERS = 2;
 const MAX_PLAYERS = 10;
@@ -22,7 +24,7 @@ const defaultState = {
   playerNames: Array(MIN_PLAYERS).fill(''),
   selectedCategory: null,
   // turnProgression is now fixed to 'random' and not part of default state for user selection
-  gameMode: 'classic',
+  taskAssignmentMode: 'system_assigned', // formerly 'classic'
   rRatedModalConfirmed: false,
   numberOfTurns: 10, // 0 for unlimited
 };
@@ -35,11 +37,12 @@ function TruthOrDareSetup({ registerNavbarActions, unregisterNavbarActions }) {
   const [selectedCategory, setSelectedCategory] = useState(defaultState.selectedCategory);
   // turnProgression is now fixed to 'random' and not a state variable for user selection.
   const turnProgression = 'random'; // Always random
-  const [gameMode, setGameMode] = useState(defaultState.gameMode);
+  const [taskAssignmentMode, setTaskAssignmentMode] = useState(defaultState.taskAssignmentMode);
   const [numberOfTurns, setNumberOfTurns] = useState(defaultState.numberOfTurns);
   
   const [showRRatedModal, setShowRRatedModal] = useState(false);
   const [rRatedModalConfirmed, setRRatedModalConfirmed] = useState(defaultState.rRatedModalConfirmed);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
 
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -58,7 +61,7 @@ function TruthOrDareSetup({ registerNavbarActions, unregisterNavbarActions }) {
         setPlayerNames(Array(numPlayers).fill('').map((_, i) => loadedPlayerNames[i] || ''));
         setSelectedCategory(parsedSettings.selectedCategory || defaultState.selectedCategory);
         // turnProgression is fixed, no need to load/set from storage for this
-        setGameMode(parsedSettings.gameMode || defaultState.gameMode);
+        setTaskAssignmentMode(parsedSettings.taskAssignmentMode || defaultState.taskAssignmentMode);
         setRRatedModalConfirmed(parsedSettings.rRatedModalConfirmed || defaultState.rRatedModalConfirmed);
         setNumberOfTurns(parsedSettings.numberOfTurns === undefined ? defaultState.numberOfTurns : parsedSettings.numberOfTurns);
         // turnProgression is a const, no need to load from session storage
@@ -76,7 +79,7 @@ function TruthOrDareSetup({ registerNavbarActions, unregisterNavbarActions }) {
       selectedCategory,
       // turnProgression is fixed, but can be saved for consistency if needed elsewhere, though not user-configurable
       turnProgression: 'random',
-      gameMode,
+      taskAssignmentMode,
       rRatedModalConfirmed,
       numberOfTurns,
     };
@@ -85,16 +88,16 @@ function TruthOrDareSetup({ registerNavbarActions, unregisterNavbarActions }) {
     } catch (error) {
       console.error("Failed to save Truth or Dare settings to session storage:", error);
     }
-  }, [numPlayersUI, playerNames, selectedCategory, gameMode, rRatedModalConfirmed, numberOfTurns]);
+  }, [numPlayersUI, playerNames, selectedCategory, taskAssignmentMode, rRatedModalConfirmed, numberOfTurns]);
 
   useEffect(() => {
-    if (gameMode === 'pair') {
+    if (taskAssignmentMode === 'player_assigned') {
       setSelectedCategory(null);
       setRRatedModalConfirmed(false);
       setShowRRatedModal(false); // Fixed typo: setShowRRedirectModal -> setShowRRatedModal
       if (errors.category) setErrors(prev => ({ ...prev, category: null }));
     }
-  }, [gameMode, errors.category]);
+  }, [taskAssignmentMode, errors.category]);
 
   const validateForm = useCallback((updateState = true) => {
     const newErrors = {};
@@ -112,11 +115,11 @@ function TruthOrDareSetup({ registerNavbarActions, unregisterNavbarActions }) {
       delete newErrors.playerNames;
     }
 
-    if (gameMode === 'classic' && !selectedCategory) {
-      newErrors.category = 'Please select a category for Classic mode.';
+    if (taskAssignmentMode === 'system_assigned' && !selectedCategory) {
+      newErrors.category = 'Please select a category for System Assigned mode.';
     }
     
-    if (gameMode === 'classic' && selectedCategory === 'Relationship' && !rRatedModalConfirmed) {
+    if (taskAssignmentMode === 'system_assigned' && selectedCategory === 'Relationship' && !rRatedModalConfirmed) {
         newErrors.category = 'Please confirm age restriction for Relationship category.';
         if (updateState && !showRRatedModal) setShowRRatedModal(true);
     }
@@ -131,7 +134,7 @@ function TruthOrDareSetup({ registerNavbarActions, unregisterNavbarActions }) {
       setErrors(newErrors);
     }
     return newErrors;
-  }, [playerNames, numPlayersUI, gameMode, selectedCategory, rRatedModalConfirmed, showRRatedModal, numberOfTurns]);
+  }, [playerNames, numPlayersUI, taskAssignmentMode, selectedCategory, rRatedModalConfirmed, showRRatedModal, numberOfTurns]);
 
   const handlePlayerNameChange = (index, value) => {
     const newPlayerNames = [...playerNames];
@@ -152,20 +155,35 @@ function TruthOrDareSetup({ registerNavbarActions, unregisterNavbarActions }) {
     if (errors.playerNames) setErrors(prev => ({ ...prev, playerNames: null }));
   };
 
-  const handleCategoryChange = (categoryValue) => {
-    setSelectedCategory(categoryValue);
-    setRRatedModalConfirmed(false);
+  // const handleCategoryChange = (categoryValue) => { // Old handler
+  //   setSelectedCategory(categoryValue);
+  //   setRRatedModalConfirmed(false);
+  //   if (errors.category) setErrors(prev => ({ ...prev, category: null }));
+
+  //   if (categoryValue === 'Relationship') {
+  //     setShowRRatedModal(true);
+  //   } else {
+  //     setShowRRatedModal(false);
+  //   }
+  // };
+  
+  const handleOpenCategoryModal = () => setIsCategoryModalOpen(true);
+  const handleCloseCategoryModal = () => setIsCategoryModalOpen(false);
+
+  const handleConfirmCategorySelection = (newlySelectedId) => { // For single select
+    setSelectedCategory(newlySelectedId);
+    setIsCategoryModalOpen(false);
     if (errors.category) setErrors(prev => ({ ...prev, category: null }));
 
-    if (categoryValue === 'Relationship') {
+    if (newlySelectedId === 'Relationship' && !rRatedModalConfirmed) {
       setShowRRatedModal(true);
     } else {
       setShowRRatedModal(false);
     }
   };
-  
-  const handleGameModeChange = (mode) => {
-    setGameMode(mode);
+
+  const handleTaskAssignmentModeChange = (mode) => {
+    setTaskAssignmentMode(mode);
     setSelectedCategory(null); // Reset category when mode changes
     setShowRRatedModal(false);
     setRRatedModalConfirmed(false);
@@ -191,7 +209,7 @@ function TruthOrDareSetup({ registerNavbarActions, unregisterNavbarActions }) {
       toast.warn("Please fix the errors in the form.");
       return;
     }
-    if (gameMode === 'classic' && selectedCategory === 'Relationship' && !rRatedModalConfirmed) {
+    if (taskAssignmentMode === 'system_assigned' && selectedCategory === 'Relationship' && !rRatedModalConfirmed) {
         if (!showRRatedModal) setShowRRatedModal(true);
         toast.warn("Please confirm age restriction for Relationship category.");
         return;
@@ -204,16 +222,16 @@ function TruthOrDareSetup({ registerNavbarActions, unregisterNavbarActions }) {
     }));
     const gameConfig = {
       players: activePlayers,
-      turnProgression,
-      gameMode,
-      selectedCategory: gameMode === 'classic' ? selectedCategory : null,
+      turnProgression: 'random', // Explicitly set
+      taskAssignmentMode: taskAssignmentMode,
+      selectedCategory: taskAssignmentMode === 'system_assigned' ? selectedCategory : null,
       numberOfTurns,
     };
     // Instead of navigating directly, set up for transition
     setTransitionGameConfig(gameConfig);
     setIsTransitioning(true);
     // setIsLoading(true); // Keep form disabled
-  }, [validateForm, gameMode, selectedCategory, rRatedModalConfirmed, showRRatedModal, playerNames, numPlayersUI, turnProgression, numberOfTurns]);
+  }, [validateForm, taskAssignmentMode, selectedCategory, rRatedModalConfirmed, showRRatedModal, playerNames, numPlayersUI, turnProgression, numberOfTurns]);
 
   const handleResetSettings = useCallback(() => {
     sessionStorage.removeItem(SESSION_STORAGE_KEY);
@@ -221,7 +239,7 @@ function TruthOrDareSetup({ registerNavbarActions, unregisterNavbarActions }) {
     setPlayerNames(defaultState.playerNames);
     setSelectedCategory(defaultState.selectedCategory);
     // turnProgression is a const, no need to reset
-    setGameMode(defaultState.gameMode);
+    setTaskAssignmentMode(defaultState.taskAssignmentMode);
     setRRatedModalConfirmed(defaultState.rRatedModalConfirmed);
     setNumberOfTurns(defaultState.numberOfTurns);
     setShowRRatedModal(false);
@@ -233,12 +251,12 @@ function TruthOrDareSetup({ registerNavbarActions, unregisterNavbarActions }) {
     const currentErrors = validateForm(false);
     const allPlayerNamesFilled = playerNames.slice(0, numPlayersUI).every(name => name.trim() !== '');
     let rRatedCheckPassed = true;
-    if (gameMode === 'classic' && selectedCategory === 'Relationship' && !rRatedModalConfirmed) {
+    if (taskAssignmentMode === 'system_assigned' && selectedCategory === 'Relationship' && !rRatedModalConfirmed) {
       rRatedCheckPassed = false;
     }
     const numberOfTurnsValid = numberOfTurns >= 0 && numberOfTurns <= 50 && Number.isInteger(numberOfTurns);
     return Object.keys(currentErrors).length === 0 && allPlayerNamesFilled && rRatedCheckPassed && numberOfTurnsValid;
-  }, [validateForm, playerNames, numPlayersUI, gameMode, selectedCategory, rRatedModalConfirmed, numberOfTurns]);
+  }, [validateForm, playerNames, numPlayersUI, taskAssignmentMode, selectedCategory, rRatedModalConfirmed, numberOfTurns]);
 
 
   // Memoize isValidToStartValue
@@ -317,35 +335,51 @@ function TruthOrDareSetup({ registerNavbarActions, unregisterNavbarActions }) {
       <div className="mb-6 p-4 bg-gray-700 rounded-md shadow">
         <h3 className="text-xl font-semibold mb-4 text-gray-200 border-b border-gray-600 pb-2">2. Game Rules</h3>
         <GameOptionSelector
-          label="Game Mode:"
+          label="Task Assignment:"
           options={[
-            { id: 'classic', value: 'classic', name: 'Classic (System assigns Truths & Dares)' },
-            { id: 'pair', value: 'pair', name: 'Pair Mode (Players pick tasks)' },
+            { id: 'system_assigned', value: 'system_assigned', name: 'System Assigned (System assigns Truths & Dares)' },
+            { id: 'player_assigned', value: 'player_assigned', name: 'Player Assigned (Players pick tasks for each other)' },
           ]}
-          selectedOption={gameMode}
-          onOptionChange={(value) => handleGameModeChange(value)}
+          selectedOption={taskAssignmentMode}
+          onOptionChange={(value) => handleTaskAssignmentModeChange(value)}
           type="radio"
-          groupName="truthOrDareGameMode"
+          groupName="truthOrDareTaskAssignmentMode"
           isLoading={isLoading}
         />
       </div>
 
       {/* Category Selection (Conditional) */}
-      {gameMode === 'classic' && (
+      {taskAssignmentMode === 'system_assigned' && (
         <div className="mb-6 p-4 bg-gray-700 rounded-md shadow">
-          <h3 className="text-xl font-semibold mb-4 text-gray-200 border-b border-gray-600 pb-2">3. Category (Classic Mode)</h3>
-          <GameOptionSelector
-            options={CATEGORIES.map(cat => ({ id: cat.id, value: cat.id, name: cat.name }))}
-            selectedOption={selectedCategory}
-            onOptionChange={(value) => handleCategoryChange(value)}
-            type="radio"
-            groupName="truthOrDareCategory"
-            isLoading={isLoading}
+          <h3 className="text-xl font-semibold mb-4 text-gray-200 border-b border-gray-600 pb-2">3. Category (System Assigned Mode)</h3>
+          <SelectedCategoriesDisplay
+            selectedCategories={selectedCategory ? [selectedCategory] : []}
+            allCategoriesData={CATEGORIES}
+            onManageCategoriesClick={handleOpenCategoryModal}
+            placeholderText="No category selected. Click to choose."
+            buttonText="Select Category"
             error={errors.category}
-            layoutClass="flex flex-wrap gap-3 justify-center p-2 rounded" // Custom layout for categories
-            containerClass="bg-transparent border-none p-0" // Override default container for categories
+            disabled={isLoading}
+            isLoading={isLoading}
+            containerClass="bg-gray-700 p-0 border-none"
+            labelClass="hidden"
+            tagsContainerClass="flex flex-wrap gap-2 mb-3 min-h-[2.5rem] items-center"
+            tagClass="px-3 py-1.5 bg-primary text-white text-sm rounded-md"
+            placeholderClass="text-gray-400 italic mb-3 px-1"
+            buttonClass="w-full px-4 py-2 bg-primary-dark hover:bg-primary text-white font-semibold rounded-md transition-colors disabled:opacity-50"
           />
         </div>
+      )}
+      {taskAssignmentMode === 'system_assigned' && (
+        <CategorySelectionModal
+          isOpen={isCategoryModalOpen}
+          onClose={handleCloseCategoryModal}
+          onConfirm={handleConfirmCategorySelection}
+          title="Select Task Category"
+          allCategories={CATEGORIES}
+          initiallySelectedCategories={selectedCategory ? [selectedCategory] : []}
+          allowMultiple={false}
+        />
       )}
 
       <Modal

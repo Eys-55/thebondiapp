@@ -1,0 +1,22 @@
+[
+  { "text": "What's your all-time favorite movie and why?", "isRRated": false },
+  { "text": "What's your favorite book or series?", "isRRated": false },
+  { "text": "What's your favorite type of music or favorite band/artist?", "isRRated": false },
+  { "text": "What's your favorite food or cuisine?", "isRRated": false },
+  { "text": "What's your favorite place you've ever visited?", "isRRated": false },
+  { "text": "What's your favorite way to relax?", "isRRated": false },
+  { "text": "What's your favorite holiday?", "isRRated": false },
+  { "text": "What's your favorite board game or video game?", "isRRated": false },
+  { "text": "What's your favorite childhood cartoon or TV show?", "isRRated": false },
+  { "text": "What's your favorite animal?", "isRRated": false },
+  { "text": "What's your favorite color and does it have any special meaning to you?", "isRRated": false },
+  { "text": "What's your favorite type of weather?", "isRRated": false },
+  { "text": "What's your favorite quote or saying?", "isRRated": false },
+  { "text": "What's your favorite smell?", "isRRated": false },
+  { "text": "What's your favorite way to exercise or stay active?", "isRRated": false },
+  { "text": "What's your favorite thing about yourself?", "isRRated": false },
+  { "text": "What's your favorite type of art (painting, sculpture, music, dance, etc.)?", "isRRated": false },
+  { "text": "What's your favorite memory?", "isRRated": false },
+  { "text": "What's your favorite piece of clothing you own?", "isRRated": false },
+  { "text": "What's your favorite way to learn new things?", "isRRated": false }
+]

@@ -1,0 +1,33 @@
+{
+"easy": {
+"baseScore": 10,
+"words": [
+"Albert Einstein",
+"Taylor Swift",
+"Dwayne Johnson",
+"President",
+"Queen Elizabeth"
+// Add 10 more easy entries
+]
+},
+"medium": {
+"baseScore": 25,
+"words": [
+"Leonardo da Vinci",
+"Cleopatra",
+"William Shakespeare",
+"Giving an acceptance speech",
+"Walking the red carpet"
+// Add 5 more medium entries
+]
+},
+"hard": {
+"baseScore": 50,
+"words": [
+"A historical figure coming back to life",
+"Impressions of three different celebrities",
+"A famous scientist discovering something new"
+// Add 2 more hard entries
+]
+}
+}

@@ -1,9 +1,7 @@
-import concepts from '../data/concepts.json'; // Import the JSON data as default
-
 /**
- * Shuffles array in place.
- * @param {Array} array items An array containing the items.
- */
+* Shuffles array in place.
+* @param {Array} array items An array containing the items.
+*/
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -12,36 +10,28 @@ function shuffleArray(array) {
 }
 
 /**
- * Generates a specified number of unique quiz questions based on game configuration.
- *
+ * Generates a list of questions for the Trivia game.
  * @param {object} gameConfig - Configuration for the game.
- * @param {string[]} gameConfig.selectedCategories - Array of category IDs.
- * @param {number} gameConfig.numQuestions - Total number of questions to generate.
- * @param {boolean} gameConfig.includeChoices - Whether to generate multiple-choice questions or direct identification.
- * @param {object[]} allConcepts - The full list of concept objects from concepts.js.
+ * @param {string} gameConfig.numQuestions - Total number of questions to generate.
+ * @param {string} gameConfig.questionFormat - 'multiple_choice' or 'identification'.
+ * @param {object[]} questionsFromSelectedCategories - An array of question objects already filtered by selected categories.
  * @returns {object[]} An array of generated question objects.
  */
-export const generateQuestions = (gameConfig, allConcepts = concepts) => {
-  const { selectedCategories, numQuestions, includeChoices } = gameConfig;
+export const generateQuestions = (gameConfig, questionsFromSelectedCategories) => {
+  const { numQuestions, questionFormat } = gameConfig;
   const questions = [];
-  let availableConcepts = [...allConcepts];
-
-  // Filter concepts by selected categories
-  if (selectedCategories && selectedCategories.length > 0) {
-    availableConcepts = availableConcepts.filter(concept =>
-      selectedCategories.includes(concept.category)
-    );
-  }
+  // Use the pre-filtered questions passed to the function
+  let availableConcepts = [...questionsFromSelectedCategories];
 
   // Shuffle available concepts to get variety
   shuffleArray(availableConcepts);
 
-  for (let i = 0; i < Math.min(numQuestions, availableConcepts.length); i++) {
+  for (let i = 0; i < Math.min(Number(numQuestions), availableConcepts.length); i++) {
     const concept = availableConcepts[i];
     let questionType;
 
-    // Determine question type based on category and includeChoices
-    if (includeChoices) {
+    // Determine question type based on category and questionFormat
+    if (questionFormat === 'multiple_choice') {
       switch (concept.category) {
         case 'flags':
           questionType = 'flag_mc';
@@ -70,23 +60,24 @@ export const generateQuestions = (gameConfig, allConcepts = concepts) => {
     // Generate distractors (only for MC types)
     const getDistractors = (currentConcept, count = 3) => {
       const distractors = [];
-      // Prioritize distractors from the same category
-      const potentialDistractors = allConcepts.filter(c =>
+      // availableConcepts here refers to the questionsFromSelectedCategories
+      // Prioritize distractors from the same category within the selected pool
+      const potentialDistractors = availableConcepts.filter(c =>
         c.id !== currentConcept.id &&
-        c.category === currentConcept.category &&
+        c.category === currentConcept.category && // Ensure distractors are from the same category if possible
         c.correctAnswer !== currentConcept.correctAnswer
       );
       shuffleArray(potentialDistractors);
       for (let k = 0; k < Math.min(count, potentialDistractors.length); k++) {
         distractors.push(potentialDistractors[k].correctAnswer);
       }
-      // Fallback: if not enough distractors from the same category, pick from any other concept
+      // Fallback: if not enough distractors from the same category, pick from any other concept within the selected pool
       if (distractors.length < count) {
-        const fallbackDistractors = allConcepts.filter(c =>
+        const fallbackDistractors = availableConcepts.filter(c =>
             c.id !== currentConcept.id &&
             c.correctAnswer !== currentConcept.correctAnswer &&
-            !distractors.includes(c.correctAnswer) && // Ensure no duplicates with already picked distractors
-            c.correctAnswer !== currentConcept.correctAnswer // Ensure no duplicates with correct answer
+            !distractors.includes(c.correctAnswer) &&
+            c.category !== currentConcept.category // Prefer different categories for fallback
         );
         shuffleArray(fallbackDistractors);
         for (let k = 0; k < Math.min(count - distractors.length, fallbackDistractors.length); k++) {
@@ -131,5 +122,5 @@ export const generateQuestions = (gameConfig, allConcepts = concepts) => {
     questions.push(questionObj);
   }
 
-  return questions.slice(0, numQuestions);
+  return questions.slice(0, Number(numQuestions));
 };

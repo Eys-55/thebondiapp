@@ -1,0 +1,33 @@
+{
+"easy": {
+"baseScore": 10,
+"words": [
+"Harry Potter",
+"Reading",
+"Library",
+"Page",
+"Author"
+// Add 10 more easy entries
+]
+},
+"medium": {
+"baseScore": 25,
+"words": [
+"The Lord of the Rings",
+"To Kill a Mockingbird",
+"Pride and Prejudice",
+"Book club",
+"Mystery novel"
+// Add 5 more medium entries
+]
+},
+"hard": {
+"baseScore": 50,
+"words": [
+"Writing a best-selling novel series",
+"A librarian shushing noisy people",
+"A character from a Shakespearean play"
+// Add 2 more hard entries
+]
+}
+}

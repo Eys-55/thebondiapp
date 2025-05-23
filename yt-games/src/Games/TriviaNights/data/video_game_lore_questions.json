@@ -1,0 +1,142 @@
+[
+  {
+    "id": "video_game_lore-01",
+    "category": "video_game_lore",
+    "subject": "In the 'Mass Effect' series, what is the name of the ancient, sentient starship race that threatens galactic civilization?",
+    "correctAnswer": "Reapers",
+    "tags": ["sci-fi", "rpg", "bioware", "aliens"]
+  },
+  {
+    "id": "video_game_lore-02",
+    "category": "video_game_lore",
+    "subject": "What is the name of the princess that Mario frequently has to rescue from Bowser?",
+    "correctAnswer": "Princess Peach (formerly Princess Toadstool)",
+    "tags": ["nintendo", "platformer", "classic", "character"]
+  },
+  {
+    "id": "video_game_lore-03",
+    "category": "video_game_lore",
+    "subject": "In 'The Legend of Zelda' series, what is the name of the sacred relic that grants wishes, often sought by Ganondorf?",
+    "correctAnswer": "The Triforce",
+    "tags": ["nintendo", "adventure", "rpg", "fantasy", "artifact"]
+  },
+  {
+    "id": "video_game_lore-04",
+    "category": "video_game_lore",
+    "subject": "What is the primary setting (city name) for the 'Grand Theft Auto V' game?",
+    "correctAnswer": "Los Santos (based on Los Angeles)",
+    "tags": ["open world", "action", "rockstar games", "setting"]
+  },
+  {
+    "id": "video_game_lore-05",
+    "category": "video_game_lore",
+    "subject": "In the 'Halo' series, what is the name of Master Chief's AI companion?",
+    "correctAnswer": "Cortana",
+    "tags": ["sci-fi", "fps", "xbox", "microsoft", "character"]
+  },
+  {
+    "id": "video_game_lore-06",
+    "category": "video_game_lore",
+    "subject": "Which video game franchise features characters like Scorpion, Sub-Zero, and Liu Kang in a brutal fighting tournament?",
+    "correctAnswer": "Mortal Kombat",
+    "tags": ["fighting game", "arcade", "classic", "violence"]
+  },
+  {
+    "id": "video_game_lore-07",
+    "category": "video_game_lore",
+    "subject": "In 'The Witcher' series, Geralt of Rivia belongs to which monster-slaying profession?",
+    "correctAnswer": "Witcher (School of the Wolf)",
+    "tags": ["rpg", "fantasy", "cd projekt red", "protagonist"]
+  },
+  {
+    "id": "video_game_lore-08",
+    "category": "video_game_lore",
+    "subject": "What is the name of the shadowy organization that Solid Snake often battles in the 'Metal Gear Solid' series?",
+    "correctAnswer": "The Patriots (or La-Li-Lu-Le-Lo)",
+    "tags": ["stealth", "action", "konami", "hideo kojima", "antagonist"]
+  },
+  {
+    "id": "video_game_lore-09",
+    "category": "video_game_lore",
+    "subject": "In the 'Pokémon' series, what type of Pokémon is Pikachu?",
+    "correctAnswer": "Electric",
+    "tags": ["rpg", "nintendo", "monster collecting", "iconic"]
+  },
+  {
+    "id": "video_game_lore-10",
+    "category": "video_game_lore",
+    "subject": "What is the name of the main protagonist in the 'Uncharted' series, known for his treasure-hunting adventures?",
+    "correctAnswer": "Nathan Drake",
+    "tags": ["action-adventure", "playstation", "naughty dog", "protagonist"]
+  },
+  {
+    "id": "video_game_lore-11",
+    "category": "video_game_lore",
+    "subject": "In the 'Skyrim' (The Elder Scrolls V), the player character is revealed to be a 'Dovahkiin', which means what?",
+    "correctAnswer": "Dragonborn",
+    "tags": ["rpg", "fantasy", "bethesda", "lore", "protagonist"]
+  },
+  {
+    "id": "video_game_lore-12",
+    "category": "video_game_lore",
+    "subject": "Which popular battle royale game features players dropping onto an island and fighting to be the last one standing, often involving building structures?",
+    "correctAnswer": "Fortnite",
+    "tags": ["battle royale", "multiplayer", "epic games", "popular"]
+  },
+  {
+    "id": "video_game_lore-13",
+    "category": "video_game_lore",
+    "subject": "In the 'Final Fantasy VII' game, what is the name of the main antagonist with long silver hair and a massive sword?",
+    "correctAnswer": "Sephiroth",
+    "tags": ["rpg", "jrpg", "square enix", "classic", "villain"]
+  },
+  {
+    "id": "video_game_lore-14",
+    "category": "video_game_lore",
+    "subject": "What is the name of the virtual currency used in 'The Sims' series?",
+    "correctAnswer": "Simoleons",
+    "tags": ["simulation", "life sim", "ea games", "currency"]
+  },
+  {
+    "id": "video_game_lore-15",
+    "category": "video_game_lore",
+    "subject": "In 'Minecraft', what is the name of the hostile, green, four-legged creature that explodes when near the player?",
+    "correctAnswer": "Creeper",
+    "tags": ["sandbox", "survival", "mojang", "iconic enemy"]
+  },
+  {
+    "id": "video_game_lore-16",
+    "category": "video_game_lore",
+    "subject": "The 'Assassin's Creed' series primarily revolves around the long-standing conflict between the Assassins and which other secret society?",
+    "correctAnswer": "The Templar Order (Templars)",
+    "tags": ["action-adventure", "stealth", "ubisoft", "historical fiction", "faction"]
+  },
+  {
+    "id": "video_game_lore-17",
+    "category": "video_game_lore",
+    "subject": "What is the name of the fictional city where the 'BioShock' game primarily takes place, an underwater dystopia?",
+    "correctAnswer": "Rapture",
+    "tags": ["fps", "rpg", "dystopian", "narrative", "setting"]
+  },
+  {
+    "id": "video_game_lore-18",
+    "category": "video_game_lore",
+    "subject": "In the 'Street Fighter' series, what is Ryu's signature special move involving a blue energy projectile?",
+    "correctAnswer": "Hadoken",
+    "tags": ["fighting game", "capcom", "classic", "special move"]
+  },
+  {
+    "id": "video_game_lore-19",
+    "category": "video_game_lore",
+    "subject": "What type of creature is Sonic, the titular character of the 'Sonic the Hedgehog' series?",
+    "correctAnswer": "Hedgehog",
+    "tags": ["platformer", "sega", "classic", "mascot", "speed"]
+  },
+  {
+    "id": "video_game_lore-20",
+    "category": "video_game_lore",
+    "subject": "In 'Portal 2', what is the name of the malevolent AI who guides and torments the player character Chell?",
+    "correctAnswer": "GLaDOS (Genetic Lifeform and Disk Operating System)",
+    "tags": ["puzzle-platformer", "valve", "sci-fi", "ai", "villain"]
+  }
+]

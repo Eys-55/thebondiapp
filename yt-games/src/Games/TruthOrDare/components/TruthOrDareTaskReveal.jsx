@@ -1,10 +1,10 @@
 import React from 'react';
 
-function TruthOrDareTaskReveal({ gameMode, doerName, commanderName, taskType, taskText, onResponse }) {
+function TruthOrDareTaskReveal({ taskAssignmentMode, doerName, commanderName, taskType, taskText, onResponse }) {
   return (
     <div className="text-center my-6 p-6 bg-gray-700 rounded-lg shadow-lg">
       <p className="text-2xl font-semibold text-blue-400 mb-1">
-        {gameMode === 'pair' && commanderName
+        {taskAssignmentMode === 'player_assigned' && commanderName
           ? `${commanderName}, your turn to assign!`
           : `${doerName}, your ${taskType} is:`}
       </p>

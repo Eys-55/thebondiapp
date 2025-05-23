@@ -1,0 +1,33 @@
+{
+"easy": {
+"baseScore": 10,
+"words": [
+"Happy",
+"Sad",
+"Angry",
+"Scared",
+"Surprised"
+// Add 10 more easy entries
+]
+},
+"medium": {
+"baseScore": 25,
+"words": [
+"Confused",
+"Excited",
+"Embarrassed",
+"Proud",
+"Jealous"
+// Add 5 more medium entries
+]
+},
+"hard": {
+"baseScore": 50,
+"words": [
+"Existential dread",
+"Overwhelming joy",
+"Feeling nostalgic"
+// Add 2 more hard entries
+]
+}
+}

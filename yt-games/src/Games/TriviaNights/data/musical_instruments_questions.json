@@ -1,0 +1,142 @@
+[
+  {
+    "id": "musical_instruments-01",
+    "category": "musical_instruments",
+    "subject": "Which string instrument is typically played with a bow and has four strings, often tuned in perfect fifths?",
+    "correctAnswer": "Violin (or Viola, Cello, Double Bass)",
+    "tags": ["string", "orchestra", "bowed"]
+  },
+  {
+    "id": "musical_instruments-02",
+    "category": "musical_instruments",
+    "subject": "What brass instrument is known for its coiled tubing and flared bell, and is played by buzzing the lips into a mouthpiece?",
+    "correctAnswer": "Trumpet (or French Horn, Trombone, Tuba)",
+    "tags": ["brass", "wind", "orchestra", "band"]
+  },
+  {
+    "id": "musical_instruments-03",
+    "category": "musical_instruments",
+    "subject": "The piano produces sound by striking what against strings?",
+    "correctAnswer": "Hammers",
+    "tags": ["keyboard", "percussion", "string", "mechanism"]
+  },
+  {
+    "id": "musical_instruments-04",
+    "category": "musical_instruments",
+    "subject": "Which woodwind instrument consists of a long tube with holes that are covered by fingers or keys, and is played by blowing air across an opening or through a reed?",
+    "correctAnswer": "Flute (or Clarinet, Oboe, Saxophone, Bassoon)",
+    "tags": ["woodwind", "wind", "orchestra", "band"]
+  },
+  {
+    "id": "musical_instruments-05",
+    "category": "musical_instruments",
+    "subject": "What is the name of the percussion instrument consisting of a set of tuned drums?",
+    "correctAnswer": "Drum Kit (or Timpani)",
+    "tags": ["percussion", "drums", "rhythm"]
+  },
+  {
+    "id": "musical_instruments-06",
+    "category": "musical_instruments",
+    "subject": "The guitar typically has how many strings?",
+    "correctAnswer": "Six",
+    "tags": ["string", "plucked", "popular music"]
+  },
+  {
+    "id": "musical_instruments-07",
+    "category": "musical_instruments",
+    "subject": "Which large brass instrument has a slide that the player moves to change pitch?",
+    "correctAnswer": "Trombone",
+    "tags": ["brass", "slide", "orchestra", "jazz"]
+  },
+  {
+    "id": "musical_instruments-08",
+    "category": "musical_instruments",
+    "subject": "What is a traditional Japanese bamboo flute called?",
+    "correctAnswer": "Shakuhachi",
+    "tags": ["woodwind", "japanese", "traditional", "flute"]
+  },
+  {
+    "id": "musical_instruments-09",
+    "category": "musical_instruments",
+    "subject": "The sitar is a plucked string instrument prominently used in the classical music of which country?",
+    "correctAnswer": "India",
+    "tags": ["string", "indian", "classical", "world music"]
+  },
+  {
+    "id": "musical_instruments-10",
+    "category": "musical_instruments",
+    "subject": "Which electronic instrument, invented by Leon Theremin, is played without physical contact?",
+    "correctAnswer": "Theremin",
+    "tags": ["electronic", "unique", "contactless"]
+  },
+  {
+    "id": "musical_instruments-11",
+    "category": "musical_instruments",
+    "subject": "The bagpipes are a traditional wind instrument from which country?",
+    "correctAnswer": "Scotland",
+    "tags": ["wind", "scottish", "traditional", "folk"]
+  },
+  {
+    "id": "musical_instruments-12",
+    "category": "musical_instruments",
+    "subject": "What is the name for a set of tuned metal bars struck with mallets, similar to a xylophone but with metal bars?",
+    "correctAnswer": "Glockenspiel (or Metallophone)",
+    "tags": ["percussion", "tuned", "orchestra", "metal"]
+  },
+  {
+    "id": "musical_instruments-13",
+    "category": "musical_instruments",
+    "subject": "The ukulele is a small, four-stringed instrument associated with the music of which US state?",
+    "correctAnswer": "Hawaii",
+    "tags": ["string", "hawaiian", "popular"]
+  },
+  {
+    "id": "musical_instruments-14",
+    "category": "musical_instruments",
+    "subject": "Which woodwind instrument uses a double reed and is known for its melancholic tone?",
+    "correctAnswer": "Oboe (or Bassoon, English Horn)",
+    "tags": ["woodwind", "double reed", "orchestra"]
+  },
+  {
+    "id": "musical_instruments-15",
+    "category": "musical_instruments",
+    "subject": "The banjo is a stringed instrument often associated with which American music genre?",
+    "correctAnswer": "Bluegrass (or Folk, Country)",
+    "tags": ["string", "american", "folk", "plucked"]
+  },
+  {
+    "id": "musical_instruments-16",
+    "category": "musical_instruments",
+    "subject": "What is the largest and lowest-pitched brass instrument in the orchestra?",
+    "correctAnswer": "Tuba",
+    "tags": ["brass", "orchestra", "low pitch"]
+  },
+  {
+    "id": "musical_instruments-17",
+    "category": "musical_instruments",
+    "subject": "The accordion is a portable wind instrument with bellows, a keyboard, and buttons. It belongs to which family of instruments?",
+    "correctAnswer": "Free-reed aerophone",
+    "tags": ["wind", "keyboard", "folk", "portable"]
+  },
+  {
+    "id": "musical_instruments-18",
+    "category": "musical_instruments",
+    "subject": "Which percussion instrument consists of a pair of concave shells joined on one edge by a string, traditionally played by dancers?",
+    "correctAnswer": "Castanets",
+    "tags": ["percussion", "spanish", "dance", "rhythm"]
+  },
+  {
+    "id": "musical_instruments-19",
+    "category": "musical_instruments",
+    "subject": "The saxophone, though made of brass, is classified as what type of instrument due to its reed?",
+    "correctAnswer": "Woodwind",
+    "tags": ["woodwind", "brass_material", "jazz", "band"]
+  },
+  {
+    "id": "musical_instruments-20",
+    "category": "musical_instruments",
+    "subject": "What is the name of the keyboard instrument that uses plucking quills or plectra to vibrate strings, a precursor to the piano?",
+    "correctAnswer": "Harpsichord",
+    "tags": ["keyboard", "baroque", "historical", "string"]
+  }
+]

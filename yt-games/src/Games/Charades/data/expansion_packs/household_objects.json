@@ -1,0 +1,33 @@
+{
+"easy": {
+"baseScore": 10,
+"words": [
+"Chair",
+"Table",
+"Lamp",
+"Bed",
+"Spoon"
+// Add 10 more easy entries
+]
+},
+"medium": {
+"baseScore": 25,
+"words": [
+"Microwave",
+"Washing machine",
+"Blender",
+"Vacuum cleaner",
+"Toaster"
+// Add 5 more medium entries
+]
+},
+"hard": {
+"baseScore": 50,
+"words": [
+"A malfunctioning robot vacuum",
+"Assembling IKEA furniture without instructions",
+"A haunted grandfather clock"
+// Add 2 more hard entries
+]
+}
+}

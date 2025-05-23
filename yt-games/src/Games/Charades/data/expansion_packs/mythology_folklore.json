@@ -1,0 +1,33 @@
+{
+"easy": {
+"baseScore": 10,
+"words": [
+"Dragon",
+"Unicorn",
+"Fairy",
+"Ghost",
+"Wizard"
+// Add 10 more easy entries
+]
+},
+"medium": {
+"baseScore": 25,
+"words": [
+"Zeus",
+"Medusa",
+"Bigfoot",
+"Loch Ness Monster",
+"Vampire"
+// Add 5 more medium entries
+]
+},
+"hard": {
+"baseScore": 50,
+"words": [
+"The Minotaur in its labyrinth",
+"A phoenix rising from the ashes",
+"Thor wielding Mjolnir"
+// Add 2 more hard entries
+]
+}
+}

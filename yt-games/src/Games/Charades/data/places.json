@@ -1,0 +1,32 @@
+{
+"easy": {
+"baseScore": 10,
+"words": [
+"Park",
+"School",
+"Beach",
+"Home",
+"Store"
+]
+},
+"medium": {
+"baseScore": 25,
+"words": [
+"Library",
+"Museum",
+"Restaurant",
+"Mountain",
+"Desert"
+]
+},
+"hard": {
+"baseScore": 50,
+"words": [
+"Eiffel Tower",
+"Great Wall of China",
+"Underground cave system",
+"A bustling city square at night",
+"A remote island with a volcano"
+]
+}
+}
