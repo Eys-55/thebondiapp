@@ -7,7 +7,6 @@
 "Singing",
 "Dancing",
 "Guitar"
-// Add 10 more easy entries
 ]
 },
 "medium": {
@@ -18,7 +17,6 @@
 "Music festival",
 "Karaoke",
 "Writing a song"
-// Add 5 more medium entries
 ]
 },
 "hard": {
@@ -27,7 +25,6 @@
 "Conducting an orchestra",
 "Playing a guitar solo with your teeth",
 "A rapper in a rap battle"
-// Add 2 more hard entries
 ]
 }
 }

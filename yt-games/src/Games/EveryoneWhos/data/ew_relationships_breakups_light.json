@@ -1,0 +1,12 @@
+[
+  { "id": "ew_rbl_001", "text": "Everyone who has ever eaten a tub of ice cream after a tough day/breakup.", "isRRated": false },
+  { "id": "ew_rbl_002", "text": "Everyone who has a 'breakup anthem' song.", "isRRated": false },
+  { "id": "ew_rbl_003", "text": "Everyone who has dramatically changed their hair after a relationship ended.", "isRRated": false },
+  { "id": "ew_rbl_004", "text": "Everyone who believes 'time heals all wounds' when it comes to heart-break.", "isRRated": false },
+  { "id": "ew_rbl_005", "text": "Everyone who has ever stalked an ex's social media (be honest!).", "isRRated": true },
+  { "id": "ew_rbl_006", "text": "Everyone who is still friends with an ex.", "isRRated": false },
+  { "id": "ew_rbl_007", "text": "Everyone who thinks rebound relationships are a bad idea.", "isRRated": false },
+  { "id": "ew_rbl_008", "text": "Everyone who has written sad poetry or songs after a breakup.", "isRRated": false },
+  { "id": "ew_rbl_009", "text": "Everyone who learned valuable lessons from a past breakup.", "isRRated": false },
+  { "id": "ew_rbl_010", "text": "Everyone who thinks being single can be awesome.", "isRRated": false }
+]

@@ -1,0 +1,12 @@
+[
+  { "id": "ew_rll_001", "text": "Everyone whose primary love language is 'Words of Affirmation'.", "isRRated": false },
+  { "id": "ew_rll_002", "text": "Everyone whose primary love language is 'Acts of Service'.", "isRRated": false },
+  { "id": "ew_rll_003", "text": "Everyone whose primary love language is 'Receiving Gifts'.", "isRRated": false },
+  { "id": "ew_rll_004", "text": "Everyone whose primary love language is 'Quality Time'.", "isRRated": false },
+  { "id": "ew_rll_005", "text": "Everyone whose primary love language is 'Physical Touch'.", "isRRated": true },
+  { "id": "ew_rll_006", "text": "Everyone who knows their partner's love language.", "isRRated": false },
+  { "id": "ew_rll_007", "text": "Everyone who thinks understanding love languages improves relationships.", "isRRated": false },
+  { "id": "ew_rll_008", "text": "Everyone who finds it hard to express their love language.", "isRRated": false },
+  { "id": "ew_rll_009", "text": "Everyone who has had a mismatch in love languages with a partner.", "isRRated": false },
+  { "id": "ew_rll_010", "text": "Everyone who thinks their love language has changed over time.", "isRRated": false }
+]

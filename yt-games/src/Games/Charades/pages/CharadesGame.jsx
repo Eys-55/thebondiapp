@@ -10,9 +10,22 @@ import Leaderboard from '../../Utils/utils_gameplay/Leaderboard';
 import GameProgressDisplay from '../../Utils/utils_gameplay/GameProgressDisplay';
 
 // Import main category data
-import animalsData from '../data/animals.json';
-import placesData from '../data/places.json';
+import actionsVerbsData from '../data/actions_verbs.json';
 import activitiesData from '../data/activities.json';
+import animalsData from '../data/animals.json';
+import booksData from '../data/books.json';
+import emotionsFeelingsData from '../data/emotions_feelings.json';
+import famousPeopleData from '../data/famous_people.json';
+import foodDrinksData from '../data/food_drinks.json';
+import householdObjectsData from '../data/household_objects.json';
+import moviesData from '../data/movies.json';
+import mythologyFolkloreData from '../data/mythology_folklore.json';
+import occupationsData from '../data/occupations.json';
+import placesData from '../data/places.json';
+import songsData from '../data/songs.json';
+import sportsHobbiesData from '../data/sports_hobbies.json';
+import tvShowsData from '../data/tv_shows.json';
+
 
 // Import phase components
 import CharadesGameOver from '../components/CharadesGameOver';
@@ -24,9 +37,21 @@ import CharadesActing from '../components/CharadesActing';
 import CharadesRoundOver from '../components/CharadesRoundOver';
 
 const ALL_CHARADES_DATA = {
-  animals: animalsData,
-  places: placesData,
+  actions_verbs: actionsVerbsData,
   activities: activitiesData,
+  animals: animalsData,
+  books: booksData,
+  emotions_feelings: emotionsFeelingsData,
+  famous_people: famousPeopleData,
+  food_drinks: foodDrinksData,
+  household_objects: householdObjectsData,
+  movies: moviesData,
+  mythology_folklore: mythologyFolkloreData,
+  occupations: occupationsData,
+  places: placesData,
+  songs: songsData,
+  sports_hobbies: sportsHobbiesData,
+  tv_shows: tvShowsData,
 };
 
 const PLAYER_ROULETTE_DURATION = 2500;
@@ -136,9 +161,13 @@ function CharadesGame() {
       }
       
       const chosenMainCatId = mainCategoriesToChooseFrom[Math.floor(Math.random() * mainCategoriesToChooseFrom.length)];
+      // Find the category name from the setup config, or derive it
+      const categoryConfig = gameConfig.availableMainCategories?.find(cat => cat.id === chosenMainCatId);
+      const categoryName = categoryConfig?.name || chosenMainCatId.charAt(0).toUpperCase() + chosenMainCatId.slice(1).replace(/_/g, ' ');
+
       const newMainCategoryInfo = {
         id: chosenMainCatId,
-        name: chosenMainCatId.charAt(0).toUpperCase() + chosenMainCatId.slice(1),
+        name: categoryName,
         data: ALL_CHARADES_DATA[chosenMainCatId],
       };
       setCurrentRoundMainCategoryInfo(newMainCategoryInfo);

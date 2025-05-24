@@ -36,6 +36,14 @@ const games = [
     disabled: false,
   },
   {
+    id: 'everyone-whos',
+    name: "Everyone Who's 🥂",
+    description: "Answer questions about your experiences and see who relates! Select players who fit the card's description.",
+    link: '/everyone-whos/setup',
+    tags: ['Social', 'Party', 'Icebreaker', 'Group'],
+    disabled: false,
+  },
+  {
     id: 'picture-puzzle',
     name: 'Picture Puzzle 🖼️',
     description: 'Guess the word or phrase based on the pictures shown.',
@@ -100,14 +108,10 @@ function HomePage() {
                  </button>
               ) : (
                 <Link
-                    to={game.link}
-                    className={`block w-full mt-auto text-center font-bold py-3 px-4 rounded-md transition duration-200 text-white text-base sm:text-lg ${
-                      game.id === 'truth-or-dare'
-                        ? 'bg-purple-600 hover:bg-purple-700'
-                        : 'bg-primary hover:bg-primary-dark' // Assuming 'primary' colors are defined in Tailwind config
-                    }`}
+                to={game.link}
+                className={`block w-full mt-auto text-center font-bold py-3 px-4 rounded-md transition duration-200 text-white text-base sm:text-lg bg-purple-600 hover:bg-purple-700`}
                 >
-                    Play Now
+                Play Now
                 </Link>
               )}
             </div>

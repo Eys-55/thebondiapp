@@ -19,6 +19,10 @@ import CharadesGame from '../Games/Charades/pages/CharadesGame';
 import GetToKnowSetup from '../Games/GetToKnow/pages/GetToKnowSetup';
 import GetToKnowGame from '../Games/GetToKnow/pages/GetToKnowGame';
 
+// Everyone Who's components
+import EveryoneWhosSetup from '../Games/EveryoneWhos/pages/EveryoneWhosSetup';
+import EveryoneWhosGame from '../Games/EveryoneWhos/pages/EveryoneWhosGame';
+
 function App() {
   const [navbarActions, setNavbarActions] = useState(null);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
@@ -87,6 +91,18 @@ function App() {
               }
             />
             <Route path="/get-to-know/play" element={<GetToKnowGame />} />
+
+            {/* Everyone Who's Routes */}
+            <Route
+              path="/everyone-whos/setup"
+              element={
+                <EveryoneWhosSetup
+                  registerNavbarActions={registerNavbarActions}
+                  unregisterNavbarActions={unregisterNavbarActions}
+                />
+              }
+            />
+            <Route path="/everyone-whos/play" element={<EveryoneWhosGame />} />
 
             {/* Catch-all 404 */}
             <Route path="*" element={<NotFound />} />

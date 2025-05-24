@@ -7,7 +7,6 @@
 "Pizza",
 "Water",
 "Milk"
-// Add 10 more easy entries
 ]
 },
 "medium": {
@@ -18,7 +17,6 @@
 "Ice cream sundae",
 "Making a sandwich",
 "Baking a cake"
-// Add 5 more medium entries
 ]
 },
 "hard": {
@@ -27,7 +25,6 @@
 "A chef in a Michelin star restaurant",
 "Competitive eating contest",
 "Trying to eat noodles with chopsticks for the first time"
-// Add 2 more hard entries
 ]
 }
 }

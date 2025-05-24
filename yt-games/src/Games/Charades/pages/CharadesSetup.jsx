@@ -14,9 +14,21 @@ const MAX_PLAYERS = 10;
 const SESSION_STORAGE_KEY = 'charadesGameSettings'; // Define session storage key
 
 const AVAILABLE_MAIN_CATEGORIES = [
-  { id: 'animals', name: 'Animals' },
-  { id: 'places', name: 'Places' },
+  { id: 'actions_verbs', name: 'Actions & Verbs' },
   { id: 'activities', name: 'Activities' },
+  { id: 'animals', name: 'Animals' },
+  { id: 'books', name: 'Books' },
+  { id: 'emotions_feelings', name: 'Emotions & Feelings' },
+  { id: 'famous_people', name: 'Famous People' },
+  { id: 'food_drinks', name: 'Food & Drinks' },
+  { id: 'household_objects', name: 'Household Objects' },
+  { id: 'movies', name: 'Movies' },
+  { id: 'mythology_folklore', name: 'Mythology & Folklore' },
+  { id: 'occupations', name: 'Occupations' },
+  { id: 'places', name: 'Places' },
+  { id: 'songs', name: 'Songs' },
+  { id: 'sports_hobbies', name: 'Sports & Hobbies' },
+  { id: 'tv_shows', name: 'TV Shows' },
 ];
 
 const defaultState = {
@@ -54,7 +66,10 @@ function CharadesSetup({ registerNavbarActions, unregisterNavbarActions }) {
         const numPlayers = parsedSettings.numPlayersUI || defaultState.numPlayersUI;
         setPlayerNames(Array(numPlayers).fill('').map((_, i) => loadedPlayerNames[i] || ''));
         setTaskAssignmentMode(parsedSettings.taskAssignmentMode || defaultState.taskAssignmentMode);
-        setSelectedMainCategories(parsedSettings.selectedMainCategories || defaultState.selectedMainCategories);
+        // Ensure selected categories are valid against the current AVAILABLE_MAIN_CATEGORIES
+        const validSavedCategories = (parsedSettings.selectedMainCategories || defaultState.selectedMainCategories)
+          .filter(catId => AVAILABLE_MAIN_CATEGORIES.some(availCat => availCat.id === catId));
+        setSelectedMainCategories(validSavedCategories.length > 0 ? validSavedCategories : defaultState.selectedMainCategories);
         setNumRounds(parsedSettings.numRounds || defaultState.numRounds);
         setActingTimeSeconds(parsedSettings.actingTimeSeconds || defaultState.actingTimeSeconds);
       }
@@ -132,17 +147,6 @@ function CharadesSetup({ registerNavbarActions, unregisterNavbarActions }) {
     }
   };
 
-  // const handleSelectedMainCategoriesChange = (value, isChecked) => { // Old handler
-  //   setSelectedMainCategories(prev =>
-  //     isChecked
-  //       ? [...prev, value]
-  //       : prev.filter(c => c !== value)
-  //   );
-  //   if (errors.selectedMainCategories) {
-  //       setErrors(prev => ({ ...prev, selectedMainCategories: null }));
-  //   }
-  // };
-
   const handleOpenCategoryModal = () => setIsCategoryModalOpen(true);
   const handleCloseCategoryModal = () => setIsCategoryModalOpen(false);
 
@@ -172,6 +176,7 @@ function CharadesSetup({ registerNavbarActions, unregisterNavbarActions }) {
       players: activePlayers,
       taskAssignmentMode: taskAssignmentMode,
       selectedMainCategories: taskAssignmentMode === 'system_assigned' ? selectedMainCategories : [],
+      availableMainCategories: AVAILABLE_MAIN_CATEGORIES, // Pass the full list for name lookup
       numRounds,
       actingTimeSeconds,
       turnProgression: 'random', // Explicitly set

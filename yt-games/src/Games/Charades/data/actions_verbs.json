@@ -7,7 +7,6 @@
 "Sleeping",
 "Laughing",
 "Crying"
-// Add 10 more easy entries
 ]
 },
 "medium": {
@@ -18,7 +17,6 @@
 "Thinking",
 "Searching",
 "Building"
-// Add 5 more medium entries
 ]
 },
 "hard": {
@@ -27,7 +25,6 @@
 "Evaporating",
 "Negotiating a peace treaty",
 "Time traveling"
-// Add 2 more hard entries
 ]
 }
 }

@@ -7,7 +7,6 @@
 "Lamp",
 "Bed",
 "Spoon"
-// Add 10 more easy entries
 ]
 },
 "medium": {
@@ -18,7 +17,6 @@
 "Blender",
 "Vacuum cleaner",
 "Toaster"
-// Add 5 more medium entries
 ]
 },
 "hard": {
@@ -27,7 +25,6 @@
 "A malfunctioning robot vacuum",
 "Assembling IKEA furniture without instructions",
 "A haunted grandfather clock"
-// Add 2 more hard entries
 ]
 }
 }

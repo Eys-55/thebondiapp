@@ -7,7 +7,6 @@
 "Fairy",
 "Ghost",
 "Wizard"
-// Add 10 more easy entries
 ]
 },
 "medium": {
@@ -18,7 +17,6 @@
 "Bigfoot",
 "Loch Ness Monster",
 "Vampire"
-// Add 5 more medium entries
 ]
 },
 "hard": {
@@ -27,7 +25,6 @@
 "The Minotaur in its labyrinth",
 "A phoenix rising from the ashes",
 "Thor wielding Mjolnir"
-// Add 2 more hard entries
 ]
 }
 }

@@ -1,0 +1,12 @@
+[
+  { "id": "ew_rfdyn_001", "text": "Everyone who is the oldest sibling.", "isRRated": false },
+  { "id": "ew_rfdyn_002", "text": "Everyone who is the youngest sibling.", "isRRated": false },
+  { "id": "ew_rfdyn_003", "text": "Everyone who is a middle child.", "isRRated": false },
+  { "id": "ew_rfdyn_004", "text": "Everyone who is an only child.", "isRRated": false },
+  { "id": "ew_rfdyn_005", "text": "Everyone who talks to a family member every day.", "isRRated": false },
+  { "id": "ew_rfdyn_006", "text": "Everyone who has a big extended family.", "isRRated": false },
+  { "id": "ew_rfdyn_007", "text": "Everyone who has moved far away from their family.", "isRRated": false },
+  { "id": "ew_rfdyn_008", "text": "Everyone who has a family tradition they love.", "isRRated": false },
+  { "id": "ew_rfdyn_009", "text": "Everyone who looks more like their mom than their dad (or vice versa).", "isRRated": false },
+  { "id": "ew_rfdyn_010", "text": "Everyone who is an aunt or uncle.", "isRRated": false }
+]

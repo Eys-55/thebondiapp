@@ -7,7 +7,6 @@
 "Swimming",
 "Running",
 "Painting"
-// Add 10 more easy entries
 ]
 },
 "medium": {
@@ -18,7 +17,6 @@
 "Scuba diving",
 "Rock climbing",
 "Photography"
-// Add 5 more medium entries
 ]
 },
 "hard": {
@@ -27,7 +25,6 @@
 "Winning an Olympic gold medal",
 "Synchronized swimming routine",
 "Building a complex Lego model"
-// Add 2 more hard entries
 ]
 }
 }

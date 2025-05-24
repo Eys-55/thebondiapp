@@ -33,12 +33,14 @@ function Navbar({ navbarActions }) {
   const isTriviaSetupPage = location.pathname.startsWith('/trivia-nights/setup');
   const isTruthOrDareSetupPage = location.pathname.startsWith('/truth-or-dare/setup');
   const isCharadesSetupPage = location.pathname.startsWith('/charades/setup');
-  const isGetToKnowSetupPage = location.pathname.startsWith('/get-to-know/setup'); // Added
+  const isGetToKnowSetupPage = location.pathname.startsWith('/get-to-know/setup');
+  const isEveryoneWhosSetupPage = location.pathname.startsWith('/everyone-whos/setup');
   const isTriviaPlayPage = location.pathname.startsWith('/trivia-nights/play');
   const isTruthOrDarePlayPage = location.pathname.startsWith('/truth-or-dare/play');
   const isCharadesPlayPage = location.pathname.startsWith('/charades/play');
-  const isGetToKnowPlayPage = location.pathname.startsWith('/get-to-know/play'); // Added
-  const isInGame = isTriviaPlayPage || isTruthOrDarePlayPage || isCharadesPlayPage || isGetToKnowPlayPage; // Updated
+  const isGetToKnowPlayPage = location.pathname.startsWith('/get-to-know/play');
+  const isEveryoneWhosPlayPage = location.pathname.startsWith('/everyone-whos/play');
+  const isInGame = isTriviaPlayPage || isTruthOrDarePlayPage || isCharadesPlayPage || isGetToKnowPlayPage || isEveryoneWhosPlayPage;
 
   if (isTriviaSetupPage) {
     pageContextTitle = "Trivia Game Setup ❓";
@@ -46,16 +48,20 @@ function Navbar({ navbarActions }) {
     pageContextTitle = "Truth or Dare Setup 🔥";
   } else if (isCharadesSetupPage) {
     pageContextTitle = "Charades Setup 🎭";
-  } else if (isGetToKnowSetupPage) { // Added
+  } else if (isGetToKnowSetupPage) {
     pageContextTitle = "Get to Know Setup 👋";
+  } else if (isEveryoneWhosSetupPage) {
+    pageContextTitle = "Everyone Who's Setup 🥂";
   } else if (isTriviaPlayPage) {
     pageContextTitle = "Trivia Nights ❓";
   } else if (isTruthOrDarePlayPage) {
     pageContextTitle = "Truth or Dare 🔥";
   } else if (isCharadesPlayPage) {
     pageContextTitle = "Charades! 🎭";
-  } else if (isGetToKnowPlayPage) { // Added
+  } else if (isGetToKnowPlayPage) {
     pageContextTitle = "Get to Know 👋";
+  } else if (isEveryoneWhosPlayPage) {
+    pageContextTitle = "Everyone Who's 🥂";
   } else if (isHomePage) {
     pageContextTitle = "Select a Game 🎮";
   }
@@ -81,7 +87,7 @@ function Navbar({ navbarActions }) {
     setShowNavigationConfirmModal(false);
   };
 
-  if (isTriviaSetupPage || isTruthOrDareSetupPage || isCharadesSetupPage || isGetToKnowSetupPage) { // Updated
+  if (isTriviaSetupPage || isTruthOrDareSetupPage || isCharadesSetupPage || isGetToKnowSetupPage || isEveryoneWhosSetupPage) {
     actionButtons = (
       <>
         {navbarActions && navbarActions.resetHandler && (
@@ -143,6 +149,15 @@ function Navbar({ navbarActions }) {
         Leave Game
       </button>
     );
+  } else if (isEveryoneWhosPlayPage) {
+    actionButtons = (
+      <button
+        onClick={() => handleLeaveGameClick('/everyone-whos/setup')}
+        className="bg-danger hover:bg-danger-dark text-white font-semibold py-2 px-4 rounded-lg text-sm transition duration-200 ease-in-out"
+      >
+        Leave Game
+      </button>
+    );
   }
 
   return (
@@ -161,8 +176,8 @@ function Navbar({ navbarActions }) {
                 <HomeIcon className="w-7 h-7" />
               </button>
             )}
-             {isHomePage && ( // Placeholder for YT Games text or logo if needed on homepage
-                <span className="text-2xl font-bold text-primary-light">YT Games</span>
+             {isHomePage && ( // Placeholder for Bondi text or logo if needed on homepage
+                <span className="text-2xl font-bold text-primary-light">Bondi</span>
              )}
           </div>
           
@@ -182,7 +197,7 @@ function Navbar({ navbarActions }) {
               <button
                 onClick={() => setShowAboutModal(true)}
                 className="text-gray-300 hover:text-white font-medium py-2 px-3 rounded-md text-sm transition duration-150 ease-in-out"
-                title="About YT Games"
+                title="About Bondi"
               >
                 About
               </button>
@@ -223,7 +238,7 @@ function Navbar({ navbarActions }) {
       <Modal
         isOpen={showAboutModal}
         onClose={() => setShowAboutModal(false)}
-        title="About YT Games"
+        title="About Bondi"
         titleColor="text-primary-light"
         footerContent={
           <button
@@ -236,7 +251,7 @@ function Navbar({ navbarActions }) {
       >
         <div className="space-y-3 text-gray-300">
           <p>
-            <strong>YT Games</strong> is a collection of fun and engaging party games designed to be played with friends and family.
+            <strong>Bondi</strong> is a collection of fun and engaging party games designed to be played with friends and family.
           </p>
           <p>
             This application is built with React, Tailwind CSS, and Firebase, aiming to provide a seamless and enjoyable gaming experience directly in your browser.

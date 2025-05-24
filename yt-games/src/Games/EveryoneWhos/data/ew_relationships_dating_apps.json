@@ -1,0 +1,12 @@
+[
+  { "id": "ew_rda_001", "text": "Everyone who has ever used a dating app.", "isRRated": false },
+  { "id": "ew_rda_002", "text": "Everyone who has had a successful date from a dating app.", "isRRated": true },
+  { "id": "ew_rda_003", "text": "Everyone who has swiped right on someone they knew in real life.", "isRRated": false },
+  { "id": "ew_rda_004", "text": "Everyone who has a horror story from a dating app experience.", "isRRated": true },
+  { "id": "ew_rda_005", "text": "Everyone who thinks dating app profiles are mostly lies.", "isRRated": false },
+  { "id": "ew_rda_006", "text": "Everyone who has been catfished (or suspected it).", "isRRated": false },
+  { "id": "ew_rda_007", "text": "Everyone who has used a cheesy pick-up line on a dating app.", "isRRated": false },
+  { "id": "ew_rda_008", "text": "Everyone who met their current partner on a dating app.", "isRRated": false },
+  { "id": "ew_rda_009", "text": "Everyone who has deleted and reinstalled a dating app multiple times.", "isRRated": false },
+  { "id": "ew_rda_010", "text": "Everyone who prefers meeting people organically over dating apps.", "isRRated": false }
+]

@@ -7,7 +7,6 @@
 "Dwayne Johnson",
 "President",
 "Queen Elizabeth"
-// Add 10 more easy entries
 ]
 },
 "medium": {
@@ -18,7 +17,6 @@
 "William Shakespeare",
 "Giving an acceptance speech",
 "Walking the red carpet"
-// Add 5 more medium entries
 ]
 },
 "hard": {
@@ -27,7 +25,6 @@
 "A historical figure coming back to life",
 "Impressions of three different celebrities",
 "A famous scientist discovering something new"
-// Add 2 more hard entries
 ]
 }
 }

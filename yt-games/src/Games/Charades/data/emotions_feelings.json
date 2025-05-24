@@ -7,7 +7,6 @@
 "Angry",
 "Scared",
 "Surprised"
-// Add 10 more easy entries
 ]
 },
 "medium": {
@@ -18,7 +17,6 @@
 "Embarrassed",
 "Proud",
 "Jealous"
-// Add 5 more medium entries
 ]
 },
 "hard": {
@@ -27,7 +25,6 @@
 "Existential dread",
 "Overwhelming joy",
 "Feeling nostalgic"
-// Add 2 more hard entries
 ]
 }
 }

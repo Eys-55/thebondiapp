@@ -1,0 +1,12 @@
+[
+  { "id": "ew_rlt_001", "text": "Everyone who is currently in a long-term relationship (1+ year).", "isRRated": false },
+  { "id": "ew_rlt_002", "text": "Everyone who believes communication is the most important thing in a long-term relationship.", "isRRated": false },
+  { "id": "ew_rlt_003", "text": "Everyone who has successfully navigated a long-distance relationship.", "isRRated": false },
+  { "id": "ew_rlt_004", "text": "Everyone who still gets butterflies for their long-term partner.", "isRRated": true },
+  { "id": "ew_rlt_005", "text": "Everyone who thinks 'date nights' are crucial for long-term couples.", "isRRated": false },
+  { "id": "ew_rlt_006", "text": "Everyone who has a 'song' with their significant other.", "isRRated": false },
+  { "id": "ew_rlt_007", "text": "Everyone who has been with their partner for over 5 years.", "isRRated": false },
+  { "id": "ew_rlt_008", "text": "Everyone who thinks it's important to maintain individual hobbies in a relationship.", "isRRated": false },
+  { "id": "ew_rlt_009", "text": "Everyone who has 'couple friends' they hang out with.", "isRRated": false },
+  { "id": "ew_rlt_010", "text": "Everyone who is married or has been married.", "isRRated": false }
+]

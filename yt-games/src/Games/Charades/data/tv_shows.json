@@ -7,7 +7,6 @@
 "News",
 "Cartoon",
 "Remote control"
-// Add 10 more easy entries
 ]
 },
 "medium": {
@@ -18,7 +17,6 @@
 "Stranger Things",
 "Reality TV show",
 "Binge-watching a series"
-// Add 5 more medium entries
 ]
 },
 "hard": {
@@ -27,7 +25,6 @@
 "Hosting a late-night talk show",
 "Winning a cooking competition show",
 "A character from The Office pulling a prank"
-// Add 2 more hard entries
 ]
 }
 }
