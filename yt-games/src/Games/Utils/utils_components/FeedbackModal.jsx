@@ -63,27 +63,27 @@ function FeedbackModal({ isOpen, onClose, currentPage }) {
       onClose={onClose}
       title="Submit Feedback"
       titleColor="text-blue-400"
-      footerContent={
-        <>
-          <button
+            footerContent={
+            <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 sm:gap-4">
+            <button
             onClick={onClose}
-            className="px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded-md transition-colors"
+            className="px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded-md transition-colors w-full sm:w-auto"
             disabled={isSubmitting}
-          >
+            >
             Cancel
-          </button>
-          <button
+            </button>
+            <button
             type="submit" // Ensures form submission can be triggered by this button
             onClick={handleFormSubmit}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md transition-colors disabled:opacity-50"
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md transition-colors disabled:opacity-50 w-full sm:w-auto"
             disabled={isSubmitting || !feedbackText.trim() || feedbackText.trim().length < 10 || feedbackText.trim().length > 1000}
-          >
+            >
             {isSubmitting ? 'Submitting...' : 'Submit Feedback'}
-          </button>
-        </>
-      }
-    >
-      <form onSubmit={handleFormSubmit} className="space-y-4">
+            </button>
+            </div>
+            }
+            >
+            <form onSubmit={handleFormSubmit} className="space-y-4">
         <div>
           <label htmlFor="feedbackType" className="block text-sm font-medium text-gray-300 mb-1">
             Feedback Type:

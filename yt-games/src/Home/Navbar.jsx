@@ -76,7 +76,7 @@ function Navbar({ navbarActions }) {
     }
   };
 
-  // New handler for "Leave Game" or other modal-confirmed navigations
+  // New handler for "End Game" or other modal-confirmed navigations
   const handleLeaveGameClick = (targetPath) => {
     setNavigationTargetUrl(targetPath);
     setShowNavigationConfirmModal(true);
@@ -108,7 +108,7 @@ function Navbar({ navbarActions }) {
             className={`font-semibold py-2 px-4 rounded-lg text-sm transition duration-200 ease-in-out
                         ${(navbarActions.isLoading || !navbarActions.isValidToStart) ? 'bg-gray-500 text-gray-300 cursor-not-allowed' : 'bg-success hover:bg-success-dark text-white'}`}
           >
-            {navbarActions.isLoading ? 'Starting...' : 'Start Game'}
+            {navbarActions.isLoading ? 'Starting...' : 'Start'}
           </button>
         )}
       </>
@@ -119,7 +119,7 @@ function Navbar({ navbarActions }) {
         onClick={() => handleLeaveGameClick('/trivia-nights/setup')} // Use modal for leaving game
         className="bg-danger hover:bg-danger-dark text-white font-semibold py-2 px-4 rounded-lg text-sm transition duration-200 ease-in-out"
       >
-        Leave Game
+        End Game
       </button>
     );
   } else if (isTruthOrDarePlayPage) {
@@ -128,7 +128,7 @@ function Navbar({ navbarActions }) {
         onClick={() => handleLeaveGameClick('/truth-or-dare/setup')} // Use modal for leaving game
         className="bg-danger hover:bg-danger-dark text-white font-semibold py-2 px-4 rounded-lg text-sm transition duration-200 ease-in-out"
       >
-        Leave Game
+        End Game
       </button>
     );
   } else if (isCharadesPlayPage) { // Added
@@ -137,7 +137,7 @@ function Navbar({ navbarActions }) {
         onClick={() => handleLeaveGameClick('/charades/setup')} // Use modal for leaving game
         className="bg-danger hover:bg-danger-dark text-white font-semibold py-2 px-4 rounded-lg text-sm transition duration-200 ease-in-out"
       >
-        Leave Game
+        End Game
       </button>
     );
   } else if (isGetToKnowPlayPage) { // Added
@@ -146,7 +146,7 @@ function Navbar({ navbarActions }) {
         onClick={() => handleLeaveGameClick('/get-to-know/setup')} // Use modal for leaving game
         className="bg-danger hover:bg-danger-dark text-white font-semibold py-2 px-4 rounded-lg text-sm transition duration-200 ease-in-out"
       >
-        Leave Game
+        End Game
       </button>
     );
   } else if (isEveryoneWhosPlayPage) {
@@ -155,7 +155,7 @@ function Navbar({ navbarActions }) {
         onClick={() => handleLeaveGameClick('/everyone-whos/setup')}
         className="bg-danger hover:bg-danger-dark text-white font-semibold py-2 px-4 rounded-lg text-sm transition duration-200 ease-in-out"
       >
-        Leave Game
+        End Game
       </button>
     );
   }
@@ -210,7 +210,7 @@ function Navbar({ navbarActions }) {
       <Modal
         isOpen={showNavigationConfirmModal}
         onClose={() => setShowNavigationConfirmModal(false)}
-        title="Leave Game?"
+        title="End Game?"
         titleColor="text-warning-light"
         footerContent={
           <>

@@ -34,12 +34,12 @@ function TriviaGameOver({ players, onPlayAgain }) {
         displayFormatter={triviaLeaderboardFormatter}
       />
       <button
-        onClick={onPlayAgain}
-        className="mt-8 bg-primary hover:bg-primary-dark text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-200 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50 shadow-lg"
+      onClick={onPlayAgain}
+      className="mt-8 bg-primary hover:bg-primary-dark text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-200 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50 shadow-lg w-full"
       >
-        Play Again?
+      Play Again?
       </button>
-    </div>
+      </div>
   );
 }
 

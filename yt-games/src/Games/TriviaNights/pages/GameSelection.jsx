@@ -37,8 +37,8 @@ const defaultState = {
   selectedCategories: [],
   numQuestions: 10,
   timePerQuestion: 10,
-  questionFormat: 'multiple_choice', // boolean true previously
-  scoringRule: 'fastest_finger', // formerly 'fastest'
+  questionFormat: 'show_mc', // 'show_mc' or 'open_ended'
+  scoringRule: 'fastest_finger', // 'fastest_finger' or 'any_correct'
   numPlayersUI: MIN_PLAYERS,
   playerNames: Array(MIN_PLAYERS).fill(''),
 };
@@ -331,10 +331,10 @@ function GameSelection({ registerNavbarActions, unregisterNavbarActions }) {
 
         <div className="mb-4">
           <GameOptionSelector
-            label="Question Format:"
+            label="Question Style:"
             options={[
-              { id: 'multiple_choice', value: 'multiple_choice', name: 'Multiple Choice' },
-              { id: 'identification', value: 'identification', name: 'Identification (Type-in answer)' },
+              { id: 'show_mc', value: 'show_mc', name: 'Show Multiple Choice' },
+              { id: 'open_ended', value: 'open_ended', name: 'Open Ended (No Choices Shown)' },
             ]}
             selectedOption={questionFormat}
             onOptionChange={(value) => setQuestionFormat(value)}
@@ -349,8 +349,8 @@ function GameSelection({ registerNavbarActions, unregisterNavbarActions }) {
           <GameOptionSelector
             label="Scoring Rule:"
             options={[
-              { id: 'fastest_finger', value: 'fastest_finger', name: 'Fastest Finger (One winner per question)' },
-              { id: 'any_correct', value: 'any_correct', name: 'Anyone Correct (Multiple winners possible)' },
+              { id: 'fastest_finger', value: 'fastest_finger', name: 'One Winner' },
+              { id: 'any_correct', value: 'any_correct', name: 'Multiple Winners' },
             ]}
             selectedOption={scoringRule}
             onOptionChange={(value) => setScoringRule(value)}

@@ -13,7 +13,7 @@ function shuffleArray(array) {
  * Generates a list of questions for the Trivia game.
  * @param {object} gameConfig - Configuration for the game.
  * @param {string} gameConfig.numQuestions - Total number of questions to generate.
- * @param {string} gameConfig.questionFormat - 'multiple_choice' or 'identification'.
+ * @param {string} gameConfig.questionFormat - 'show_mc' or 'open_ended'.
  * @param {object[]} questionsFromSelectedCategories - An array of question objects already filtered by selected categories.
  * @returns {object[]} An array of generated question objects.
  */
@@ -31,20 +31,22 @@ export const generateQuestions = (gameConfig, questionsFromSelectedCategories) =
     let questionType;
 
     // Determine question type based on category and questionFormat
-    if (questionFormat === 'multiple_choice') {
+    if (questionFormat === 'show_mc') {
+      // For 'show_mc', we determine if it's a special MC type or generic text_mc
       switch (concept.category) {
         case 'flags':
-          questionType = 'flag_mc';
+          questionType = 'flag_mc'; // UI will handle "Which country's flag is this: [flag_emoji]?"
           break;
         case 'languages':
-          questionType = 'language_mc';
+          questionType = 'language_mc'; // UI will handle "'[foreign_phrase]' means 'Hello World' in which language?"
           break;
         default:
-          questionType = 'text_mc';
+          questionType = 'text_mc'; // Standard text question with multiple choice options
           break;
       }
-    } else {
-      questionType = 'identification';
+    } else { // This covers 'open_ended'
+      questionType = 'identification'; // For open_ended, it's always identification.
+                                       // The UI will present the question appropriately based on category if needed (e.g. for flags/languages).
     }
 
     let questionObj = {

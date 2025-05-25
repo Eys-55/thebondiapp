@@ -15,7 +15,7 @@ function GameStartTransition({ gameName, onComplete, durationSeconds = 3 }) {
       }, 1000);
       return () => clearTimeout(timer);
     } else if (countdown === 0) {
-      setMessage("GO!");
+      // setMessage("GO!"); // Removed: message state will remain "GET READY...", GO! is handled by dedicated element
       const goTimer = setTimeout(() => {
         if (onComplete) {
           onComplete();
@@ -27,13 +27,15 @@ function GameStartTransition({ gameName, onComplete, durationSeconds = 3 }) {
 
   return (
     <div className="fixed inset-0 bg-gray-900 text-white flex flex-col items-center justify-center z-[1000] text-center p-4">
-      <h1 className={`text-4xl md:text-6xl font-bold mb-8 ${countdown > 0 ? 'animate-pulse' : ''}`}>
-        {message}
-      </h1>
       {countdown > 0 && (
-        <p className="text-8xl md:text-9xl font-mono font-extrabold">{countdown}</p>
+        <>
+          <h1 className="text-4xl md:text-6xl font-bold mb-8 animate-pulse">
+            {message}
+          </h1>
+          <p className="text-8xl md:text-9xl font-mono font-extrabold">{countdown}</p>
+        </>
       )}
-      {countdown === 0 && message === "GO!" && (
+      {countdown === 0 && (
          <p className="text-8xl md:text-9xl font-mono font-extrabold animate-ping">GO!</p>
       )}
     </div>

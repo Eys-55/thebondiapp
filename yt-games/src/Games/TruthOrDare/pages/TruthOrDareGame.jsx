@@ -16,7 +16,7 @@ import TruthOrDareTaskSelection from '../components/TruthOrDareTaskSelection';
 import TruthOrDarePairChoice from '../components/TruthOrDarePairChoice';
 import TruthOrDareTaskReveal from '../components/TruthOrDareTaskReveal';
 import TruthOrDareTurnEnd from '../components/TruthOrDareTurnEnd';
-import TruthOrDarePendingCommander from '../components/TruthOrDarePendingCommander';
+import TruthOrDarePendingAsker from '../components/TruthOrDarePendingAsker';
 
 
 const ROULETTE_INTERVAL = 100;
@@ -38,7 +38,7 @@ function TruthOrDareGame() {
   const [players, setPlayers] = useState([]);
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
   const [doer, setDoer] = useState(null);
-  const [commander, setCommander] = useState(null);
+  const [asker, setAsker] = useState(null);
   const [turnsPlayed, setTurnsPlayed] = useState(0);
 
   const [gamePhase, setGamePhase] = useState('loading');
@@ -113,7 +113,7 @@ function TruthOrDareGame() {
     if (!isMountedRef.current || players.length === 0) return;
     setGamePhase('doer_selection_roulette');
     setDoer(null);
-    setCommander(null);
+    setAsker(null);
     let preSelectedDoer = null;
     if (gameConfig.turnProgression === 'sequential' && players.length > 0) {
         preSelectedDoer = players[currentPlayerIndex];
@@ -130,45 +130,45 @@ function TruthOrDareGame() {
       if (gameConfig.taskAssignmentMode === 'system_assigned') {
         setGamePhase('classic_choice_pending');
       } else { // player_assigned
-        setGamePhase('doer_selected_pending_commander_selection');
+        setGamePhase('doer_selected_pending_asker_selection');
       }
     }, players);
   }, [players, gameConfig, currentPlayerIndex, playerRoulette]);
 
-  const startCommanderSelectionRoulette = useCallback(() => {
+  const startAskerSelectionRoulette = useCallback(() => {
     if (!isMountedRef.current || !doer || players.length < 1) {
         toast.error("Error in player setup for Pair Mode.");
         setGamePhase('turn_ended');
         return;
     }
-    setGamePhase('commander_selection_roulette');
-    const potentialCommanders = players.filter(p => p.id !== doer.id);
-    if (potentialCommanders.length === 0) {
-        const fallbackCommander = (players.length === 1 && players[0].id === doer.id) ? doer : (players.length > 0 ? players[0] : doer);
-        setCommander(fallbackCommander);
-        playerRoulette.setRouletteDisplayText(fallbackCommander.name);
-        toast.info(`${fallbackCommander.name} will also be the Commander.`);
+    setGamePhase('asker_selection_roulette');
+    const potentialAskers = players.filter(p => p.id !== doer.id);
+    if (potentialAskers.length === 0) {
+        const fallbackAsker = (players.length === 1 && players[0].id === doer.id) ? doer : (players.length > 0 ? players[0] : doer);
+        setAsker(fallbackAsker);
+        playerRoulette.setRouletteDisplayText(fallbackAsker.name);
+        toast.info(`${fallbackAsker.name} will also be the Asker.`);
         setGamePhase('pair_doer_chooses_type');
         return;
     }
-    playerRoulette.spinPlayerRoulette(PLAYER_ROULETTE_DURATION, (selectedCommander) => {
+    playerRoulette.spinPlayerRoulette(PLAYER_ROULETTE_DURATION, (selectedAsker) => {
       if (!isMountedRef.current) return;
-      setCommander(selectedCommander);
-      toast.info(`${selectedCommander.name} is the Commander!`);
+      setAsker(selectedAsker);
+      toast.info(`${selectedAsker.name} is the Asker!`);
       setGamePhase('pair_doer_chooses_type');
-    }, potentialCommanders);
+    }, potentialAskers);
   }, [players, doer, playerRoulette]);
 
   useEffect(() => {
     if (gamePhase === 'player_selection_start') {
       startDoerSelectionRoulette();
-    } else if (gamePhase === 'doer_selected_pending_commander_selection') {
+    } else if (gamePhase === 'doer_selected_pending_asker_selection') {
       const timer = setTimeout(() => {
-        if (isMountedRef.current) startCommanderSelectionRoulette();
+        if (isMountedRef.current) startAskerSelectionRoulette();
       }, 2000);
       return () => clearTimeout(timer);
     }
-  }, [gamePhase, startDoerSelectionRoulette, startCommanderSelectionRoulette]);
+  }, [gamePhase, startDoerSelectionRoulette, startAskerSelectionRoulette]);
   
   useEffect(() => {
     if (responseAnimation && isMountedRef.current) {
@@ -210,17 +210,17 @@ function TruthOrDareGame() {
         setCurrentTask({ type: taskType, text: selectedTaskText });
         setGamePhase('task_revealed_system');
     }, TASK_ROULETTE_DURATION);
-  }, [filteredTruthTexts, filteredDareTexts, gameConfig]);
+  }, [filteredTruthTexts, filteredDareTexts]);
 
   const handlePairDoerChoosesType = (choice) => {
-    if (!doer || !commander) {
-        toast.error("Error: Doer or Commander not set for Pair Mode.");
+    if (!doer || !asker) {
+        toast.error("Error: Doer or Asker not set for Pair Mode.");
         setGamePhase('turn_ended');
         return;
     }
     setCurrentTask({
         type: choice,
-        text: `It's time for a ${choice.toUpperCase()}! ${commander.name}, please give ${doer.name} the task verbally.`
+        text: `It's time for a ${choice.toUpperCase()}! ${asker.name}, please give ${doer.name} the task verbally.`
     });
     setGamePhase('task_revealed_verbal');
   };
@@ -247,7 +247,7 @@ function TruthOrDareGame() {
       return;
     }
     setDoer(null);
-    setCommander(null);
+    setAsker(null);
     setCurrentTask({ type: '', text: '' });
     playerRoulette.setRouletteDisplayText('');
     setTaskSelectionText('');
@@ -291,20 +291,20 @@ function TruthOrDareGame() {
       <div className={`max-w-2xl mx-auto p-6 bg-gray-800 text-white rounded-lg shadow-2xl min-h-[calc(100vh-150px)] flex flex-col space-y-4 ${responseAnimation ? 'filter blur-sm pointer-events-none' : ''}`}>
         <TruthOrDareHeader gameConfig={gameConfig} turnsPlayed={turnsPlayed} />
 
-        {(gamePhase === 'doer_selection_roulette' || gamePhase === 'commander_selection_roulette') && (
+        {(gamePhase === 'doer_selection_roulette' || gamePhase === 'asker_selection_roulette') && (
           <PlayerRouletteDisplay
-            title={`Selecting ${gamePhase === 'doer_selection_roulette' ? 'Doer' : 'Commander'}...`}
+            title={`Selecting ${gamePhase === 'doer_selection_roulette' ? 'Doer' : 'Asker'}...`}
             displayText={playerRoulette.rouletteDisplayText}
             isSpinning={playerRoulette.isRouletteSpinning}
           />
         )}
         
-        {doer && (gamePhase !== 'doer_selection_roulette' && gamePhase !== 'player_selection_start' && gamePhase !== 'loading' && gamePhase !== 'turn_ended' && gamePhase !== 'doer_responds' && gamePhase !== 'commander_selection_roulette') && (
-          <TruthOrDarePlayerInfo doer={doer} commander={commander} taskAssignmentMode={gameConfig.taskAssignmentMode} />
+        {doer && (gamePhase !== 'doer_selection_roulette' && gamePhase !== 'player_selection_start' && gamePhase !== 'loading' && gamePhase !== 'turn_ended' && gamePhase !== 'doer_responds' && gamePhase !== 'asker_selection_roulette') && (
+          <TruthOrDarePlayerInfo doer={doer} asker={asker} taskAssignmentMode={gameConfig.taskAssignmentMode} />
         )}
         
-        {gameConfig.taskAssignmentMode === 'player_assigned' && doer && gamePhase === 'doer_selected_pending_commander_selection' && (
-          <TruthOrDarePendingCommander />
+        {gameConfig.taskAssignmentMode === 'player_assigned' && doer && gamePhase === 'doer_selected_pending_asker_selection' && (
+          <TruthOrDarePendingAsker />
         )}
 
         {gameConfig.taskAssignmentMode === 'system_assigned' && gamePhase === 'classic_choice_pending' && doer && (
@@ -325,17 +325,17 @@ function TruthOrDareGame() {
           <TruthOrDareTaskReveal
             taskAssignmentMode={gameConfig.taskAssignmentMode}
             doerName={doer.name}
-            commanderName={commander?.name}
+            askerName={asker?.name}
             taskType={currentTask.type}
             taskText={currentTask.text}
             onResponse={handleDoerResponse}
           />
         )}
 
-        {gameConfig.taskAssignmentMode === 'player_assigned' && gamePhase === 'pair_doer_chooses_type' && commander && doer && (
+        {gameConfig.taskAssignmentMode === 'player_assigned' && gamePhase === 'pair_doer_chooses_type' && asker && doer && (
           <TruthOrDarePairChoice
             doerName={doer.name}
-            commanderName={commander.name}
+            askerName={asker.name}
             onChoice={handlePairDoerChoosesType}
           />
         )}

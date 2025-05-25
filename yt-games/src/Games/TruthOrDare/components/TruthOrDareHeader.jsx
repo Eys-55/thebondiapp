@@ -6,7 +6,7 @@ function TruthOrDareHeader({ gameConfig, turnsPlayed }) {
 
   return (
     <div>
-      <h2 className="text-3xl font-bold text-center text-blue-400 mb-2">Truth or Dare!</h2>
+      <h2 className="text-2xl font-bold text-center text-blue-400 mb-2">Truth or Dare!</h2>
       <div className="text-xs text-center text-gray-400 mb-1">
         Task Assignment: {gameConfig.taskAssignmentMode === 'system_assigned' ? 'System Assigned' : 'Player Assigned'} | Player Order: {gameConfig.turnProgression}
       </div>

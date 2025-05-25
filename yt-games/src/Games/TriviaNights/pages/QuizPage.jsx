@@ -47,8 +47,12 @@ function QuizPage() {
       setGamePhase('finished'); // This will trigger the error state render
       return;
     }
-    // Ensure scoringRule has a default if not provided by initialGameConfig
-    const fullGameConfig = { scoringRule: 'fastest_finger', ...initialGameConfig };
+    // Ensure scoringRule and questionFormat have defaults if not provided by initialGameConfig
+    const fullGameConfig = {
+      scoringRule: 'fastest_finger',
+      questionFormat: 'show_mc', // Default questionFormat
+      ...initialGameConfig
+    };
     setGameConfig(fullGameConfig);
     setPlayers(initialPlayersSetup.map(p => ({...p, score: p.score || 0})));
 
@@ -257,7 +261,7 @@ function QuizPage() {
       
       <TriviaQuestionArea questionText={renderQuestionText(currentQuestion)} />
 
-      {gameConfig.questionFormat === 'multiple_choice' && (
+      {gameConfig.questionFormat === 'show_mc' && (
         <TriviaOptions
           options={currentQuestion.options}
           correctAnswer={currentQuestion.correctAnswer}
