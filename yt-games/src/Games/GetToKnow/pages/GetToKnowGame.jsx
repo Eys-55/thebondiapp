@@ -3,21 +3,17 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 // Import new question data directly
-import icebreakersQuestions from '../data/icebreakers_questions.json';
-import deepDiveQuestions from '../data/deep_dive_questions.json';
-import hypotheticalsQuestions from '../data/hypotheticals_questions.json';
-import favoritesPreferencesQuestions from '../data/favorites_preferences_questions.json';
-import childhoodMemoriesQuestions from '../data/childhood_memories_questions.json';
-import travelAdventureQuestions from '../data/travel_adventure_questions.json';
-import popCultureQuestions from '../data/pop_culture_questions.json';
-import workAmbitionsQuestions from '../data/work_ambitions_questions.json';
-import funnyQuirkyQuestions from '../data/funny_quirky_questions.json';
-import philosophicalMusingsQuestions from '../data/philosophical_musings_questions.json';
-import relationshipReflectionsGeneralQuestions from '../data/relationship_reflections_general_questions.json';
-import spicyDaringQuestions from '../data/spicy_daring_questions.json';
-import selfReflectionQuestions from '../data/self_reflection_questions.json';
-import creativeCornerQuestions from '../data/creative_corner_questions.json';
-import futureGazingQuestions from '../data/future_gazing_questions.json';
+import closestFriendBondQuestions from '../data/closest_friend_bond_questions.json';
+import siblingSharedPastQuestions from '../data/sibling_shared_past_questions.json';
+import personalFailureReflectionQuestions from '../data/personal_failure_reflection_questions.json';
+import partnerDeepestConnectionQuestions from '../data/partner_deepest_connection_questions.json';
+import grandparentLifeReflectionQuestions from '../data/grandparent_life_reflection_questions.json';
+import feelingLostDirectionlessQuestions from '../data/feeling_lost_directionless_questions.json';
+import overcomingAdversityQuestions from '../data/overcoming_adversity_questions.json';
+import grownChildInnerWorldQuestions from '../data/grown_child_inner_world_questions.json';
+import lifeAlteringDecisionQuestions from '../data/life_altering_decision_questions.json';
+import oldLoveReflectionQuestions from '../data/old_love_reflection_questions.json';
+
 
 // Import components
 import GetToKnowHeader from '../components/GetToKnowHeader';
@@ -28,21 +24,16 @@ import GetToKnowGameOver from '../components/GetToKnowGameOver';
 
 // Helper to map category IDs to their data
 const allQuestionDataSets = {
-  "Icebreakers": icebreakersQuestions,
-  "DeepDive": deepDiveQuestions,
-  "Hypotheticals": hypotheticalsQuestions,
-  "FavoritesPreferences": favoritesPreferencesQuestions,
-  "ChildhoodMemories": childhoodMemoriesQuestions,
-  "TravelAdventure": travelAdventureQuestions,
-  "PopCulture": popCultureQuestions,
-  "WorkAmbitions": workAmbitionsQuestions,
-  "FunnyQuirky": funnyQuirkyQuestions,
-  "PhilosophicalMusings": philosophicalMusingsQuestions,
-  "RelationshipReflections": relationshipReflectionsGeneralQuestions,
-  "SpicyDaring": spicyDaringQuestions,
-  "SelfReflection": selfReflectionQuestions,
-  "CreativeCorner": creativeCornerQuestions,
-  "FutureGazing": futureGazingQuestions,
+  "ClosestFriendBond": closestFriendBondQuestions,
+  "SiblingSharedPast": siblingSharedPastQuestions,
+  "PersonalFailureReflection": personalFailureReflectionQuestions,
+  "PartnerDeepestConnection": partnerDeepestConnectionQuestions,
+  "GrandparentLifeReflection": grandparentLifeReflectionQuestions,
+  "FeelingLostDirectionless": feelingLostDirectionlessQuestions,
+  "OvercomingAdversity": overcomingAdversityQuestions,
+  "GrownChildInnerWorld": grownChildInnerWorldQuestions,
+  "LifeAlteringDecision": lifeAlteringDecisionQuestions,
+  "OldLoveReflection": oldLoveReflectionQuestions,
 };
 
 
@@ -106,8 +97,8 @@ function GetToKnowGame() {
 
     const shuffledCombinedQuestions = [...allCombinedRawQuestions].sort(() => Math.random() - 0.5);
 
-    const numQs = Math.min(gameConfig.numberOfQuestions || 15, shuffledCombinedQuestions.length);
-    if (numQs < (gameConfig.numberOfQuestions || 15) && shuffledCombinedQuestions.length > 0) {
+    const numQs = Math.min(gameConfig.numberOfQuestions || 20, shuffledCombinedQuestions.length); // Default to 20 if not set
+    if (numQs < (gameConfig.numberOfQuestions || 20) && shuffledCombinedQuestions.length > 0) {
         toast.warn(`Only ${numQs} questions available for the selected categories, less than ${gameConfig.numberOfQuestions} requested.`);
     }
     

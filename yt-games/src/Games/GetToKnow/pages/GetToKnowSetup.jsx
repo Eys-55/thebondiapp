@@ -14,27 +14,22 @@ const MIN_PLAYERS = 2;
 const MAX_PLAYERS = 10;
 
 const CATEGORIES = [
-  { id: "Icebreakers", name: "🧊 Icebreakers", fileName: "icebreakers_questions.json", isRRatedHint: false },
-  { id: "DeepDive", name: "🌊 Deep Dive", fileName: "deep_dive_questions.json", isRRatedHint: false },
-  { id: "Hypotheticals", name: "🤔 Hypotheticals", fileName: "hypotheticals_questions.json", isRRatedHint: false },
-  { id: "FavoritesPreferences", name: "⭐ Favorites & Preferences", fileName: "favorites_preferences_questions.json", isRRatedHint: false },
-  { id: "ChildhoodMemories", name: "🧸 Childhood Memories", fileName: "childhood_memories_questions.json", isRRatedHint: false },
-  { id: "TravelAdventure", name: "✈️ Travel & Adventure", fileName: "travel_adventure_questions.json", isRRatedHint: false },
-  { id: "PopCulture", name: "🎬 Pop Culture Ponderings", fileName: "pop_culture_questions.json", isRRatedHint: false },
-  { id: "WorkAmbitions", name: "💼 Work & Ambitions", fileName: "work_ambitions_questions.json", isRRatedHint: false },
-  { id: "FunnyQuirky", name: "🤪 Funny & Quirky", fileName: "funny_quirky_questions.json", isRRatedHint: false },
-  { id: "PhilosophicalMusings", name: "🌌 Philosophical Musings", fileName: "philosophical_musings_questions.json", isRRatedHint: false },
-  { id: "RelationshipReflections", name: "💞 Relationship Reflections (General)", fileName: "relationship_reflections_general_questions.json", isRRatedHint: false },
-  { id: "SpicyDaring", name: "🌶️ Spicy & Daring (18+)", fileName: "spicy_daring_questions.json", isRRatedHint: true },
-  { id: "SelfReflection", name: "🧘 Self-Reflection", fileName: "self_reflection_questions.json", isRRatedHint: false },
-  { id: "CreativeCorner", name: "🎨 Creative Corner", fileName: "creative_corner_questions.json", isRRatedHint: false },
-  { id: "FutureGazing", name: "🔮 Future Gazing", fileName: "future_gazing_questions.json", isRRatedHint: false }
+  { id: "ClosestFriendBond", name: "🫂 Questions for Your Best Friend to Deepen Your Bond", fileName: "closest_friend_bond_questions.json", isRRatedHint: false },
+  { id: "SiblingSharedPast", name: "👨‍👩‍👧‍👦 Questions for Your Sibling About Your Shared History", fileName: "sibling_shared_past_questions.json", isRRatedHint: false },
+  { id: "PersonalFailureReflection", name: "📉 Questions to Ask Yourself After a Setback", fileName: "personal_failure_reflection_questions.json", isRRatedHint: false },
+  { id: "PartnerDeepestConnection", name: "❤️ Questions for Your Partner to Explore Your Connection", fileName: "partner_deepest_connection_questions.json", isRRatedHint: false },
+  { id: "GrandparentLifeReflection", name: "👵 Questions to Ask Your Grandparent to Know Them Better", fileName: "grandparent_life_reflection_questions.json", isRRatedHint: false },
+  { id: "FeelingLostDirectionless", name: "🧭 Questions to Ask Yourself When You're Feeling Lost", fileName: "feeling_lost_directionless_questions.json", isRRatedHint: false },
+  { id: "OvercomingAdversity", name: "💪 Questions for Someone Who's Overcome Great Challenges", fileName: "overcoming_adversity_questions.json", isRRatedHint: false },
+  { id: "GrownChildInnerWorld", name: "🧒 Questions for Your Grown Child About Their Life", fileName: "grown_child_inner_world_questions.json", isRRatedHint: false },
+  { id: "LifeAlteringDecision", name: "🚧 Questions to Ask Yourself Before a Big Decision", fileName: "life_altering_decision_questions.json", isRRatedHint: false },
+  { id: "OldLoveReflection", name: "🕊️ Questions to Reflect on a Past Relationship", fileName: "old_love_reflection_questions.json", isRRatedHint: false }
 ];
 
-const SESSION_STORAGE_KEY = 'getToKnowSetup_v2'; // Changed key to avoid conflicts with old structure
+const SESSION_STORAGE_KEY = 'getToKnowSetup_v4'; // Incremented version for new category names
 
 const MIN_QUESTIONS = 1;
-const MAX_QUESTIONS_SETUP = 50; // Max selectable in setup, increased for multi-category potential
+const MAX_QUESTIONS_SETUP = 50;
 
 const TURN_PROGRESSION_OPTIONS = [
   { id: "sequential", value: "sequential", name: "🔄 Sequential (Players take turns in order)" },
@@ -47,7 +42,7 @@ const defaultState = {
   selectedCategories: [],
   rRatedModalConfirmed: false,
   turnProgression: 'sequential',
-  numberOfQuestions: 15, // Adjusted default
+  numberOfQuestions: 20,
 };
 
 function GetToKnowSetup({ registerNavbarActions, unregisterNavbarActions }) {
@@ -76,7 +71,12 @@ function GetToKnowSetup({ registerNavbarActions, unregisterNavbarActions }) {
         const loadedPlayerNames = parsedSettings.playerNames || [];
         const numPlayers = parsedSettings.numPlayersUI || defaultState.numPlayersUI;
         setPlayerNames(Array(numPlayers).fill('').map((_, i) => loadedPlayerNames[i] || ''));
-        setSelectedCategories(parsedSettings.selectedCategories || defaultState.selectedCategories);
+        
+        const validSavedCategories = (parsedSettings.selectedCategories || []).filter(catId =>
+          CATEGORIES.some(c => c.id === catId)
+        );
+        setSelectedCategories(validSavedCategories.length > 0 ? validSavedCategories : defaultState.selectedCategories);
+
         setRRatedModalConfirmed(parsedSettings.rRatedModalConfirmed || defaultState.rRatedModalConfirmed);
         setTurnProgression(parsedSettings.turnProgression || defaultState.turnProgression);
         setNumberOfQuestions(parsedSettings.numberOfQuestions || defaultState.numberOfQuestions);
@@ -112,10 +112,10 @@ function GetToKnowSetup({ registerNavbarActions, unregisterNavbarActions }) {
 
   useEffect(() => {
     if (!hasSelectedRRatedCategory && rRatedModalConfirmed) {
-      setRRatedModalConfirmed(false); // Reset confirmation if no R-rated categories are selected
+      setRRatedModalConfirmed(false);
     }
     if (!hasSelectedRRatedCategory && showRRatedModal) {
-        setShowRRatedModal(false); // Hide modal if no R-rated categories selected
+        setShowRRatedModal(false);
     }
   }, [hasSelectedRRatedCategory, rRatedModalConfirmed, showRRatedModal]);
 
@@ -196,7 +196,7 @@ function GetToKnowSetup({ registerNavbarActions, unregisterNavbarActions }) {
     if (newlySelectedRRated && !rRatedModalConfirmed) {
       setShowRRatedModal(true);
     } else if (!newlySelectedRRated && showRRatedModal) {
-      setShowRRatedModal(false); // Hide if no R-rated categories are now selected
+      setShowRRatedModal(false);
     }
   };
 
@@ -207,7 +207,6 @@ function GetToKnowSetup({ registerNavbarActions, unregisterNavbarActions }) {
   };
 
   const handleRRatedModalCancel = () => {
-    // Deselect all R-rated categories if confirmation is cancelled
     const rRatedCategoryIds = CATEGORIES.filter(c => c.isRRatedHint).map(c => c.id);
     setSelectedCategories(prev => prev.filter(id => !rRatedCategoryIds.includes(id)));
     setRRatedModalConfirmed(false);
@@ -239,7 +238,7 @@ function GetToKnowSetup({ registerNavbarActions, unregisterNavbarActions }) {
     const gameConfig = {
       players: activePlayers,
       selectedCategories: selectedCategoryObjects.map(cat => cat.id),
-      selectedCategoryNames: selectedCategoryObjects.map(cat => cat.name),
+      selectedCategoryNames: selectedCategoryObjects.map(cat => cat.name), // This will now use the new names
       turnProgression,
       numberOfQuestions,
     };

@@ -1,0 +1,207 @@
+# Generated Slide Sets from GetToKnow Data - Personalized Titles & Flat UI Colors
+
+TITLE: 9 Questions to Deepen Your Closest Friendship
+BACKGROUND_COLOR_RGB: 52, 152, 219 # Peter River (Blue)
+QUESTIONS_START
+Is there an unspoken truth you believe defines our friendship?
+
+Can you recall a time you felt most seen or understood by me?
+
+In what specific ways do you think we contribute to each other's growth?
+
+Describe a shared memory that still brings a genuine laugh to you.
+
+Pinpoint the moment you realized our friendship would be significant.
+
+How would you describe the evolution of our friendship?
+
+Which aspect of our connection do you value most deeply?
+
+How effectively do you think we navigate conflicts or disagreements?
+
+Describe the unique role I play in your life.
+
+TITLE: 8 Questions to Ask Yourself When You're Feeling Lost
+BACKGROUND_COLOR_RGB: 231, 76, 60 # Alizarin (Red)
+QUESTIONS_START
+When did I last experience a profound sense of authenticity and aliveness?
+
+Deep down, what am I genuinely yearning for at this moment?
+
+Which activities make me completely lose track of time?
+
+If fear were not a factor, what action would I take right now?
+
+Can I identify one small, manageable step towards clarity I can take today?
+
+Whose definition of success am I unconsciously trying to live up to?
+
+Which areas of my life feel most out of alignment with my authentic self?
+
+What am I currently tolerating that I know, deep down, I shouldn't be?
+
+TITLE: 7 Reflections: A Grandparent's Life Journey
+BACKGROUND_COLOR_RGB: 46, 204, 113 # Emerald (Green)
+QUESTIONS_START
+Which choice in your life brought the most unexpected joy?
+
+Looking back, what accomplishment or aspect of your life fills you with the most pride?
+
+Share a piece of advice you wish someone had given you when you were young.
+
+How do you define 'a life well-lived' at this stage?
+
+What simple pleasure has consistently brought you happiness throughout your life?
+
+Tell me about a dream you fulfilled and one you had to let go of.
+
+What do you hope your grandchildren will remember most about you?
+
+TITLE: 10 Questions to Understand Your Grown Child's Inner World
+BACKGROUND_COLOR_RGB: 241, 196, 15 # Sun Flower (Yellow)
+QUESTIONS_START
+Is there a dream you're nurturing that you haven't shared with me yet?
+
+Which part of yourself do you feel I understand the least?
+
+What are you most passionate about right now, and what fuels that passion?
+
+Share a childhood memory that you feel significantly shaped who you are today.
+
+Reflecting on your upbringing, is there anything you hope to do differently, or perhaps emulate?
+
+What accomplishment, big or small, are you most proud of recently?
+
+How do you personally define success for yourself at this point?
+
+What kind of support from me do you find most meaningful or helpful now?
+
+Can you recall a piece of advice I once gave you that actually stuck or proved useful?
+
+If you could tell me one thing completely unfiltered, what would it be?
+
+TITLE: 11 Questions to Ask Before a Life-Altering Decision
+BACKGROUND_COLOR_RGB: 155, 89, 182 # Amethyst (Purple)
+QUESTIONS_START
+If I choose this path, what am I truly afraid of losing?
+
+Setting fear aside completely, what would my heart guide me to do?
+
+Consider the best and worst-case scenarios: can I genuinely handle both outcomes?
+
+Whose advice am I currently weighing most heavily, and why their opinion?
+
+What is my intuition or gut feeling trying to tell me about this decision?
+
+Looking ahead, what long-term future does this choice enable, or possibly prevent?
+
+Am I primarily running away from something, or am I moving towards something desirable?
+
+How might this decision alter or affirm my sense of self or identity?
+
+What are the absolute non-negotiables for me in this situation?
+
+Honestly assess: how prepared am I, truly, for the changes this decision will bring?
+
+Which part of me is leading this decision – my logical head, my emotional heart, or my ego?
+
+TITLE: 6 Reflections on a Love From Your Past
+BACKGROUND_COLOR_RGB: 26, 188, 156 # Turquoise
+QUESTIONS_START
+How do you feel loving me, or being loved by me, genuinely changed you?
+
+Is there a beautiful lesson from our time together that you still carry with you?
+
+What did our relationship teach you about what you truly need or desire in a partner?
+
+Looking back, what do you consider our greatest strength as a couple?
+
+In what way, if any, do you feel our ending contributed to your personal growth?
+
+If you could offer our younger selves one piece of advice about the relationship, what would it be?
+
+TITLE: 9 Questions to Reflect On When Overcoming Adversity
+BACKGROUND_COLOR_RGB: 230, 126, 34 # Carrot (Orange)
+QUESTIONS_START
+Which inner resource surprised you most with its strength during that difficult time?
+
+How did that struggle reshape or redefine your sense of purpose in life?
+
+Was there a moment you felt close to giving up? What ultimately kept you going?
+
+What did you learn about human kindness, or perhaps its opposite, through this adversity?
+
+Share one thing you wish others truly understood about what you went through.
+
+Did your perspective on life's priorities undergo a dramatic shift due to this adversity?
+
+Is there a piece of advice you received during that time that genuinely helped you?
+
+In the context of this experience, what does 'healing' truly mean to you?
+
+How has this experience influenced your capacity for empathy towards others?
+
+TITLE: 10 Questions to Deepen Your Connection With Your Partner
+BACKGROUND_COLOR_RGB: 52, 73, 94 # Wet Asphalt (Dark Grey/Blue)
+QUESTIONS_START
+When do you experience the most profound sense of 'us' as a couple?
+
+Is there a silent hope you hold for our future together that you haven't voiced?
+
+In what specific moments do you feel most loved and cherished by me?
+
+How do you believe we contribute to each other's_growth as individuals?
+
+Do you have any fears, even small ones, concerning our relationship?
+
+Among the dreams we share, which one means the absolute most to you?
+
+Is there an unspoken need you currently have within our relationship?
+
+Can you identify one specific way I make you feel completely safe and secure?
+
+Which part of your inner world are you still hoping for me to explore and understand more deeply?
+
+If you were to describe the essence of our bond in just three words, what would they be?
+
+TITLE: 10 Questions for Reflecting on Personal Failure
+BACKGROUND_COLOR_RGB: 192, 57, 43 # Pomegranate (Dark Red)
+QUESTIONS_START
+Which core belief about myself did this setback directly challenge?
+
+How can this experience potentially make me a more compassionate individual?
+
+Looking back, were there any warning signs or red flags that I might have ignored?
+
+Beyond the outcome itself, what did I learn about my process or approach?
+
+Identify one small aspect of this situation that I can still control or positively influence now.
+
+How can I reframe this experience not just as a loss, but as a valuable lesson learned?
+
+Does this failure reveal any recurring patterns or tendencies in my life?
+
+What specific act of kindness or self-compassion can I offer myself in this moment?
+
+As a result of this, what am I no longer willing to tolerate in my life or work?
+
+If I were advising a close friend in this exact same situation, what counsel would I offer?
+
+TITLE: 8 Questions to Explore Your Shared Past With a Sibling
+BACKGROUND_COLOR_RGB: 41, 128, 185 # Belize Hole (Darker Blue)
+QUESTIONS_START
+Is there a specific family memory that impacts you more deeply than I might realize?
+
+Do you still carry any past hurts or unresolved issues between us from our younger years?
+
+What's one thing you feel our parents never truly understood about you? And about me?
+
+Which family tradition do you cherish the most, or perhaps miss the most?
+
+Looking back, is there anything you wish you'd done differently concerning our relationship back then?
+
+Do you think I have any misconceptions about our shared past or specific events?
+
+As a sibling, what did you need from me back then that you perhaps didn't receive, or received in abundance?
+
+How has our shared history bonded us in a unique way that perhaps no one else can fully understand?
