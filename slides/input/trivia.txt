@@ -1,0 +1,15 @@
+TITLE: Fun Facts About Animals
+BACKGROUND_COLOR_RGB: 100, 150, 200
+TRIVIA_START
+QUESTION: What is the largest mammal in the world?
+ANSWER: The Blue Whale.
+QUESTION: How many hearts does an octopus have?
+ANSWER: Three.
+
+TITLE: Space Trivia Challenge
+BACKGROUND_COLOR_RGB: 50, 50, 100
+TRIVIA_START
+QUESTION: What is the name of the galaxy that contains our Solar System?
+ANSWER: The Milky Way Galaxy.
+QUESTION: Which planet is known as the Red Planet?
+ANSWER: Mars.

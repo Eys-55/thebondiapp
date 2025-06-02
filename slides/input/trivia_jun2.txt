@@ -1,0 +1,77 @@
+TITLE: 7 Questions to Test if You're a True Filipino 🇵🇭
+BACKGROUND_COLOR_RGB: 252, 215, 3 # Bright Yellow
+TRIVIA_START
+QUESTION: What's the world's smallest primate, found only in the Philippines? 🐒
+ANSWER: The Philippine Tarsier
+QUESTION: How many islands (roughly) make up the Philippine archipelago? 🏝️
+ANSWER: Around 7,641
+QUESTION: What's the sweet-smelling national flower of the Philippines? 🌸
+ANSWER: Sampaguita
+QUESTION: Which Philippine city is called the "City of Smiles" for its joyful festival? 😊
+ANSWER: Bacolod City
+QUESTION: Name the unique Filipino martial art and national sport. 🤺
+ANSWER: Arnis
+QUESTION: What popular Filipino dessert is a colorful icy mix with lots of toppings? 🍧
+ANSWER: Halo-Halo
+QUESTION: Which active volcano in the Philippines is famous for its perfect cone shape? 🌋
+ANSWER: Mayon Volcano
+
+TITLE: 10 Questions to Know if You Really Understand Psychology 🤔
+BACKGROUND_COLOR_RGB: 148, 0, 211 # Dark Violet
+TRIVIA_START
+QUESTION: That "I've experienced this exact moment before!" feeling is called...? 😮
+ANSWER: Déjà vu
+QUESTION: Which famous psychologist made dogs associate a bell with food? 🐶
+ANSWER: Ivan Pavlov
+QUESTION: What's the "bystander effect" in social psychology? 👤
+ANSWER: Less likely to help with others present
+QUESTION: What part of your brain is the main hub for emotions like fear and joy? 🧠
+ANSWER: Amygdala
+QUESTION: What's it called when you feel discomfort from holding two conflicting beliefs? 🤯
+ANSWER: Cognitive Dissonance
+QUESTION: In which sleep stage do we typically have our most vivid dreams? 😴
+ANSWER: REM sleep
+QUESTION: What psychological bias makes us overestimate how much others agree with our opinions? 👍
+ANSWER: False Consensus Effect
+QUESTION: What theory describes human needs as a pyramid, starting with basic physiological needs? 📈
+ANSWER: Maslow's Hierarchy of Needs
+QUESTION: What is the tendency to seek, interpret, and remember information that confirms your existing beliefs? ✅
+ANSWER: Confirmation Bias
+QUESTION: What is the term for a mental shortcut that allows people to solve problems and make decisions quickly? ⚡
+ANSWER: Heuristic
+
+TITLE: 8 Questions to Know if You Really Understand Relationships ❤️
+BACKGROUND_COLOR_RGB: 255, 105, 180 # Hot Pink
+TRIVIA_START
+QUESTION: What are the "Five Love Languages" for expressing and receiving affection? 🥰
+ANSWER: Words of Affirmation, Acts of Service, Gifts, Quality Time, Physical Touch
+QUESTION: Which hormone is often called the "love hormone" or "cuddle chemical"? 💕
+ANSWER: Oxytocin
+QUESTION: In Sternberg's Triangular Theory of Love, what are the three essential components?🔼
+ANSWER: Intimacy, Passion, Commitment
+QUESTION: What is a "bid" in a relationship, according to Dr. John Gottman's research? 🗣️
+ANSWER: Attempt for attention or connection
+QUESTION: Subtly mimicking a partner's body language to build rapport is known as? 👯
+ANSWER: Mirroring
+QUESTION: What does "active listening" in a relationship primarily involve? 👂
+ANSWER: Full concentration and understanding
+QUESTION: What type of love combines intimacy, passion, and commitment, often seen as an ideal? 🔥
+ANSWER: Consummate Love
+QUESTION: What is the concept of a shared emotional experience, often described as 'walking in someone else's shoes'? 💡
+ANSWER: Empathy
+
+TITLE: 6 Questions to See if You're a Friendship Master 🎉
+BACKGROUND_COLOR_RGB: 60, 179, 113 # Medium Sea Green
+TRIVIA_START
+QUESTION: On average, how many *close* friends do people typically have? 🧑‍🤝‍🧑
+ANSWER: 3-5
+QUESTION: What is "platonic love"? 🤔
+ANSWER: Non-romantic deep affection
+QUESTION: What simple, joyful act is often called the "social glue" that bonds friends? 😄
+ANSWER: Laughter
+QUESTION: Which animals are known for forming strong, "friendship-like" social bonds? 🐘
+ANSWER: Elephants, Dolphins
+QUESTION: What do you call someone who pretends to be a friend but is actually a rival? 😈
+ANSWER: Frenemy
+QUESTION: How can strong friendships positively impact your health and lifespan? 💪
+ANSWER: Social support
