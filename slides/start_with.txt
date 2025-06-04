@@ -1,0 +1,94 @@
+TITLE: All these Animals start with the letter C
+BACKGROUND_COLOR_RGB: 135, 206, 235 # Sky Blue
+TEXT_COLOR_RGB: 50, 50, 50 # Dark Gray
+TRIVIA_START
+QUESTION: Which domesticated feline is known for its purring and fondness for catnip?
+ANSWER: Cat
+QUESTION: Which desert animal is known for its humps, which store fat, not water?
+ANSWER: Camel
+QUESTION: Which large, amphibious reptile is often mistaken for an alligator and has a V-shaped snout?
+ANSWER: Crocodile
+QUESTION: What's the fastest land animal, known for its spotted coat and incredible sprint speed?
+ANSWER: Cheetah
+QUESTION: Which highly intelligent primate is one of our closest living relatives and is native to African forests?
+ANSWER: Chimpanzee
+QUESTION: Which common farm animal is primarily raised for its milk and meat?
+ANSWER: Cow
+QUESTION: Which reptile is famous for its ability to change skin color to match its surroundings?
+ANSWER: Chameleon
+TITLE: All these Countries start with the letter P
+BACKGROUND_COLOR_RGB: 0, 128, 0 # Dark Green
+TEXT_COLOR_RGB: 255, 255, 255 # White
+TRIVIA_START
+QUESTION: This Southeast Asian archipelago nation is known for its beautiful islands like Palawan and Boracay.
+ANSWER: Philippines
+QUESTION: Located on the Iberian Peninsula, this country is famous for port wine and Fado music.
+ANSWER: Portugal
+QUESTION: A South American country home to Machu Picchu and ancient Incan civilization.
+ANSWER: Peru
+QUESTION: A large Central European country, historically known for its strong Catholic faith and resilient spirit.
+ANSWER: Poland
+QUESTION: This South Asian nation shares a long border with India and is known for its diverse landscapes, from mountains to deserts.
+ANSWER: Pakistan
+QUESTION: Located in Central America, this country is famous for its crucial canal connecting the Atlantic and Pacific oceans.
+ANSWER: Panama
+QUESTION: A landlocked South American country known for its vibrant indigenous culture and the Paraguay River.
+ANSWER: Paraguay
+TITLE: All these Fruits start with the letter A
+BACKGROUND_COLOR_RGB: 144, 238, 144 # Light Green
+TEXT_COLOR_RGB: 50, 50, 50 # Dark Gray
+TRIVIA_START
+QUESTION: A common crisp fruit, often red, green, or yellow, famously said to keep the doctor away.
+ANSWER: Apple
+QUESTION: A small, fuzzy orange fruit resembling a miniature peach, often used in jams and desserts.
+ANSWER: Apricot
+QUESTION: A green, pear-shaped fruit with a large pit, often used in guacamole.
+ANSWER: Avocado
+QUESTION: A small, dark purple berry from the Amazon, often consumed as a superfood in bowls or smoothies.
+ANSWER: Acai
+QUESTION: A crunchy, sweet fruit from East Asia, often round or pear-shaped with a grainy texture.
+ANSWER: Asian Pear
+TITLE: All these Sports start with the letter B
+BACKGROUND_COLOR_RGB: 173, 216, 230 # Light Blue
+TEXT_COLOR_RGB: 50, 50, 50 # Dark Gray
+TRIVIA_START
+QUESTION: A team sport where two teams try to score points by shooting a ball through a hoop.
+ANSWER: Basketball
+QUESTION: A racquet sport played over a net with a shuttlecock.
+ANSWER: Badminton
+QUESTION: America's pastime, a bat-and-ball game played between two teams of nine players.
+ANSWER: Baseball
+QUESTION: A combat sport where two opponents wearing gloves punch each other.
+ANSWER: Boxing
+QUESTION: A target sport where players roll or throw a ball down a lane to knock over pins.
+ANSWER: Bowling
+QUESTION: A cue sport played on a table with balls and a cue stick.
+ANSWER: Billiards
+TITLE: All these Musical Instruments start with the letter G
+BACKGROUND_COLOR_RGB: 128, 0, 128 # Purple
+TEXT_COLOR_RGB: 255, 255, 255 # White
+TRIVIA_START
+QUESTION: A stringed instrument, typically with six strings, played by strumming or plucking.
+ANSWER: Guitar
+QUESTION: A large, stringed keyboard instrument, often seen in concert halls, known for its rich sound and wide dynamic range.
+ANSWER: Grand Piano
+QUESTION: A percussion instrument with a series of tuned metal bars, played with mallets, producing a bell-like sound.
+ANSWER: Glockenspiel
+QUESTION: A large, round metal disc that produces a resonant sound when struck, often used in orchestras and ceremonial music.
+ANSWER: Gong
+TITLE: All these Professions start with the letter T
+BACKGROUND_COLOR_RGB: 205, 92, 92 # Indian Red
+TEXT_COLOR_RGB: 255, 255, 255 # White
+TRIVIA_START
+QUESTION: A person who educates students in schools or universities.
+ANSWER: Teacher
+QUESTION: A skilled worker who makes, repairs, or alters clothes, especially suits.
+ANSWER: Tailor
+QUESTION: A professional who converts text or speech from one language into another.
+ANSWER: Translator
+QUESTION: A healthcare professional who helps people with mental health issues or emotional difficulties.
+ANSWER: Therapist
+QUESTION: A person who drives large vehicles for transporting goods.
+ANSWER: Truck Driver
+QUESTION: A person who works with technology, installing, maintaining, or repairing equipment.
+ANSWER: Technician

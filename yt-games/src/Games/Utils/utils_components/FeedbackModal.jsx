@@ -4,8 +4,23 @@ import { db } from '../../../firebase'; // Adjust path as needed
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { toast } from 'react-toastify';
 
+// Define games list directly in the component or import from a shared location
+const gamesList = [
+  { id: 'general_other', name: 'General / Other' },
+  { id: 'trivia-nights', name: 'Trivia Nights' },
+  { id: 'truth-or-dare', name: 'Truth or Dare' },
+  { id: 'charades-challenge', name: 'Charades' },
+  { id: 'get-to-know', name: 'Get to Know' },
+  { id: 'everyone-whos', name: "Everyone Who's" },
+  // Add other games here as they become available
+  // { id: 'picture-puzzle', name: 'Picture Puzzle' },
+  // { id: 'drawing-duel', name: 'Drawing Duel' },
+  // { id: 'never-have-i-ever', name: 'Never Have I Ever' },
+];
+
 function FeedbackModal({ isOpen, onClose, currentPage }) {
   const [feedbackType, setFeedbackType] = useState('general');
+  const [selectedGame, setSelectedGame] = useState('general_other'); // New state for selected game
   const [feedbackText, setFeedbackText] = useState('');
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -32,11 +47,11 @@ function FeedbackModal({ isOpen, onClose, currentPage }) {
         return;
     }
 
-
     setIsSubmitting(true);
     try {
       await addDoc(collection(db, 'feedback'), {
         type: feedbackType,
+        game: selectedGame, // Add selected game to Firestore document
         text: feedbackText.trim(),
         email: email.trim() || null,
         page: currentPage,
@@ -48,6 +63,7 @@ function FeedbackModal({ isOpen, onClose, currentPage }) {
       setFeedbackText('');
       setEmail('');
       setFeedbackType('general');
+      setSelectedGame('general_other'); // Reset selected game
       onClose();
     } catch (error) {
       console.error("Error submitting feedback: ", error);
@@ -99,6 +115,26 @@ function FeedbackModal({ isOpen, onClose, currentPage }) {
             {feedbackTypes.map(option => (
               <option key={option.value} value={option.value}>
                 {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label htmlFor="selectedGame" className="block text-sm font-medium text-gray-300 mb-1">
+            Related Game (if applicable):
+          </label>
+          <select
+            id="selectedGame"
+            name="selectedGame"
+            value={selectedGame}
+            onChange={(e) => setSelectedGame(e.target.value)}
+            className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:ring-blue-500 focus:border-blue-500"
+            disabled={isSubmitting}
+          >
+            {gamesList.map(game => (
+              <option key={game.id} value={game.id}>
+                {game.name}
               </option>
             ))}
           </select>
